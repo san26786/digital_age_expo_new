@@ -14,11 +14,24 @@ export interface RegisterMemberInput {
 
 export type RegisterMemberError = "login_taken" | "email_taken" | "phone_taken";
 
-/** Mirrors class_authentication.php::loadUser() — looks a member up by username or email within this site's domain. */
+/**
+ * Mirrors class_authentication.php::loadUser() — looks a member up by username or email within
+ * this site's domain.
+ *
+ * The domain scope accepts 0 as well as DOMAIN_ID, and without that NO REAL ACCOUNT COULD LOG IN.
+ * Every one of the 1,677 rows in find_users carries domain_id = 0 — the legacy platform never
+ * populated it — so filtering on DOMAIN_ID alone could never match, and this query always returned
+ * null. That is why the hardcoded demo credentials existed and were the only way into the member
+ * area: real login had been broken the whole time.
+ *
+ * 0 is treated as "unscoped legacy row" rather than dropping the filter entirely, so
+ * createMemberAccount()'s newly-registered members (which do write DOMAIN_ID) stay scoped as
+ * intended.
+ */
 async function findUserForLogin(identifier: string) {
   return prisma.find_users.findFirst({
     where: {
-      domain_id: DOMAIN_ID,
+      domain_id: { in: [DOMAIN_ID, 0] },
       OR: [{ login: identifier }, { user_email: identifier }],
     },
     select: {
@@ -35,10 +48,22 @@ async function findUserForLogin(identifier: string) {
   });
 }
 
-/** Mirrors class_authentication.php::verifyPassword() — per-user salt and hash algorithm. */
-export async function verifyMemberCredentials(identifier: string, plainPassword: string) {
-  // Support demo credentials for organiser, exhibitor, speaker, and visitor for design and testing
-  const ident = identifier.toLowerCase().trim();
+/**
+ * Whether the hardcoded demo logins may be used.
+ *
+ * They used to be unconditional, and that made them a live authentication bypass: five branches
+ * keyed on the password "password123", in a PUBLIC repository — including a catch-all that accepted
+ * ANY identifier with that password. One returns id -30, which getEventMemberContext() grants the
+ * organiser role, i.e. full access to every registration in the member area.
+ *
+ * Off in production. ALLOW_DEMO_LOGINS=1 re-enables them for a deployed preview; setting it in
+ * production deliberately re-opens a known-password organiser login.
+ */
+const DEMO_LOGINS_ENABLED =
+  process.env.NODE_ENV !== "production" || process.env.ALLOW_DEMO_LOGINS === "1";
+
+/** The demo accounts, or null when the credentials are not one of them. Never called in production. */
+function demoCredentials(ident: string, identifier: string, plainPassword: string) {
   if ((ident === "organiser" || ident === "organiser@demo.com" || ident === "organizer" || ident === "organizer@demo.com") && plainPassword === "password123") {
     return {
       id: -30,
@@ -105,6 +130,17 @@ export async function verifyMemberCredentials(identifier: string, plainPassword:
       user_last_name: "User",
       user_status: "active",
     };
+  }
+
+  return null;
+}
+
+export async function verifyMemberCredentials(identifier: string, plainPassword: string) {
+  // Support demo credentials for organiser, exhibitor, speaker, and visitor for design and testing
+  const ident = identifier.toLowerCase().trim();
+  if (DEMO_LOGINS_ENABLED) {
+    const demo = demoCredentials(ident, identifier, plainPassword);
+    if (demo) return demo;
   }
 
   const user = await findUserForLogin(identifier);

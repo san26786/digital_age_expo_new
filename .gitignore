@@ -46,5 +46,6 @@ next-env.d.ts
 /database/*.sql
 /database/*.json
 /database/*.csv
+/database/*.txt
 /database/*.7z
 /database/*.zip
