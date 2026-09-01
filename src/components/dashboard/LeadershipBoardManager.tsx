@@ -16,6 +16,7 @@ import type { LeadershipBoardRow } from "@/lib/services/leadershipBoard";
 import { TablePagination } from "@/components/dashboard/TablePagination";
 import { assetUrl } from "@/lib/assets";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 const PAGE_SIZE = 20;
 
 const FIELD_CLASS =
@@ -105,7 +106,8 @@ function LeadershipBoardFormModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in duration-300">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-zinc-900 border border-white/10 p-8 shadow-2xl space-y-8">
         <div className="flex items-center justify-between border-b border-white/5 pb-6">
           <div className="space-y-1">
@@ -224,6 +226,7 @@ function LeadershipBoardFormModal({
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }
 
@@ -386,9 +389,9 @@ export function LeadershipBoardManager({ entries }: { entries: LeadershipBoardRo
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[900px] text-left text-sm">
-            <thead className="bg-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 border-b border-white/5">
-              <tr>
-                <th className="px-6 py-5 text-center">
+            <thead>
+              <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                <th className="px-6 py-4 font-black uppercase tracking-wider text-center">
                   <input
                     type="checkbox"
                     checked={allSelected}
@@ -396,17 +399,17 @@ export function LeadershipBoardManager({ entries }: { entries: LeadershipBoardRo
                     className="rounded border-white/20 bg-zinc-900 text-brand-pink focus:ring-brand-pink"
                   />
                 </th>
-                <th className="px-6 py-5">Full Name</th>
-                <th className="px-6 py-5">Title / Role</th>
-                <th className="px-6 py-5">Category</th>
-                <th className="px-6 py-5 text-center">Term Dates</th>
-                <th className="px-6 py-5 text-center">Actions</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Full Name</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Title / Role</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Category</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider text-center">Term Dates</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider text-center">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center">
+                  <td colSpan={6} className="px-6 py-12 text-center text-zinc-400 italic font-medium">
                     <p className="text-zinc-500 font-medium italic">
                       {entries.length === 0 ? "No leaders have been featured yet." : "No results match your search."}
                     </p>

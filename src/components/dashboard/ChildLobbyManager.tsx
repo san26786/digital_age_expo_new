@@ -32,6 +32,7 @@ import type { ChildLobbyRow } from "@/lib/services/eventLobbyChild";
 import { TablePagination } from "@/components/dashboard/TablePagination";
 import { assetUrl } from "@/lib/assets";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 const PAGE_SIZE = 15;
 
 const FIELD_CLASS =
@@ -189,7 +190,8 @@ function ChildLobbyFormModal({
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-fade-in overflow-y-auto">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="relative my-8 w-full max-w-3xl rounded-3xl border border-white/15 bg-zinc-900 p-6 sm:p-8 shadow-2xl text-white">
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div className="flex items-center gap-3">
@@ -411,7 +413,8 @@ function ChildLobbyFormModal({
           </div>
         </form>
       </div>
-    </div>,
+    </div>
+    </ModalPortal>,
     document.body
   );
 }
@@ -559,7 +562,7 @@ export function ChildLobbyManager({
             <tbody className="divide-y divide-white/5">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-zinc-400 italic">
+                  <td colSpan={5} className="px-6 py-12 text-center text-zinc-400 italic font-medium">
                     {childLobbies.length === 0
                       ? "No child lobby zones configured yet for this parent lobby."
                       : "No matching child lobbies found."}

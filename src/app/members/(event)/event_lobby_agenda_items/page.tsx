@@ -135,44 +135,6 @@ export default async function EventLobbyAgendaItemsPage({
           </p>
         )}
       </div>
-
-      {/* ---------------------------- Session schedule ---------------------------- */}
-      <div className="glass-panel rounded-2xl p-6 md:p-8 shadow-2xl border border-white/10 text-white">
-        <div className="border-b border-white/10 pb-5 flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-pink">
-            <CalendarDays className="h-6 w-6 text-white" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-black uppercase tracking-tight text-white">Sessions & Schedule</h2>
-            <p className="mt-1 text-xs font-medium text-zinc-400">
-              Day-by-day timings, speakers and streaming links for the agendas above.
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-6">
-          {agendas.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-8 text-center text-sm text-zinc-400">
-              Add an agenda above, then schedule its sessions here.
-            </div>
-          ) : !lobby ? (
-            <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-8 text-center text-zinc-300">
-              <p className="mb-4 text-sm font-medium">
-                Set up the parent lobby on the Configure Lobby page before scheduling sessions — a session records the
-                lobby layout it belongs to.
-              </p>
-              <Link
-                href={`/members/event_lobby_layout_manager?event_id=${eventId}`}
-                className="btn-brand-gradient inline-flex items-center gap-2 rounded-xl px-6 py-2.5 text-xs font-extrabold uppercase tracking-wider text-white transition-all"
-              >
-                Configure Parent Lobby
-              </Link>
-            </div>
-          ) : (
-            <AgendaItemManager tracks={agendas} items={items} speakers={speakers} />
-          )}
-        </div>
-      </div>
     </div>
   );
 }

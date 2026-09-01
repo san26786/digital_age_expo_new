@@ -10,6 +10,7 @@ import { eventCopySchema, type EventCopyInput } from "@/lib/validations/eventCop
 import { slugify } from "@/lib/slug";
 import type { EventDetails } from "@/lib/services/eventDetails";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 const FIELD_CLASS =
   "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:border-brand-pink focus:outline-none transition-colors backdrop-blur-md";
 
@@ -136,7 +137,8 @@ export function CopyEventModal({ open, eventId, onClose }: Props) {
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <h3 className="flex items-center gap-2 text-lg font-black uppercase tracking-wider text-white">
@@ -251,7 +253,8 @@ export function CopyEventModal({ open, eventId, onClose }: Props) {
           </form>
         )}
       </div>
-    </div>,
+    </div>
+    </ModalPortal>,
     document.body
   );
 }

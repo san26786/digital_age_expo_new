@@ -136,7 +136,7 @@ export default async function EventUserActivityReportPage({
                 <th className="px-6 py-4 font-black uppercase tracking-wider">Attendee</th>
                 <th className="px-6 py-4 font-black uppercase tracking-wider">Action Performed</th>
                 <th className="px-6 py-4 font-black uppercase tracking-wider">Timestamp</th>
-                <th className="px-6 py-4 font-black uppercase tracking-wider font-mono">IP Address</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">IP Address</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">

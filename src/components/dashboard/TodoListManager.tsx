@@ -600,11 +600,11 @@ function ProductsTable({
       <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-md">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[700px] text-left text-sm">
-            <thead className="bg-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 border-b border-white/10">
-              <tr>
-                <th className="px-6 py-5">Title</th>
-                <th className="px-6 py-5">Description</th>
-                <th className="px-6 py-5">Price</th>
+            <thead>
+              <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Title</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Description</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Price</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">

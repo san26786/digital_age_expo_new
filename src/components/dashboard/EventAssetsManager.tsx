@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import type { EventAssetItem } from "@/lib/services/eventAssets";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 interface EventAssetsManagerProps {
   eventId: number;
   assets: EventAssetItem[];
@@ -233,7 +234,8 @@ export function EventAssetsManager({ eventId, assets: initialAssets, isOrganiser
 
       {/* Add / Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+        <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="glass-panel w-full max-w-lg rounded-3xl border border-white/20 p-6 shadow-2xl space-y-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div className="flex items-center gap-3">
@@ -315,6 +317,7 @@ export function EventAssetsManager({ eventId, assets: initialAssets, isOrganiser
             </form>
           </div>
         </div>
+    </ModalPortal>
       )}
     </div>
   );

@@ -25,6 +25,7 @@ import type {
   EventScheduleItem,
 } from "@/lib/services/eventSchedule";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 interface Props {
   initialData: EventScheduleData;
   eventId: number;
@@ -590,15 +591,15 @@ export function EventScheduleManager({ initialData, eventId }: Props) {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-zinc-300">
-                <thead className="bg-zinc-950 text-[11px] font-black uppercase tracking-wider text-zinc-400 border-b border-white/10">
-                  <tr>
-                    <th className="px-4 py-4 w-12 text-center">ID</th>
-                    <th className="px-6 py-4 font-bold">Schedule Task</th>
-                    <th className="px-6 py-4 font-bold">Code</th>
-                    <th className="px-6 py-4 font-bold">Start Date</th>
-                    <th className="px-6 py-4 font-bold">End Date</th>
-                    <th className="px-4 py-4 font-bold text-center">Phase Color</th>
-                    <th className="px-6 py-4 font-bold text-right">Actions</th>
+                <thead>
+                  <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                    <th className="px-6 py-4 font-black uppercase tracking-wider w-12 text-center">ID</th>
+                    <th className="px-6 py-4 font-black uppercase tracking-wider">Schedule Task</th>
+                    <th className="px-6 py-4 font-black uppercase tracking-wider">Code</th>
+                    <th className="px-6 py-4 font-black uppercase tracking-wider">Start Date</th>
+                    <th className="px-6 py-4 font-black uppercase tracking-wider">End Date</th>
+                    <th className="px-6 py-4 font-black uppercase tracking-wider text-center">Phase Color</th>
+                    <th className="px-6 py-4 font-black uppercase tracking-wider text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -648,7 +649,8 @@ export function EventScheduleManager({ initialData, eventId }: Props) {
 
       {/* Add / Edit Task Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+        <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-zinc-900 p-6 space-y-6 shadow-2xl text-white">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
@@ -761,6 +763,7 @@ export function EventScheduleManager({ initialData, eventId }: Props) {
             </form>
           </div>
         </div>
+    </ModalPortal>
       )}
     </div>
   );

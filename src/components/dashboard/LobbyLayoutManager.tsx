@@ -24,6 +24,7 @@ import { eventLobbySchema, LOBBY_STATUSES, type EventLobbyInput } from "@/lib/va
 import type { LobbyRow } from "@/lib/services/eventLobby";
 import { TablePagination } from "@/components/dashboard/TablePagination";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 const PAGE_SIZE = 20;
 
 const FIELD_CLASS =
@@ -99,7 +100,8 @@ function LobbyFormModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-md bg-white p-6 shadow-2xl">
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">
           <h3 className="text-lg font-black uppercase text-purple-900">{isEdit ? "Edit Lobby Details" : "Add Lobby Details"}</h3>
@@ -196,6 +198,7 @@ function LobbyFormModal({
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }
 
@@ -459,8 +462,8 @@ export function LobbyLayoutManager({ lobbies }: { lobbies: LobbyRow[] }) {
       <div className="mt-4 overflow-x-auto border border-slate-200">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
-            <tr className="bg-purple-800 text-white">
-              <th className="w-10 px-4 py-3">
+            <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+              <th className="px-6 py-4 font-black uppercase tracking-wider w-10">
                 <input
                   type="checkbox"
                   checked={paged.length > 0 && paged.every((l) => selected.has(l.id))}
@@ -469,21 +472,21 @@ export function LobbyLayoutManager({ lobbies }: { lobbies: LobbyRow[] }) {
                 />
               </th>
               {visibleColumns.title && (
-                <th className="px-4 py-3">
+                <th className="px-6 py-4 font-black uppercase tracking-wider">
                   <button onClick={() => toggleSort("title")} className="inline-flex items-center gap-1 font-bold uppercase tracking-wide">
                     Title <SortIcon active={sortKey === "title"} dir={sortDir} />
                   </button>
                 </th>
               )}
               {visibleColumns.status && (
-                <th className="px-4 py-3">
+                <th className="px-6 py-4 font-black uppercase tracking-wider">
                   <button onClick={() => toggleSort("status")} className="inline-flex items-center gap-1 font-bold uppercase tracking-wide">
                     Status <SortIcon active={sortKey === "status"} dir={sortDir} />
                   </button>
                 </th>
               )}
               {visibleColumns.manage && (
-                <th className="px-4 py-3">
+                <th className="px-6 py-4 font-black uppercase tracking-wider">
                   <span className="inline-flex items-center gap-1 font-bold uppercase tracking-wide">
                     Manage <ChevronsUpDown className="h-3 w-3 opacity-60" />
                   </span>

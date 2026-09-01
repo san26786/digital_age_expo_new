@@ -26,6 +26,7 @@ import {
 import type { QuestionnaireRow, QuestionnaireStats } from "@/lib/services/eventSpeakerQuestionnaire";
 import { TablePagination } from "@/components/dashboard/TablePagination";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 const PAGE_SIZE = 20;
 
 const FIELD_CLASS =
@@ -145,7 +146,8 @@ function QuestionnaireModal({
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in duration-300">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-zinc-950 border border-white/10 p-6 sm:p-8 shadow-2xl space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -573,7 +575,8 @@ function QuestionnaireModal({
           </div>
         </form>
       </div>
-    </div>,
+    </div>
+    </ModalPortal>,
     document.body
   );
 }
@@ -837,10 +840,10 @@ export function SpeakerQuestionnaireManager({
         {/* Table */}
         <div className="overflow-x-auto rounded-2xl border border-white/5">
           <table className="w-full min-w-[950px] text-left text-sm">
-            <thead className="bg-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 border-b border-white/5">
-              <tr>
+            <thead>
+              <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
                 {isOrganiser && (
-                  <th className="px-4 py-5 w-10">
+                  <th className="px-6 py-4 font-black uppercase tracking-wider w-10">
                     <input
                       type="checkbox"
                       onChange={handleSelectAll}
@@ -849,13 +852,13 @@ export function SpeakerQuestionnaireManager({
                     />
                   </th>
                 )}
-                <th className="px-4 py-5">Speaker Name</th>
-                <th className="px-4 py-5">Topic / Talk Title</th>
-                <th className="px-4 py-5">Slot / Preferred Date</th>
-                <th className="px-4 py-5">Workshop Request</th>
-                <th className="px-4 py-5">Categories</th>
-                <th className="px-4 py-5">Status</th>
-                <th className="px-4 py-5 text-center">Manage Actions</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Speaker Name</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Topic / Talk Title</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Slot / Preferred Date</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Workshop Request</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Categories</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider text-center">Manage Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">

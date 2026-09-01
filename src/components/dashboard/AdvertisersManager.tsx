@@ -35,6 +35,7 @@ import type { AdvertiserRow, AdvertiserStats } from "@/lib/services/eventAdverti
 import { TablePagination } from "@/components/dashboard/TablePagination";
 import { assetUrl } from "@/lib/assets";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 const PAGE_SIZE = 20;
 
 const FIELD_CLASS =
@@ -176,7 +177,8 @@ function AdvertiserFormModal({
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <h3 className="text-xl font-black uppercase tracking-wider text-white">
@@ -449,7 +451,8 @@ function AdvertiserFormModal({
           </div>
         </form>
       </div>
-    </div>,
+    </div>
+    </ModalPortal>,
     document.body
   );
 }
@@ -519,7 +522,8 @@ function AmountOverrideModal({
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <h3 className="text-lg font-black uppercase tracking-wider text-white">Change Financial Amounts</h3>
@@ -604,7 +608,8 @@ function AmountOverrideModal({
           </div>
         </form>
       </div>
-    </div>,
+    </div>
+    </ModalPortal>,
     document.body
   );
 }
@@ -942,11 +947,11 @@ export function AdvertisersManager({
         )}
 
         {/* Advertisers Table */}
-        <div className="overflow-x-auto rounded-lg border border-white/10">
+        <div className="overflow-x-auto rounded-2xl border border-white/10">
           <table className="w-full min-w-[1000px] text-left text-sm">
-            <thead className="bg-white/5 text-zinc-300 border-b border-white/10">
-              <tr>
-                <th className="px-4 py-3 text-center w-12">
+            <thead>
+              <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                <th className="px-6 py-4 font-black uppercase tracking-wider text-center w-12">
                   <input
                     type="checkbox"
                     checked={paged.length > 0 && paged.every((a) => selectedIds.includes(a.id))}
@@ -954,16 +959,16 @@ export function AdvertisersManager({
                     className="h-4 w-4 rounded border-white/10 bg-white/5 text-indigo-600 focus:ring-0"
                   />
                 </th>
-                <th className="px-4 py-3 font-semibold uppercase tracking-wider text-xs">Flag</th>
-                <th className="px-4 py-3 font-semibold uppercase tracking-wider text-xs">Order ID</th>
-                <th className="px-4 py-3 font-semibold uppercase tracking-wider text-xs">User / Contact</th>
-                <th className="px-4 py-3 font-semibold uppercase tracking-wider text-xs">Business Name</th>
-                <th className="px-4 py-3 font-semibold uppercase tracking-wider text-xs">Advert Size</th>
-                <th className="px-4 py-3 font-semibold uppercase tracking-wider text-xs">Image</th>
-                <th className="px-4 py-3 font-semibold uppercase tracking-wider text-xs">Base Price</th>
-                <th className="px-4 py-3 font-semibold uppercase tracking-wider text-xs">TPA</th>
-                <th className="px-4 py-3 font-semibold uppercase tracking-wider text-xs">Status</th>
-                <th className="px-4 py-3 font-semibold uppercase tracking-wider text-xs text-right">Manage</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Flag</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Order ID</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">User / Contact</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Business Name</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Advert Size</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Image</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Base Price</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">TPA</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider text-right">Manage</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">

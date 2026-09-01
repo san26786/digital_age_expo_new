@@ -108,7 +108,7 @@ export default async function EventLobbySpotsTabularPage({
             <tbody className="divide-y divide-white/5">
               {spots.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-zinc-400 italic">
+                  <td colSpan={5} className="px-6 py-12 text-center text-zinc-400 italic font-medium">
                     No spots configured yet for this event lobby.
                   </td>
                 </tr>

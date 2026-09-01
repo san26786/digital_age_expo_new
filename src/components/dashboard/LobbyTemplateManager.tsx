@@ -38,6 +38,7 @@ import {
 } from "@/lib/validations/eventLobbyTemplate";
 import type { LobbyTemplateRow } from "@/lib/services/eventLobbyTemplates";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 const FIELD_CLASS =
   "w-full rounded-lg border border-white/10 bg-black/40 px-3.5 py-2.5 text-sm text-white placeholder:text-zinc-500 focus:border-brand-pink focus:outline-none focus:ring-1 focus:ring-brand-pink";
 const LABEL_CLASS = "mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-zinc-400";
@@ -134,7 +135,8 @@ function TemplateFormModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="my-8 w-full max-w-2xl rounded-2xl border border-white/10 bg-zinc-950 shadow-2xl">
         <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
           <h3 className="text-sm font-black uppercase tracking-wider text-white">
@@ -262,6 +264,7 @@ function TemplateFormModal({
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }
 
@@ -324,7 +327,8 @@ function ColorsModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="my-8 w-full max-w-xl rounded-2xl border border-white/10 bg-zinc-950 shadow-2xl">
         <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
           <h3 className="text-sm font-black uppercase tracking-wider text-white">
@@ -421,6 +425,7 @@ function ColorsModal({
         </div>
       </div>
     </div>
+    </ModalPortal>
   );
 }
 
@@ -548,7 +553,7 @@ export function LobbyTemplateManager({ templates }: { templates: LobbyTemplateRo
         <div className="overflow-x-auto rounded-2xl border border-white/10">
           <table className="w-full min-w-[720px] border-collapse text-left">
             <thead>
-              <tr className="bg-brand-purple/40">
+              <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
                 <th scope="col" className="w-20 px-4 py-3" />
                 {columns.map((col) => (
                   <th key={col.key} scope="col" className="px-4 py-3">
@@ -689,7 +694,8 @@ export function LobbyTemplateManager({ templates }: { templates: LobbyTemplateRo
       )}
 
       {pendingDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+        <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
             <div className="flex items-start gap-3">
               <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" />
@@ -725,6 +731,7 @@ export function LobbyTemplateManager({ templates }: { templates: LobbyTemplateRo
             </div>
           </div>
         </div>
+    </ModalPortal>
       )}
     </div>
   );

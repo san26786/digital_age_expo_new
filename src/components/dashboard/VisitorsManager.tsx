@@ -5,7 +5,10 @@ import { createPortal } from "react-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { isAxiosError } from "axios";
-import { Plus, Pencil, Trash2, Search, X, ChevronLeft, ChevronRight, Filter } from "lucide-react";
+import {
+  Plus, Pencil, Trash2, Search, X, ChevronLeft, ChevronRight, Filter,
+  Download, Upload, FileSpreadsheet, Mail, Loader2, CheckCircle2, AlertTriangle,
+} from "lucide-react";
 import {
   eventVisitorSchema,
   VISITOR_STATUSES,
@@ -14,6 +17,8 @@ import {
 } from "@/lib/validations/eventVisitor";
 import type { VisitorRow, VisitorsPage, VisitorStats } from "@/lib/services/eventVisitors";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
+import { readCsv, columnIndex, downloadCsv } from "@/lib/csv";
 const FIELD_CLASS =
   "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:border-brand-pink focus:outline-none transition-colors backdrop-blur-md";
 
@@ -167,7 +172,8 @@ function VisitorFormModal({
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in duration-300">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl bg-zinc-950 border border-white/10 p-8 shadow-2xl space-y-6">
         <div className="flex items-center justify-between border-b border-white/5 pb-4">
           <div className="space-y-1">
@@ -407,7 +413,8 @@ function VisitorFormModal({
           </div>
         </form>
       </div>
-    </div>,
+    </div>
+    </ModalPortal>,
     document.body
   );
 }
@@ -426,6 +433,301 @@ function pageNumbers(current: number, totalPages: number): (number | "…")[] {
   return result;
 }
 
+/* ----------------------------- CSV import modal ---------------------------- */
+
+interface ParsedVisitorCsv {
+  rows: Record<string, string>[];
+  delimiterLabel: string;
+  ignoredColumns: string[];
+  error?: string;
+}
+
+/**
+ * Maps a CSV onto visitor rows by HEADER NAME, so column order does not matter and the page's
+ * own export re-imports unchanged. Either "First Name"+"Last Name" or a single "Name" works.
+ *
+ * Derived columns are accepted in the header and ignored: Location, Country and Franchise are
+ * resolved from linked records rather than stored as free text on the visitor, and Joining
+ * Status is set by the RSVP flow.
+ */
+function mapVisitorCsv(text: string): ParsedVisitorCsv {
+  const { header, rows: table, delimiterLabel } = readCsv(text);
+  if (header.length === 0) {
+    return { rows: [], delimiterLabel, ignoredColumns: [], error: "That file is empty." };
+  }
+
+  const iFirst = columnIndex(header, "first name", "first_name", "firstname");
+  const iLast = columnIndex(header, "last name", "last_name", "lastname", "surname");
+  const iName = columnIndex(header, "name", "full name");
+  const iEmail = columnIndex(header, "email", "email address", "e-mail");
+  const iPhone = columnIndex(header, "phone", "mobile", "telephone");
+  const iWork = columnIndex(header, "work phone", "workphone", "work_phone");
+  const iBusiness = columnIndex(header, "business", "company", "company name");
+  const iPosition = columnIndex(header, "position", "job title", "role");
+  const iGender = columnIndex(header, "gender");
+  const iLinked = columnIndex(header, "linkedin", "linkedin_user_profile", "linkedin profile");
+  const iReferral = columnIndex(header, "referral code", "referral_code");
+  const iBatch = columnIndex(header, "batch number", "batch_number");
+  const iSource = columnIndex(header, "source");
+  const iStatus = columnIndex(header, "status");
+  const iWebinars = columnIndex(header, "webinars", "visitor_is_webinars");
+  const iWorkshops = columnIndex(header, "workshops", "visitor_is_workshops");
+  const iMagazine = columnIndex(header, "e-magazine", "emagazine", "visitor_is_e_magazine");
+  const iNewsletter = columnIndex(header, "newsletter", "visitor_is_newsletter");
+
+  if (iEmail === -1 || (iFirst === -1 && iName === -1)) {
+    return {
+      rows: [],
+      delimiterLabel,
+      ignoredColumns: [],
+      error:
+        `Needs an "Email" column plus either "First Name" or "Name". Read the file as ` +
+        `${delimiterLabel}; columns came out as: ` +
+        `${header.map((h) => h || "(blank)").join(" | ") || "(empty)"}`,
+    };
+  }
+
+  const ignoredColumns = header.filter((h) =>
+    ["id", "location", "country", "franchise", "joining status", "created"].includes(h),
+  );
+  const cell = (r: string[], i: number) => (i === -1 ? "" : (r[i] ?? "").trim());
+
+  const rows = table
+    .map((r) => ({
+      first_name: cell(r, iFirst),
+      last_name: cell(r, iLast),
+      name: cell(r, iName),
+      email: cell(r, iEmail),
+      phone: cell(r, iPhone),
+      workphone: cell(r, iWork),
+      business: cell(r, iBusiness),
+      position: cell(r, iPosition),
+      gender: cell(r, iGender),
+      linkedin_user_profile: cell(r, iLinked),
+      referral_code: cell(r, iReferral),
+      batch_number: cell(r, iBatch),
+      source: cell(r, iSource),
+      status: cell(r, iStatus),
+      visitor_is_webinars: cell(r, iWebinars),
+      visitor_is_workshops: cell(r, iWorkshops),
+      visitor_is_e_magazine: cell(r, iMagazine),
+      visitor_is_newsletter: cell(r, iNewsletter),
+    }))
+    .filter((r) => r.email !== "" || r.first_name !== "" || r.name !== "");
+
+  if (rows.length === 0) {
+    return {
+      rows: [],
+      delimiterLabel,
+      ignoredColumns,
+      error: "That file has a header but no usable data rows.",
+    };
+  }
+  return { rows, delimiterLabel, ignoredColumns };
+}
+
+interface VisitorImportSummary {
+  created: number;
+  skipped: number;
+  skippedEmails: string[];
+  invalid: { row: number; name: string; reason: string }[];
+}
+
+function ImportVisitorsModal({ onClose, onImported }: { onClose: () => void; onImported: () => void }) {
+  const [fileName, setFileName] = useState("");
+  const [parsed, setParsed] = useState<ParsedVisitorCsv | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [summary, setSummary] = useState<VisitorImportSummary | null>(null);
+
+  async function pickFile(file: File | undefined) {
+    if (!file) return;
+    setError("");
+    setSummary(null);
+    setFileName(file.name);
+    const result = mapVisitorCsv(await file.text());
+    setParsed(result);
+    if (result.error) setError(result.error);
+  }
+
+  async function runImport() {
+    if (!parsed?.rows.length) return;
+    setBusy(true);
+    setError("");
+    try {
+      const { data } = await axios.post("/api/members/visitors/import", { rows: parsed.rows });
+      setSummary(data as VisitorImportSummary);
+      onImported();
+    } catch (err) {
+      setError(
+        isAxiosError(err) && typeof err.response?.data?.error === "string"
+          ? err.response.data.error
+          : "Could not import this file.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <ModalPortal onClose={onClose}>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+        <div className="w-full max-w-xl rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
+          <div className="flex items-start justify-between border-b border-white/10 pb-4">
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-pink/15 text-brand-pink">
+                <FileSpreadsheet className="h-5 w-5" />
+              </span>
+              <div>
+                <h3 className="text-base font-bold text-white">Import Visitors from CSV</h3>
+                <p className="text-xs text-zinc-400">
+                  Same columns as Export CSV. Existing emails are skipped, never overwritten.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="rounded-lg p-1.5 text-zinc-400 transition hover:bg-white/10 hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="space-y-4 pt-5">
+            {error && (
+              <p className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-300">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>{error}</span>
+              </p>
+            )}
+
+            {summary ? (
+              <div className="space-y-3">
+                <p className="flex items-start gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-300">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>
+                    Imported <strong>{summary.created}</strong>{" "}
+                    {summary.created === 1 ? "visitor" : "visitors"}.
+                    {summary.skipped > 0 && <> {summary.skipped} already existed and were left alone.</>}
+                  </span>
+                </p>
+
+                {summary.invalid.length > 0 && (
+                  <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-xs text-amber-200">
+                    <p className="mb-1 font-bold uppercase tracking-wider">
+                      {summary.invalid.length} row(s) rejected
+                    </p>
+                    <ul className="space-y-0.5">
+                      {summary.invalid.slice(0, 6).map((row) => (
+                        <li key={row.row}>
+                          Row {row.row}: {row.name} — {row.reason}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {summary.skippedEmails.length > 0 && (
+                  <details className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-xs text-zinc-400">
+                    <summary className="cursor-pointer font-semibold text-zinc-300">
+                      {summary.skippedEmails.length} skipped as duplicates
+                    </summary>
+                    <p className="mt-2 leading-relaxed">{summary.skippedEmails.join(", ")}</p>
+                  </details>
+                )}
+              </div>
+            ) : (
+              <>
+                <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-6 py-8 text-center transition hover:border-brand-pink/40 hover:bg-white/[0.04]">
+                  <Upload className="h-6 w-6 text-zinc-500" />
+                  <span className="text-sm font-semibold text-zinc-200">
+                    {fileName || "Choose a CSV file"}
+                  </span>
+                  <span className="text-[11px] text-zinc-500">
+                    Needs Email plus First/Last Name (or Name). Comma or tab separated.
+                  </span>
+                  <input
+                    type="file"
+                    accept=".csv,text/csv"
+                    className="hidden"
+                    onChange={(e) => pickFile(e.target.files?.[0])}
+                  />
+                </label>
+
+                {parsed && !parsed.error && (
+                  <div className="space-y-3">
+                    <p className="text-sm text-zinc-300">
+                      <strong className="text-white">{parsed.rows.length}</strong> row
+                      {parsed.rows.length === 1 ? "" : "s"} ready to import{" "}
+                      <span className="text-zinc-500">({parsed.delimiterLabel})</span>.
+                    </p>
+                    <p className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-[11px] leading-relaxed text-zinc-400">
+                      Rows are created through the same code path as Add Visitor, so a large file
+                      takes a few moments. Anything without a Source is tagged
+                      <span className="font-semibold text-zinc-300"> csv_import</span>.
+                    </p>
+
+                    <div className="max-h-48 overflow-y-auto rounded-xl border border-white/10">
+                      <table className="w-full text-left text-xs">
+                        <thead>
+                          <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                            <th className="px-6 py-4 font-black uppercase tracking-wider">Name</th>
+                            <th className="px-6 py-4 font-black uppercase tracking-wider">Email</th>
+                            <th className="px-6 py-4 font-black uppercase tracking-wider">Business</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                          {parsed.rows.slice(0, 50).map((row, i) => (
+                            <tr key={`${row.email}-${i}`} className="bg-zinc-900/30">
+                              <td className="px-3 py-1.5 text-zinc-200">
+                                {`${row.first_name} ${row.last_name}`.trim() || row.name || "—"}
+                              </td>
+                              <td className="px-3 py-1.5 text-zinc-500">{row.email || "—"}</td>
+                              <td className="px-3 py-1.5 text-zinc-500">{row.business || "—"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    {parsed.rows.length > 50 && (
+                      <p className="text-[11px] text-zinc-500">
+                        Showing the first 50 — all {parsed.rows.length} will be imported.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          <div className="mt-6 flex justify-end gap-2 border-t border-white/10 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-zinc-300 transition hover:bg-white/10 hover:text-white"
+            >
+              {summary ? "Done" : "Cancel"}
+            </button>
+            {!summary && (
+              <button
+                type="button"
+                onClick={runImport}
+                disabled={busy || !parsed?.rows.length}
+                className="inline-flex items-center gap-2 rounded-xl bg-brand-pink px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white transition hover:opacity-90 disabled:opacity-40"
+              >
+                {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                {busy ? "Importing..." : `Import ${parsed?.rows.length ?? 0}`}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </ModalPortal>
+  );
+}
+
 export function VisitorsManager({ initialPage, initialStats }: { initialPage: VisitorsPage; initialStats: VisitorStats }) {
   const [rows, setRows] = useState<VisitorRow[]>(initialPage.rows);
   const [total, setTotal] = useState(initialPage.total);
@@ -441,6 +743,12 @@ export function VisitorsManager({ initialPage, initialStats }: { initialPage: Vi
   const [pendingId, setPendingId] = useState<number | null>(null);
   const [bulkPending, setBulkPending] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
+  const [templates, setTemplates] = useState<{ id: string; label: string }[]>([]);
+  const [templateId, setTemplateId] = useState("");
+  const [actionValue, setActionValue] = useState("");
+  const [mailPending, setMailPending] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -503,6 +811,133 @@ export function VisitorsManager({ initialPage, initialStats }: { initialPage: Vi
       setActiveFilter(undefined);
     } else {
       setActiveFilter(typeFilter);
+    }
+  }
+
+  // Loaded once: the template list is small, shared platform data, and does not change while
+  // the organiser is working on this page.
+  useEffect(() => {
+    let cancelled = false;
+    axios
+      .get("/api/members/visitors/email-templates")
+      .then(({ data }) => {
+        if (!cancelled) setTemplates(data.templates ?? []);
+      })
+      .catch(() => {
+        /* the dropdown simply stays empty and disabled */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /**
+   * Exports what the importer reads back, so a file can round-trip.
+   *
+   * NOTE: this exports the CURRENT PAGE, not the whole list — the table is server-paginated
+   * (VISITORS_PAGE_SIZE) and `rows` only ever holds one page. Exporting silently partial data
+   * without saying so would be worse than the limitation itself, so the button label and the
+   * hint below it both say which.
+   */
+  function exportCsv(onlySelected: boolean) {
+    const source = onlySelected ? rows.filter((r) => selected.has(r.id)) : rows;
+    downloadCsv(
+      "event-visitors.csv",
+      [
+        "First Name", "Last Name", "Email", "Phone", "Work Phone", "Business", "Position",
+        "Gender", "LinkedIn", "Referral Code", "Batch Number", "Source", "Status",
+        "Webinars", "Workshops", "E-Magazine", "Newsletter", "Location", "Country",
+      ],
+      source.map((r) => [
+        r.firstName,
+        r.lastName,
+        r.email,
+        r.phone ?? "",
+        r.workphone ?? "",
+        r.business ?? "",
+        r.position ?? "",
+        r.gender ?? "",
+        r.linkedinUserProfile ?? "",
+        r.referralCode ?? "",
+        r.batchNumber ?? "",
+        r.source ?? "",
+        r.status,
+        r.visitorIsWebinars ? "Yes" : "No",
+        r.visitorIsWorkshops ? "Yes" : "No",
+        r.visitorIsEMagazine ? "Yes" : "No",
+        r.visitorIsNewsletter ? "Yes" : "No",
+        r.locationName ?? "",
+        r.countryName ?? "",
+      ]),
+    );
+  }
+
+  async function sendMail() {
+    if (!templateId || selected.size === 0) return;
+    setMailPending(true);
+    setErrorMessage(null);
+    setNotice(null);
+    try {
+      const { data } = await axios.post("/api/members/visitors/send-mail", {
+        ids: [...selected],
+        templateId,
+      });
+      // Reported honestly: "smtp_not_configured" is indistinguishable from success unless the
+      // failure count and reason are surfaced.
+      if (data.sent > 0 && data.failed === 0) {
+        setNotice(`Sent to ${data.sent} visitor${data.sent === 1 ? "" : "s"}.`);
+      } else if (data.sent > 0) {
+        setNotice(`Sent to ${data.sent}; ${data.failed} failed (${data.reason ?? "unknown"}).`);
+      } else {
+        setErrorMessage(`Nothing was sent — ${data.reason ?? "unknown reason"}.`);
+      }
+    } catch (err) {
+      setErrorMessage(
+        isAxiosError(err) && typeof err.response?.data?.error === "string"
+          ? err.response.data.error
+          : "Could not send this mail.",
+      );
+    } finally {
+      setMailPending(false);
+    }
+  }
+
+  /**
+   * The "Select an Action" dropdown.
+   *
+   * Limited to what this app can actually carry out: the fourteen status changes (which the
+   * service already handles, including copying the three Excluded_* variants into
+   * find_event_excluded), an export, and bulk delete. The legacy list also offers "Add To
+   * Exhibitor", "Add To Speaker", visitor-pass downloads and previous-event imports; those need
+   * service code that does not exist here yet, and a menu entry that silently does nothing is
+   * worse than one that is absent.
+   */
+  async function runAction() {
+    if (!actionValue) return;
+    if (actionValue === "export_selected") {
+      exportCsv(true);
+      return;
+    }
+    if (selected.size === 0) return;
+    if (actionValue === "bulk_delete") {
+      await bulkDelete();
+      return;
+    }
+
+    setBulkPending(true);
+    setErrorMessage(null);
+    setNotice(null);
+    try {
+      await axios.post("/api/members/visitors/bulk-status", {
+        ids: [...selected],
+        status: actionValue,
+      });
+      setNotice(`Updated ${selected.size} visitor${selected.size === 1 ? "" : "s"}.`);
+      await Promise.all([fetchPage(page, searchTerm, activeFilter), refreshStats()]);
+    } catch {
+      setErrorMessage("Could not apply that action.");
+    } finally {
+      setBulkPending(false);
     }
   }
 
@@ -598,14 +1033,125 @@ export function VisitorsManager({ initialPage, initialStats }: { initialPage: Vi
             </button>
           </div>
 
-          <button
-            onClick={() => setModalVisitor("new")}
-            className="inline-flex items-center gap-2 rounded-full bg-brand-pink px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-brand-pink/20 transition hover:scale-105 active:scale-95 cursor-pointer"
-          >
-            <Plus className="h-4 w-4" />
-            Add Visitor
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => exportCsv(false)}
+              disabled={rows.length === 0}
+              title="Exports the visitors currently shown on this page"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:bg-white/10 hover:text-white disabled:opacity-40 cursor-pointer"
+            >
+              <Download className="h-3.5 w-3.5" />
+              Export Page
+            </button>
+            <button
+              onClick={() => setImportOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:bg-white/10 hover:text-white cursor-pointer"
+            >
+              <Upload className="h-3.5 w-3.5" />
+              Import CSV
+            </button>
+            <button
+              onClick={() => setModalVisitor("new")}
+              className="inline-flex items-center gap-2 rounded-full bg-brand-pink px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-brand-pink/20 transition hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              <Plus className="h-4 w-4" />
+              Add Visitor
+            </button>
+          </div>
         </div>
+
+        {/* ============================================================
+            Email template + Action bar — the two dropdowns from
+            members/view_visitor_list.tpl, which pairs each select with its
+            own submit button rather than one shared "go".
+        ============================================================ */}
+        <div className="grid gap-3 rounded-2xl border border-white/10 bg-black/20 p-4 lg:grid-cols-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="sr-only" htmlFor="visitor-mail-template">
+              Select an email template
+            </label>
+            <select
+              id="visitor-mail-template"
+              value={templateId}
+              onChange={(e) => setTemplateId(e.target.value)}
+              disabled={templates.length === 0}
+              className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/40 px-3.5 py-2.5 text-xs font-semibold text-white focus:border-brand-pink focus:outline-none focus:ring-1 focus:ring-brand-pink disabled:opacity-40"
+            >
+              <option value="">
+                {templates.length === 0 ? "No email templates available" : "Select an Email Template"}
+              </option>
+              {templates.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={sendMail}
+              disabled={!templateId || selected.size === 0 || mailPending}
+              title={selected.size === 0 ? "Tick one or more visitors below first" : undefined}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-purple px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white transition hover:opacity-90 disabled:opacity-40 cursor-pointer"
+            >
+              {mailPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Mail className="h-3.5 w-3.5" />}
+              Send Mail
+            </button>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="sr-only" htmlFor="visitor-action">
+              Select an action
+            </label>
+            <select
+              id="visitor-action"
+              value={actionValue}
+              onChange={(e) => setActionValue(e.target.value)}
+              className="min-w-0 flex-1 rounded-xl border border-white/10 bg-black/40 px-3.5 py-2.5 text-xs font-semibold text-white focus:border-brand-pink focus:outline-none focus:ring-1 focus:ring-brand-pink"
+            >
+              <option value="">Select an Action</option>
+              <optgroup label="Export">
+                <option value="export_selected">Export Selected to CSV</option>
+              </optgroup>
+              <optgroup label="Set status">
+                {VISITOR_BULK_STATUS_ACTIONS.map((status) => (
+                  <option key={status} value={status}>
+                    {BULK_ACTION_LABEL[status] ?? status}
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label="Danger">
+                <option value="bulk_delete">Delete Selected</option>
+              </optgroup>
+            </select>
+            <button
+              type="button"
+              onClick={runAction}
+              disabled={
+                !actionValue ||
+                bulkPending ||
+                (actionValue !== "export_selected" && selected.size === 0)
+              }
+              title={selected.size === 0 ? "Tick one or more visitors below first" : undefined}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-brand-purple px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white transition hover:opacity-90 disabled:opacity-40 cursor-pointer"
+            >
+              {bulkPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              Submit
+            </button>
+          </div>
+
+          <p className="text-[11px] font-medium text-zinc-500 lg:col-span-2">
+            {selected.size === 0
+              ? "Tick rows in the table below to choose who these apply to."
+              : `${selected.size} visitor${selected.size === 1 ? "" : "s"} selected.`}{" "}
+            Export covers this page only — the list is paginated on the server.
+          </p>
+        </div>
+
+        {notice && (
+          <p className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-300">
+            {notice}
+          </p>
+        )}
 
         {/* Filter Indicator & Search Bar */}
         <div className="flex flex-col sm:flex-row gap-3">
@@ -638,19 +1184,19 @@ export function VisitorsManager({ initialPage, initialStats }: { initialPage: Vi
 
         <div className="overflow-x-auto rounded-2xl border border-white/5">
           <table className="w-full min-w-[1000px] text-left text-sm">
-            <thead className="bg-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 border-b border-white/5">
-              <tr>
-                <th className="px-4 py-5">
+            <thead>
+              <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                <th className="px-6 py-4 font-black uppercase tracking-wider">
                   <input type="checkbox" checked={allSelected} onChange={toggleAll} className="h-4 w-4 rounded border-white/10 bg-white/5 text-brand-pink focus:ring-brand-pink" />
                 </th>
-                <th className="px-4 py-5">Full Name</th>
-                <th className="px-4 py-5">Contact Info</th>
-                <th className="px-4 py-5">Business & Position</th>
-                <th className="px-4 py-5">Gender</th>
-                <th className="px-4 py-5">Event Status</th>
-                <th className="px-4 py-5">Account</th>
-                <th className="px-4 py-5">Batch</th>
-                <th className="px-4 py-5 text-center">Manage</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Full Name</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Contact Info</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Business & Position</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Gender</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Event Status</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Account</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Batch</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider text-center">Manage</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -800,6 +1346,16 @@ export function VisitorsManager({ initialPage, initialStats }: { initialPage: Vi
           onSaved={handleSaved}
         />
       )}
+      {importOpen && (
+        <ImportVisitorsModal
+          onClose={() => setImportOpen(false)}
+          onImported={() => {
+            fetchPage(page, searchTerm, activeFilter);
+            refreshStats();
+          }}
+        />
+      )}
+
     </div>
   );
 }

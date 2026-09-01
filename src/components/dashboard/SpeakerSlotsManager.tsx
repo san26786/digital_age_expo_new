@@ -22,6 +22,7 @@ import { assignSpeakerSlotSchema, type AssignSpeakerSlotInput } from "@/lib/vali
 import type { SpeakerSlotRow, AssignableSpeaker } from "@/lib/services/eventSpeakerSlots";
 import { TablePagination } from "@/components/dashboard/TablePagination";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 const PAGE_SIZE = 20;
 
 const FIELD_CLASS =
@@ -85,7 +86,8 @@ function AssignModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in duration-300">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="w-full max-w-lg rounded-3xl bg-zinc-950 border border-white/10 p-8 shadow-2xl space-y-6">
         <div className="flex items-center justify-between border-b border-white/5 pb-4">
           <div className="space-y-1">
@@ -179,6 +181,7 @@ function AssignModal({
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }
 
@@ -411,16 +414,16 @@ export function SpeakerSlotsManager({
         {/* Slots Table */}
         <div className="overflow-x-auto rounded-2xl border border-white/5">
           <table className="w-full min-w-[900px] text-left text-sm">
-            <thead className="bg-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 border-b border-white/5">
-              <tr>
-                <th className="px-4 py-5">Id</th>
-                <th className="px-4 py-5">Date & Duration</th>
-                <th className="px-4 py-5">Room Type</th>
-                <th className="px-4 py-5">Venue</th>
-                <th className="px-4 py-5">Speaker Name</th>
-                <th className="px-4 py-5">Topic</th>
-                <th className="px-4 py-5">Status</th>
-                <th className="px-4 py-5 text-center">Manage</th>
+            <thead>
+              <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Id</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Date & Duration</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Room Type</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Venue</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Speaker Name</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Topic</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider text-center">Manage</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">

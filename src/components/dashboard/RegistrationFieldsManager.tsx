@@ -12,6 +12,7 @@ import {
 } from "@/lib/validations/eventRegistrationField";
 import type { RegistrationFieldRow } from "@/lib/services/eventRegistrationFields";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 /**
  * Port of legacy members/manage_registration.tpl.
  *
@@ -374,7 +375,8 @@ export function RegistrationFieldsManager({ eventId, fields }: Props) {
 
       {/* Add / edit modal — the .tpl's #add_form_block */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+        <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="glass-panel max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl p-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <h3 className="text-lg font-black uppercase text-white">
@@ -540,6 +542,7 @@ export function RegistrationFieldsManager({ eventId, fields }: Props) {
             </form>
           </div>
         </div>
+    </ModalPortal>
       )}
     </div>
   );

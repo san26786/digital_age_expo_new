@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import type { EventInvoiceItem } from "@/lib/services/eventInvoices";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 interface EventInvoicesManagerProps {
   eventId: number;
   invoices: EventInvoiceItem[];
@@ -138,7 +139,7 @@ export function EventInvoicesManager({ eventId, invoices, isFranchise }: EventIn
           <table className="w-full text-left text-xs text-zinc-200">
             <thead>
               <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
-                <th className="px-4 py-4 text-center w-12">
+                <th className="px-6 py-4 font-black uppercase tracking-wider text-center w-12">
                   <input
                     type="checkbox"
                     checked={selectedInvoices.length === filteredInvoices.length && filteredInvoices.length > 0}
@@ -146,18 +147,18 @@ export function EventInvoicesManager({ eventId, invoices, isFranchise }: EventIn
                     className="rounded border-white/20 bg-black/40 text-brand-pink focus:ring-0 cursor-pointer"
                   />
                 </th>
-                <th className="px-4 py-4 font-black uppercase tracking-wider">Order #</th>
-                <th className="px-4 py-4 font-black uppercase tracking-wider">Name</th>
-                <th className="px-4 py-4 font-black uppercase tracking-wider">Mobile</th>
-                <th className="px-4 py-4 font-black uppercase tracking-wider">Business Name</th>
-                <th className="px-4 py-4 font-black uppercase tracking-wider">Type</th>
-                <th className="px-4 py-4 font-black uppercase tracking-wider">Amount</th>
-                <th className="px-4 py-4 font-black uppercase tracking-wider">Payable</th>
-                <th className="px-4 py-4 font-black uppercase tracking-wider text-center">PS</th>
-                <th className="px-4 py-4 font-black uppercase tracking-wider">Date</th>
-                <th className="px-4 py-4 font-black uppercase tracking-wider text-center">Status</th>
-                <th className="px-4 py-4 font-black uppercase tracking-wider text-center">Used</th>
-                <th className="px-4 py-4 font-black uppercase tracking-wider text-right">Manage</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Order #</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Name</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Mobile</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Business Name</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Type</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Amount</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Payable</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider text-center">PS</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Date</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider text-center">Status</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider text-center">Used</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider text-right">Manage</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -252,7 +253,8 @@ export function EventInvoicesManager({ eventId, invoices, isFranchise }: EventIn
 
       {/* Newsletter Modals */}
       {activeModal && activeItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+        <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="glass-panel w-full max-w-lg rounded-3xl border border-white/20 p-6 shadow-2xl space-y-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div className="flex items-center gap-3">
@@ -305,6 +307,7 @@ export function EventInvoicesManager({ eventId, invoices, isFranchise }: EventIn
             </div>
           </div>
         </div>
+    </ModalPortal>
       )}
     </div>
   );

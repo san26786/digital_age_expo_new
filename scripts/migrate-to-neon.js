@@ -111,6 +111,15 @@ const SKIP_TABLES = new Set(["find_search_log"]);
 const GLOBAL_TABLES = new Set([
   "find_event_lobby_templates",
   "find_event_template_color_options",
+  // independent_mst is the platform's master-data table (industries at typ_id=7, the TST session
+  // durations and AGTYPE hall types the agenda form reads, and much else). It carries a
+  // listing_id, so the generic rule scoped it to `listing_id IN (SELECT id FROM _dae_lids)` and
+  // all but one industry was dropped — the members Event Industry page came up with a single row
+  // against a source table holding fifty. Master data belongs to the platform, not to a listing.
+  "independent_mst",
+  // common_type is independent_mst's parent (typ_cd -> typ_id). It has no scope column so it
+  // already copies whole, but the two must not drift apart.
+  "common_type",
 ]);
 
 /** Copy an unscopeable table whole only if it is at most this many MB in MySQL. */

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Eye, EyeOff, Home, ChevronRight, Lock, User, Mail, Phone, Building2, Sparkles } from "lucide-react";
+import { ModalPortal } from "@/components/ui/ModalPortal";
 
 type FieldErrors = Partial<Record<
   "login" | "first_name" | "last_name" | "email" | "phone" | "organization" | "password" | "confirm_password" | "terms_accepted",
@@ -124,7 +125,8 @@ function MembersRegisterContent() {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+        <ModalPortal>
+        <div className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
           <div className="glass-panel border-white/20 rounded-[2rem] max-w-md w-full p-8 shadow-2xl space-y-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-6">
               <div className="flex items-center gap-3">
@@ -135,6 +137,7 @@ function MembersRegisterContent() {
             <p className="text-zinc-400 font-medium leading-relaxed">{modalText}</p>
           </div>
         </div>
+        </ModalPortal>
       )}
 
       <nav className="relative z-10 border-b border-white/5 bg-black/20 backdrop-blur-xl">

@@ -5,6 +5,8 @@ import { getDomain } from "@/lib/services/domain";
 import { getEventMemberContext } from "@/lib/services/eventAccess";
 import { getEventNotifications, getNotificationLinkOptions } from "@/lib/services/eventNotifications";
 import { NotificationsPanel } from "@/components/dashboard/NotificationsPanel";
+import { MembersBreadcrumb, MembersPageHeader } from "@/components/ui/MembersPageShell";
+import { Bell } from "lucide-react";
 
 export const metadata = { title: "Event Notifications" };
 
@@ -29,18 +31,16 @@ export default async function EventNotificationsPage() {
     context.role === "organiser" ? await getNotificationLinkOptions(context) : { lobbies: [], exhibitors: [] };
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <div className="h-px w-8 bg-brand-pink" />
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-pink">Communications</p>
-        </div>
-        <h1 className="text-4xl font-black uppercase tracking-tight text-white">Event Notifications</h1>
-        <p className="text-zinc-400 font-medium max-w-2xl">
-          {context.role === "organiser"
-            ? "Broadcast push notifications to everyone visiting this event."
-            : "Notifications sent out to attendees for this event."}
-        </p>
+    <div className="section-transition space-y-8 animate-fade-in text-white">
+      <MembersBreadcrumb label="Event Notifications" />
+
+      <div className="glass-panel rounded-2xl p-8 shadow-2xl border border-white/10">
+        <MembersPageHeader
+          title="Event Notifications"
+          description={context.role === "organiser" ? "Broadcast push notifications to everyone visiting this event." : "Notifications sent out to attendees for this event."}
+          icon={Bell}
+          pill="Communications"
+        />
       </div>
 
       <div>

@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import type { EventMemberContext } from "@/lib/services/eventAccess";
-import type { EventLobbyAgendaTrackInput } from "@/lib/validations/eventLobbyAgendaTrack";
+import {
+  eventLobbyAgendaTrackSchema,
+  type EventLobbyAgendaTrackInput,
+} from "@/lib/validations/eventLobbyAgendaTrack";
 import type { EventLobbyAgendaItemInput } from "@/lib/validations/eventLobbyAgendaItem";
 
 export interface AgendaTrackRow {
@@ -433,4 +436,134 @@ export async function getAgendaAssignableSpeakers(context: EventMemberContext): 
     select: { id: true, name: true },
   });
   return speakers.map((s: any) => ({ id: s.id, name: s.name }));
+}
+
+export interface AgendaImportRow {
+  title: string;
+  description?: string;
+  agenda_type?: string;
+  session_mst?: string;
+  buffer_time_mst?: string;
+  agenda_hall_type?: string;
+  timezone?: string;
+  status?: string;
+  /** Layout NAME as it appears in the export, resolved against this event's layouts. */
+  layout?: string;
+}
+
+export interface AgendaImportResult {
+  created: number;
+  skipped: number;
+  skippedTitles: string[];
+  invalid: { row: number; title: string; reason: string }[];
+}
+
+/**
+ * Bulk import for the Lobby Agenda list — counterpart to its Export CSV.
+ *
+ * Duplicate detection is by TITLE, case-insensitively, scoped to this event.
+ * find_event_lobby_agenda has no unique code (unlike an industry's mstr_cd), and the title is
+ * what the halls are actually identified by in the UI — "Keynote Forum 1", "Seminar Hall 2".
+ *
+ * Existing agendas are SKIPPED, never updated: an import must not quietly rewrite a hall whose
+ * session times or layout someone has configured. Re-importing the same file is a no-op.
+ *
+ * The Layout column is matched by name against this event's parent lobby and its children; a
+ * blank or unrecognised layout falls back to `fallbackLayoutId`, because event_layout_id is
+ * NOT NULL and a row with nowhere to live cannot be inserted at all.
+ */
+export async function importAgendaTracks(
+  context: EventMemberContext,
+  rows: AgendaImportRow[],
+  fallbackLayoutId: number
+): Promise<AgendaImportResult> {
+  const result: AgendaImportResult = { created: 0, skipped: 0, skippedTitles: [], invalid: [] };
+  if (context.role !== "organiser") return result;
+
+  const [existing, layouts] = await Promise.all([
+    prisma.find_event_lobby_agenda.findMany({
+      where: { event_id: context.eventId },
+      select: { title: true },
+    }),
+    getAgendaLayoutOptions(context),
+  ]);
+
+  const haveTitles = new Set(
+    existing.map((r: { title: string | null }) => (r.title ?? "").trim().toLowerCase()),
+  );
+  const layoutByName = new Map<string, number>(
+    layouts.map((l) => [l.title.trim().toLowerCase(), l.id]),
+  );
+
+  const toCreate: {
+    title: string;
+    description: string;
+    agenda_type: string | null;
+    session_mst: string | null;
+    buffer_time_mst: string | null;
+    agenda_hall_type: string | null;
+    timezone: string | null;
+    status: string;
+    event_layout_id: number;
+  }[] = [];
+
+  rows.forEach((raw, index) => {
+    const parsed = eventLobbyAgendaTrackSchema.safeParse({
+      title: raw.title,
+      description: raw.description ?? "",
+      agenda_type: (raw.agenda_type ?? "").trim().toLowerCase(),
+      session_mst: raw.session_mst ?? "",
+      buffer_time_mst: raw.buffer_time_mst ?? "",
+      agenda_hall_type: raw.agenda_hall_type ?? "",
+      timezone: raw.timezone ?? "",
+      status: (raw.status ?? "active").trim().toLowerCase(),
+    });
+
+    if (!parsed.success) {
+      const fields = parsed.error.flatten().fieldErrors;
+      const reason =
+        Object.values(fields).find((m) => Array.isArray(m) && m.length > 0)?.[0] ?? "Invalid row";
+      result.invalid.push({ row: index + 1, title: String(raw?.title ?? "").slice(0, 60), reason });
+      return;
+    }
+
+    const input = parsed.data;
+    const key = input.title.trim().toLowerCase();
+    // Catches a file that repeats a hall, not just one that clashes with the database.
+    if (haveTitles.has(key)) {
+      result.skipped += 1;
+      result.skippedTitles.push(input.title);
+      return;
+    }
+    haveTitles.add(key);
+
+    const layoutId = layoutByName.get((raw.layout ?? "").trim().toLowerCase()) ?? fallbackLayoutId;
+
+    toCreate.push({
+      title: input.title,
+      description: input.description || "",
+      agenda_type: input.agenda_type || null,
+      session_mst: input.session_mst || null,
+      buffer_time_mst: input.buffer_time_mst || null,
+      agenda_hall_type: input.agenda_hall_type || null,
+      timezone: input.timezone || null,
+      status: input.status,
+      event_layout_id: layoutId,
+    });
+  });
+
+  if (toCreate.length > 0) {
+    // Same column set createAgendaTrack() writes when the form is submitted.
+    await prisma.find_event_lobby_agenda.createMany({
+      data: toCreate.map((r) => ({
+        ...r,
+        event_id: context.eventId,
+        user_id: context.userId,
+        updated_on: new Date(),
+      })),
+    });
+    result.created = toCreate.length;
+  }
+
+  return result;
 }

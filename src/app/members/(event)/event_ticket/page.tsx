@@ -5,6 +5,8 @@ import { getDomain } from "@/lib/services/domain";
 import { getEventMemberContext } from "@/lib/services/eventAccess";
 import { getEventTickets } from "@/lib/services/eventTickets";
 import { EventTicketsManager } from "@/components/dashboard/EventTicketsManager";
+import { MembersBreadcrumb, MembersPageHeader } from "@/components/ui/MembersPageShell";
+import { Ticket } from "lucide-react";
 
 export const metadata = { title: "Event Tickets" };
 
@@ -26,13 +28,15 @@ export default async function EventTicketPage() {
 
   if (context.role !== "organiser") {
     return (
-      <div className="space-y-8">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="h-px w-8 bg-brand-pink" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-pink">Restricted Access</p>
-          </div>
-          <h1 className="text-4xl font-black uppercase tracking-tight text-white">Event Tickets</h1>
+      <div className="section-transition space-y-8 animate-fade-in text-white">
+        <MembersBreadcrumb label="Event Tickets" />
+
+        <div className="glass-panel rounded-2xl p-8 shadow-2xl border border-white/10">
+          <MembersPageHeader
+            title="Event Tickets"
+            icon={Ticket}
+            pill="Restricted Access"
+          />
         </div>
         <div className="glass-panel rounded-3xl p-12 text-center border-dashed border-white/10">
           <p className="text-zinc-500 font-medium italic">
@@ -46,14 +50,16 @@ export default async function EventTicketPage() {
   const tickets = await getEventTickets(context);
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <div className="h-px w-8 bg-brand-pink" />
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-pink">Revenue</p>
-        </div>
-        <h1 className="text-4xl font-black uppercase tracking-tight text-white">Event Tickets</h1>
-        <p className="text-zinc-400 font-medium max-w-2xl">Set up the ticket types attendees can purchase for this event.</p>
+    <div className="section-transition space-y-8 animate-fade-in text-white">
+      <MembersBreadcrumb label="Event Tickets" />
+
+      <div className="glass-panel rounded-2xl p-8 shadow-2xl border border-white/10">
+        <MembersPageHeader
+          title="Event Tickets"
+          description="Set up the ticket types attendees can purchase for this event."
+          icon={Ticket}
+          pill="Revenue"
+        />
       </div>
 
       <div className="glass-panel rounded-3xl p-8 border-white/10 shadow-2xl backdrop-blur-md">

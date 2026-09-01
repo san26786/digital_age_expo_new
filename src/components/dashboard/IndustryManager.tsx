@@ -12,6 +12,11 @@ import {
   Pencil,
   Trash2,
   Download,
+  Upload,
+  FileSpreadsheet,
+  AlertTriangle,
+  CheckCircle2,
+  Loader2,
   LayoutGrid,
   List,
   Building2,
@@ -21,12 +26,282 @@ import {
 import { industrySchema, type IndustryInput } from "@/lib/validations/eventIndustry";
 import type { IndustryRow } from "@/lib/services/eventIndustry";
 import { TablePagination } from "@/components/dashboard/TablePagination";
+import { readCsv, columnIndex, downloadCsv } from "@/lib/csv";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 const PAGE_SIZE = 20;
 
 // Matches the FIELD_CLASS convention every other member dashboard "Manager" component uses
 // (see ShowInfoManager.tsx) — dark, translucent input on the site's zinc-950/glass theme,
 // brand-pink focus ring, instead of this component's old white/slate/purple styling.
+export interface ParsedImportRow {
+  mstr_nm: string;
+  mstr_cd: string;
+  mstr_desc: string;
+}
+
+interface ParsedCsv {
+  rows: ParsedImportRow[];
+  /** Header names that were present but are not imported, so the user is told rather than surprised. */
+  ignoredColumns: string[];
+  /** Human-readable separator that was detected, surfaced so a misread file is obvious. */
+  delimiterLabel: string;
+  error?: string;
+}
+
+/**
+ * Maps a CSV onto industry rows by HEADER NAME, so the column order does not matter and the
+ * page's own export can be re-imported unchanged.
+ *
+ * Two columns are deliberately not imported:
+ *   ID       — independent_mst.id is assigned by the database. The legacy ids in an exported file
+ *              belong to a different sequence and would collide with live rows.
+ *   Service  — there is no column for it. createIndustry()/updateIndustry() never persist it and
+ *              the row always reads back as "", so importing it would be a lie.
+ */
+function mapCsvToRows(text: string): ParsedCsv {
+  const { header, rows: table, delimiterLabel } = readCsv(text);
+  if (header.length === 0) {
+    return { rows: [], ignoredColumns: [], delimiterLabel, error: "That file is empty." };
+  }
+
+  const iName = columnIndex(header, "name", "industry", "industry name", "mstr_nm");
+  const iCode = columnIndex(header, "code", "system code", "mstr_cd");
+  const iDesc = columnIndex(header, "description", "mstr_desc");
+
+  if (iName === -1) {
+    // Columns are joined with " | " so an unsplit header (one long cell) is visibly one cell,
+    // rather than looking like several columns separated by whitespace.
+    return {
+      rows: [],
+      ignoredColumns: [],
+      delimiterLabel,
+      error:
+        `No "Name" column found. Read the file as ${delimiterLabel}; ` +
+        `columns came out as: ${header.map((h) => h || "(blank)").join(" | ") || "(empty)"}`,
+    };
+  }
+
+  const ignoredColumns = header.filter((h) => ["id", "service"].includes(h));
+
+  const rows = table
+    .map((r) => ({
+      mstr_nm: (r[iName] ?? "").trim(),
+      mstr_cd: iCode === -1 ? "" : (r[iCode] ?? "").trim(),
+      mstr_desc: iDesc === -1 ? "" : (r[iDesc] ?? "").trim(),
+    }))
+    .filter((r) => r.mstr_nm !== "");
+
+  if (rows.length === 0) {
+    return {
+      rows: [],
+      ignoredColumns,
+      delimiterLabel,
+      error: "That file has a header but no usable data rows.",
+    };
+  }
+  return { rows, ignoredColumns, delimiterLabel };
+}
+
+interface ImportSummary {
+  created: number;
+  skipped: number;
+  skippedNames: string[];
+  invalid: { row: number; name: string; reason: string }[];
+}
+
+function ImportCsvModal({ onClose, onImported }: { onClose: () => void; onImported: () => void }) {
+  const [fileName, setFileName] = useState("");
+  const [parsed, setParsed] = useState<ParsedCsv | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [summary, setSummary] = useState<ImportSummary | null>(null);
+
+  async function pickFile(file: File | undefined) {
+    if (!file) return;
+    setError("");
+    setSummary(null);
+    setFileName(file.name);
+    const text = await file.text();
+    const result = mapCsvToRows(text);
+    setParsed(result);
+    if (result.error) setError(result.error);
+  }
+
+  async function runImport() {
+    if (!parsed?.rows.length) return;
+    setBusy(true);
+    setError("");
+    try {
+      const { data } = await axios.post("/api/members/event-industry/import", { rows: parsed.rows });
+      setSummary(data as ImportSummary);
+      onImported();
+    } catch (err) {
+      setError(extractErrorMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <ModalPortal onClose={onClose}>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+        <div className="glass-panel max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-white/10 p-6 shadow-2xl">
+          <div className="flex items-start justify-between border-b border-white/10 pb-4">
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-pink/15 text-brand-pink">
+                <FileSpreadsheet className="h-5 w-5" />
+              </span>
+              <div>
+                <h3 className="text-base font-bold text-white">Import Industries from CSV</h3>
+                <p className="text-xs text-zinc-400">
+                  Same columns as Export CSV. Existing rows are skipped, never overwritten.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="rounded-lg p-1.5 text-zinc-400 transition hover:bg-white/10 hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="space-y-4 pt-5">
+            {error && (
+              <p className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-300">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>{error}</span>
+              </p>
+            )}
+
+            {summary ? (
+              <div className="space-y-3">
+                <p className="flex items-start gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-300">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>
+                    Imported <strong>{summary.created}</strong>{" "}
+                    {summary.created === 1 ? "industry" : "industries"}.
+                    {summary.skipped > 0 && <> {summary.skipped} already existed and were left alone.</>}
+                  </span>
+                </p>
+
+                {summary.invalid.length > 0 && (
+                  <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-xs text-amber-200">
+                    <p className="mb-1 font-bold uppercase tracking-wider">
+                      {summary.invalid.length} row(s) rejected
+                    </p>
+                    <ul className="space-y-0.5">
+                      {summary.invalid.slice(0, 6).map((row) => (
+                        <li key={row.row}>
+                          Row {row.row}: {row.name || "(no name)"} — {row.reason}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {summary.skippedNames.length > 0 && (
+                  <details className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-xs text-zinc-400">
+                    <summary className="cursor-pointer font-semibold text-zinc-300">
+                      {summary.skippedNames.length} skipped as duplicates
+                    </summary>
+                    <p className="mt-2 leading-relaxed">{summary.skippedNames.join(", ")}</p>
+                  </details>
+                )}
+              </div>
+            ) : (
+              <>
+                <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-6 py-8 text-center transition hover:border-brand-pink/40 hover:bg-white/[0.04]">
+                  <Upload className="h-6 w-6 text-zinc-500" />
+                  <span className="text-sm font-semibold text-zinc-200">
+                    {fileName || "Choose a CSV file"}
+                  </span>
+                  <span className="text-[11px] text-zinc-500">
+                    Needs a <strong>Name</strong> column; Code and Description are optional.
+                    Comma or tab separated.
+                  </span>
+                  <input
+                    type="file"
+                    accept=".csv,text/csv"
+                    className="hidden"
+                    onChange={(e) => pickFile(e.target.files?.[0])}
+                  />
+                </label>
+
+                {parsed && !parsed.error && (
+                  <div className="space-y-3">
+                    <p className="text-sm text-zinc-300">
+                      <strong className="text-white">{parsed.rows.length}</strong> row
+                      {parsed.rows.length === 1 ? "" : "s"} ready to import{" "}
+                      <span className="text-zinc-500">({parsed.delimiterLabel})</span>.
+                    </p>
+
+                    {parsed.ignoredColumns.length > 0 && (
+                      <p className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-[11px] leading-relaxed text-zinc-400">
+                        Ignoring the {parsed.ignoredColumns.map((c) => `"${c}"`).join(" and ")} column
+                        {parsed.ignoredColumns.length === 1 ? "" : "s"}: IDs are assigned by the database,
+                        and Service is not stored on an industry record.
+                      </p>
+                    )}
+
+                    <div className="max-h-48 overflow-y-auto rounded-xl border border-white/10">
+                      <table className="w-full text-left text-xs">
+                        <thead>
+                          <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                            <th className="px-6 py-4 font-black uppercase tracking-wider">Name</th>
+                            <th className="px-6 py-4 font-black uppercase tracking-wider">Code</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                          {parsed.rows.slice(0, 50).map((row, i) => (
+                            <tr key={`${row.mstr_cd}-${i}`} className="bg-zinc-900/30">
+                              <td className="px-3 py-1.5 text-zinc-200">{row.mstr_nm}</td>
+                              <td className="px-3 py-1.5 text-zinc-500">{row.mstr_cd || "—"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    {parsed.rows.length > 50 && (
+                      <p className="text-[11px] text-zinc-500">
+                        Showing the first 50 — all {parsed.rows.length} will be imported.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          <div className="mt-6 flex justify-end gap-2 border-t border-white/10 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-zinc-300 transition hover:bg-white/10 hover:text-white"
+            >
+              {summary ? "Done" : "Cancel"}
+            </button>
+            {!summary && (
+              <button
+                type="button"
+                onClick={runImport}
+                disabled={busy || !parsed?.rows.length}
+                className="inline-flex items-center gap-2 rounded-xl bg-brand-pink px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition hover:opacity-90 disabled:opacity-40"
+              >
+                {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                {busy ? "Importing..." : `Import ${parsed?.rows.length ?? 0}`}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </ModalPortal>
+  );
+}
+
 const FIELD_CLASS =
   "w-full rounded-md border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-zinc-600 focus:border-brand-pink focus:outline-none focus:ring-1 focus:ring-brand-pink/40 transition-colors";
 
@@ -93,7 +368,8 @@ function IndustryFormModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="glass-panel max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl p-6 shadow-2xl border border-white/10">
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div className="flex items-center gap-2.5">
@@ -168,6 +444,7 @@ function IndustryFormModal({
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }
 
@@ -175,6 +452,7 @@ export function IndustryManager({ industries, canManage = true }: { industries: 
   const router = useRouter();
   const [items, setItems] = useState<IndustryRow[]>(industries);
   const [modalRow, setModalRow] = useState<IndustryRow | "new" | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<number | null>(null);
   const [keyword, setKeyword] = useState("");
@@ -238,20 +516,11 @@ export function IndustryManager({ industries, canManage = true }: { industries: 
   }
 
   function exportCsv() {
-    const header = "ID,Name,Code,Service,Description\n";
-    const rows = filtered
-      .map(
-        (i) =>
-          `${i.id},"${i.name.replace(/"/g, '""')}","${i.code.replace(/"/g, '""')}","${(i.service || "").replace(/"/g, '""')}","${i.description.replace(/"/g, '""')}"`
-      )
-      .join("\n");
-    const blob = new Blob([header + rows], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "event-industries.csv";
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadCsv(
+      "event-industries.csv",
+      ["ID", "Name", "Code", "Service", "Description"],
+      filtered.map((i) => [i.id, i.name, i.code, i.service || "", i.description]),
+    );
   }
 
   return (
@@ -324,6 +593,18 @@ export function IndustryManager({ industries, canManage = true }: { industries: 
             <Download className="h-3.5 w-3.5" />
             Export CSV
           </button>
+
+          {canManage && (
+            <button
+              type="button"
+              title="Import CSV"
+              onClick={() => setImportOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-xs font-semibold text-zinc-300 hover:bg-white/10 hover:text-white transition"
+            >
+              <Upload className="h-3.5 w-3.5" />
+              Import CSV
+            </button>
+          )}
 
           {canManage && (
             <button
@@ -430,13 +711,13 @@ export function IndustryManager({ industries, canManage = true }: { industries: 
           <div className="overflow-x-auto">
             <table className="w-full min-w-[820px] text-left text-sm text-zinc-300">
               <thead>
-                <tr className="bg-white/5 text-[10px] font-black uppercase tracking-widest text-zinc-500 border-b border-white/5">
-                  <th className="px-4 py-3 text-center w-16">ID</th>
-                  <th className="px-4 py-3">Industry Name</th>
-                  <th className="px-4 py-3 text-center">System Code</th>
-                  <th className="px-4 py-3">Service</th>
-                  <th className="px-4 py-3">Description</th>
-                  {canManage && <th className="px-4 py-3 text-center w-28">Actions</th>}
+                <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                  <th className="px-6 py-4 font-black uppercase tracking-wider text-center w-16">ID</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider">Industry Name</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider text-center">System Code</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider">Service</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider">Description</th>
+                  {canManage && <th className="px-6 py-4 font-black uppercase tracking-wider text-center w-28">Actions</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -505,6 +786,13 @@ export function IndustryManager({ industries, canManage = true }: { industries: 
       )}
 
       <TablePagination currentPage={page} totalItems={filtered.length} pageSize={PAGE_SIZE} onPageChange={setPage} />
+
+      {importOpen && (
+        <ImportCsvModal
+          onClose={() => setImportOpen(false)}
+          onImported={() => router.refresh()}
+        />
+      )}
 
       {modalRow && (
         <IndustryFormModal

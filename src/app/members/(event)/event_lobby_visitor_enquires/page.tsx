@@ -6,6 +6,8 @@ import { getEventMemberContext } from "@/lib/services/eventAccess";
 import { getEnquiries } from "@/lib/services/eventLobbyVisitorEnquiry";
 import { LobbyVisitorEnquiriesManager } from "@/components/dashboard/LobbyVisitorEnquiriesManager";
 import { DEFAULT_EVENT_ID } from "@/lib/site-config";
+import { MembersBreadcrumb, MembersPageHeader } from "@/components/ui/MembersPageShell";
+import { MessageSquare } from "lucide-react";
 
 export const metadata = { title: "Lobby Visitor Enquiries" };
 
@@ -32,14 +34,15 @@ export default async function EventLobbyVisitorEnquiriesPage({
   const enquiries = await getEnquiries(context);
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-4xl font-black uppercase tracking-tight text-white">
-          Lobby Visitor Enquiries
-        </h1>
-        <p className="text-zinc-400 font-medium max-w-2xl">
-          Manage, answer, and review enquiries sent by visitors in the event lobby.
-        </p>
+    <div className="section-transition space-y-8 animate-fade-in text-white">
+      <MembersBreadcrumb label="Lobby Visitor Enquiries" />
+
+      <div className="glass-panel rounded-2xl p-8 shadow-2xl border border-white/10">
+        <MembersPageHeader
+          title="Lobby Visitor Enquiries"
+          description="Manage, answer, and review enquiries sent by visitors in the event lobby."
+          icon={MessageSquare}
+        />
       </div>
 
       <LobbyVisitorEnquiriesManager initialEnquiries={enquiries} eventId={eventId} />

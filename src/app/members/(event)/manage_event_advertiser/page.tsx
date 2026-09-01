@@ -6,6 +6,7 @@ import { getAdvertisers, getAdvertiserStats } from "@/lib/services/eventAdvertis
 import { getExhibitorOptionsForEvent } from "@/lib/services/eventBannerStands";
 import { AdvertisersManager } from "@/components/dashboard/AdvertisersManager";
 import { DEFAULT_EVENT_ID } from "@/lib/site-config";
+import { BadgeDollarSign } from "lucide-react";
 
 export const metadata = { title: "Manage Advertisers" };
 
@@ -42,14 +43,15 @@ export default async function ManageAdvertisersPage() {
 
   return (
     <div className="space-y-8 p-4 sm:p-6 lg:p-8">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-6">
-        <div>
-          <h1 className="text-3xl font-black uppercase tracking-widest text-white drop-shadow-md">
-            Manage Advertiser's
-          </h1>
-          <p className="mt-1 text-sm font-semibold text-zinc-400">
-            Review adverts, assign rates and categories, manage approval status, flag and copy advertisers.
-          </p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-pink shadow-lg shadow-brand-pink/20">
+            <BadgeDollarSign className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white flex items-center gap-2">Manage Advertiser's</h1>
+            <p className="text-xs font-medium text-zinc-400 mt-1">Review adverts, assign rates and categories, manage approval status, flag and copy advertisers.</p>
+          </div>
         </div>
       </div>
 

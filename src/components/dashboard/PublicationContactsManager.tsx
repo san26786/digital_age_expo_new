@@ -11,6 +11,7 @@ import { publicationContactSchema, type PublicationContactInput } from "@/lib/va
 import type { PublicationContactRow } from "@/lib/services/publicationContacts";
 import { TablePagination } from "@/components/dashboard/TablePagination";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 const PAGE_SIZE = 20;
 
 const FIELD_CLASS =
@@ -81,7 +82,8 @@ function PublicationContactFormModal({
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-md animate-fade-in">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-zinc-950 border border-white/10 p-6 shadow-2xl text-white">
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <h3 className="text-lg font-black uppercase tracking-wider brand-gradient-text">
@@ -142,7 +144,8 @@ function PublicationContactFormModal({
           </div>
         </form>
       </div>
-    </div>,
+    </div>
+    </ModalPortal>,
     document.body
   );
 }
@@ -220,14 +223,14 @@ export function PublicationContactsManager({ contacts }: { contacts: Publication
 
       <div className="overflow-x-auto rounded-xl border border-white/10 bg-zinc-950/40 backdrop-blur-md">
         <table className="w-full min-w-[760px] text-left text-sm text-zinc-300">
-          <thead className="bg-white/5 text-zinc-200 border-b border-white/10">
-            <tr>
-              <th className="px-5 py-4 font-bold uppercase tracking-wider text-xs">Type</th>
-              <th className="px-5 py-4 font-bold uppercase tracking-wider text-xs">Name</th>
-              <th className="px-5 py-4 font-bold uppercase tracking-wider text-xs">Email</th>
-              <th className="px-5 py-4 font-bold uppercase tracking-wider text-xs">Telephone</th>
-              <th className="px-5 py-4 font-bold uppercase tracking-wider text-xs">LinkedIn</th>
-              <th className="px-5 py-4 font-bold uppercase tracking-wider text-xs">Manage</th>
+          <thead>
+            <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+              <th className="px-6 py-4 font-black uppercase tracking-wider">Type</th>
+              <th className="px-6 py-4 font-black uppercase tracking-wider">Name</th>
+              <th className="px-6 py-4 font-black uppercase tracking-wider">Email</th>
+              <th className="px-6 py-4 font-black uppercase tracking-wider">Telephone</th>
+              <th className="px-6 py-4 font-black uppercase tracking-wider">LinkedIn</th>
+              <th className="px-6 py-4 font-black uppercase tracking-wider">Manage</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">

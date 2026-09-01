@@ -196,13 +196,13 @@ export default function EventAdvertiseBookClient({ eventId }: { eventId: number 
             </div>
           ) : (
             <table className="w-full text-left border-collapse bg-zinc-900 rounded shadow-sm overflow-hidden">
-              <thead className="bg-white/5 text-zinc-300 text-xs uppercase tracking-wider font-bold border-b border-white/10">
-                <tr>
-                  <th className="p-4">ID</th>
-                  <th className="p-4">Publication Title</th>
-                  <th className="p-4">Magazine Book</th>
-                  <th className="p-4">Type</th>
-                  <th className="p-4">Manage</th>
+              <thead>
+                <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                  <th className="px-6 py-4 font-black uppercase tracking-wider">ID</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider">Publication Title</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider">Magazine Book</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider">Type</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider">Manage</th>
                 </tr>
               </thead>
               <tbody className="text-sm text-zinc-300 divide-y divide-white/5">

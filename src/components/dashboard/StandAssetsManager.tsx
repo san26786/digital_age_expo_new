@@ -30,6 +30,7 @@ import {
   Venus,
 } from "lucide-react";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 /** Generic booth frame shown whenever an exhibitor hasn't uploaded their own stand background —
  * mirrors the fallback used on the public /virtual-directory/[slug] viewer so the editor canvas
  * never renders blank while an organiser is setting a stand up for the first time. */
@@ -818,7 +819,8 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
 
       {/* Asset Editor Modal */}
       {activeSpot && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
+        <ModalPortal>
+      <div className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto overscroll-contain bg-black/60 p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-full">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
               <div>
@@ -907,11 +909,13 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
             </div>
           </div>
         </div>
+    </ModalPortal>
       )}
 
       {/* Brochure Manager Modal */}
       {isBrochureModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4">
+        <ModalPortal>
+      <div className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto overscroll-contain bg-black/60 p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-full">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
               <div className="flex items-center gap-2 text-sky-600">
@@ -997,11 +1001,13 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
             </div>
           </div>
         </div>
+    </ModalPortal>
       )}
 
       {/* Booth Preview Modal (read-only, no edit pencils) */}
       {showBoothPreview && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4">
+        <ModalPortal>
+      <div className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto overscroll-contain bg-black/70 p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-full">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
               <div>
@@ -1054,6 +1060,7 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
             </div>
           </div>
         </div>
+    </ModalPortal>
       )}
 
     </div>

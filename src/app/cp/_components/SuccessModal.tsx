@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 /**
  * Shared "action succeeded" popup for CP create/update flows — e.g. Add User redirects to
  * /cp/users?created=1 after saving, and this renders the confirmation over that list page.
@@ -38,8 +39,9 @@ export function SuccessModal({
   if (!open) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+    <ModalPortal>
+      <div
+      className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/60 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       onClick={close}
@@ -61,5 +63,6 @@ export function SuccessModal({
         </button>
       </div>
     </div>
+    </ModalPortal>
   );
 }

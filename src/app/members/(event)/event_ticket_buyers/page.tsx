@@ -5,6 +5,7 @@ import { getDomain } from "@/lib/services/domain";
 import { getEventMemberContext } from "@/lib/services/eventAccess";
 import { getTicketBuyers } from "@/lib/services/eventTicketBuyers";
 import { Ticket, Users, Receipt } from "lucide-react";
+import { MembersBreadcrumb, MembersPageHeader } from "@/components/ui/MembersPageShell";
 
 export const metadata = { title: "Ticket Buyers" };
 
@@ -28,13 +29,15 @@ export default async function EventTicketBuyersPage() {
 
   if (context.role !== "organiser") {
     return (
-      <div className="space-y-8">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="h-px w-8 bg-brand-pink" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-pink">Restricted Access</p>
-          </div>
-          <h1 className="text-4xl font-black uppercase tracking-tight text-white">Ticket Registry</h1>
+      <div className="section-transition space-y-8 animate-fade-in text-white">
+        <MembersBreadcrumb label="Ticket Registry" />
+
+        <div className="glass-panel rounded-2xl p-8 shadow-2xl border border-white/10">
+          <MembersPageHeader
+            title="Ticket Registry"
+            icon={Receipt}
+            pill="Restricted Access"
+          />
         </div>
         <div className="glass-panel rounded-3xl p-12 text-center border-dashed border-white/10">
           <p className="text-zinc-500 font-medium italic">
@@ -48,16 +51,16 @@ export default async function EventTicketBuyersPage() {
   const buyers = await getTicketBuyers(context);
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <div className="h-px w-8 bg-brand-pink" />
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-pink">Finance & Sales</p>
-        </div>
-        <h1 className="text-4xl font-black uppercase tracking-tight text-white">Ticket Registry</h1>
-        <p className="text-zinc-400 font-medium max-w-2xl">
-          Monitor all ticket acquisitions and buyer distributions for this event.
-        </p>
+    <div className="section-transition space-y-8 animate-fade-in text-white">
+      <MembersBreadcrumb label="Ticket Registry" />
+
+      <div className="glass-panel rounded-2xl p-8 shadow-2xl border border-white/10">
+        <MembersPageHeader
+          title="Ticket Registry"
+          description="Monitor all ticket acquisitions and buyer distributions for this event."
+          icon={Receipt}
+          pill="Finance & Sales"
+        />
       </div>
 
       <div className="glass-panel rounded-[2rem] border-white/10 shadow-2xl backdrop-blur-md overflow-hidden">
@@ -76,13 +79,13 @@ export default async function EventTicketBuyersPage() {
             </div>
           ) : (
             <table className="w-full min-w-[800px] text-left text-sm">
-              <thead className="bg-white/[0.02] text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 border-b border-white/5">
-                <tr>
-                  <th className="px-6 py-5">Ticket Type</th>
-                  <th className="px-6 py-5">Buyer Identity</th>
-                  <th className="px-6 py-5">Organization</th>
-                  <th className="px-6 py-5 text-center">Revenue</th>
-                  <th className="px-6 py-5 text-center">Transaction Date</th>
+              <thead>
+                <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                  <th className="px-6 py-4 font-black uppercase tracking-wider">Ticket Type</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider">Buyer Identity</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider">Organization</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider text-center">Revenue</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider text-center">Transaction Date</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">

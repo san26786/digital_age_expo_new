@@ -186,13 +186,13 @@ export function NotificationsPanel({ notifications, canManage, linkOptions }: Pr
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[720px] text-left text-sm">
-                <thead className="bg-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 border-b border-white/10">
-                  <tr>
-                    <th className="px-6 py-5">Title</th>
-                    <th className="px-6 py-5">Message</th>
-                    <th className="px-6 py-5">Destination</th>
-                    <th className="px-6 py-5">Timestamp</th>
-                    {canManage && <th className="px-6 py-5">Actions</th>}
+                <thead>
+                  <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                    <th className="px-6 py-4 font-black uppercase tracking-wider">Title</th>
+                    <th className="px-6 py-4 font-black uppercase tracking-wider">Message</th>
+                    <th className="px-6 py-4 font-black uppercase tracking-wider">Destination</th>
+                    <th className="px-6 py-4 font-black uppercase tracking-wider">Timestamp</th>
+                    {canManage && <th className="px-6 py-4 font-black uppercase tracking-wider">Actions</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">

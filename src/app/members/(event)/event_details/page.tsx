@@ -4,6 +4,8 @@ import { getDomain } from "@/lib/services/domain";
 import { getEventMemberContext } from "@/lib/services/eventAccess";
 import { getEventDetails } from "@/lib/services/eventDetails";
 import { EventDetailsManager } from "@/components/dashboard/EventDetailsManager";
+import { MembersBreadcrumb, MembersPageHeader } from "@/components/ui/MembersPageShell";
+import { CalendarDays } from "lucide-react";
 
 export const metadata = { title: "Event Details" };
 
@@ -46,16 +48,16 @@ export default async function EventDetailsPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <div className="h-px w-8 bg-brand-pink" />
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-pink">Event Context</p>
-        </div>
-        <h1 className="text-4xl font-black uppercase tracking-tight text-white">Event Details</h1>
-        <p className="text-zinc-400 font-medium max-w-2xl">
-          Core event information, descriptions, SEO/social links, section visibility, and the stats shown on your marketing pages.
-        </p>
+    <div className="section-transition space-y-8 animate-fade-in text-white">
+      <MembersBreadcrumb label="Event Details" />
+
+      <div className="glass-panel rounded-2xl p-8 shadow-2xl border border-white/10">
+        <MembersPageHeader
+          title="Event Details"
+          description="Core event information, descriptions, SEO/social links, section visibility, and the stats shown on your marketing pages."
+          icon={CalendarDays}
+          pill="Event Context"
+        />
       </div>
 
       <EventDetailsManager eventId={eventId} details={details} />

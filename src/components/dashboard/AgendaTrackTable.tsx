@@ -25,6 +25,10 @@ import {
   CalendarDays,
   AlertTriangle,
   Loader2,
+  Download,
+  Upload,
+  FileSpreadsheet,
+  CheckCircle2,
 } from "lucide-react";
 import {
   eventLobbyAgendaTrackSchema,
@@ -34,8 +38,10 @@ import {
   type EventLobbyAgendaTrackInput,
 } from "@/lib/validations/eventLobbyAgendaTrack";
 import type { AgendaTrackRow, AgendaLayoutOption } from "@/lib/services/eventLobbyAgendaItems";
+import { readCsv, columnIndex, downloadCsv } from "@/lib/csv";
 import type { MasterOption } from "@/lib/services/eventServices";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 const FIELD_CLASS =
   "w-full rounded-lg border border-white/10 bg-black/40 px-3.5 py-2.5 text-sm text-white placeholder:text-zinc-500 focus:border-brand-pink focus:outline-none focus:ring-1 focus:ring-brand-pink";
 const LABEL_CLASS = "mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-zinc-400";
@@ -128,7 +134,8 @@ function AgendaFormModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="my-8 w-full max-w-2xl rounded-2xl border border-white/10 bg-zinc-950 shadow-2xl">
         <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
           <h3 className="text-sm font-black uppercase tracking-wider text-white">
@@ -289,6 +296,274 @@ function AgendaFormModal({
         </form>
       </div>
     </div>
+    </ModalPortal>
+  );
+}
+
+/* ------------------------------- CSV import -------------------------------- */
+
+interface ParsedAgendaRow {
+  title: string;
+  description: string;
+  agenda_type: string;
+  session_mst: string;
+  buffer_time_mst: string;
+  agenda_hall_type: string;
+  status: string;
+  layout: string;
+}
+
+interface ParsedAgendaCsv {
+  rows: ParsedAgendaRow[];
+  delimiterLabel: string;
+  error?: string;
+}
+
+/**
+ * Maps a CSV onto agenda rows by HEADER NAME, so column order does not matter and the page's own
+ * export re-imports unchanged. Only Title is required; everything else falls back to the same
+ * defaults the Add form uses.
+ *
+ * "Sessions" is accepted in the header and ignored: it is a computed count of the rows in
+ * find_event_lobby_agenda_items, not a property of the agenda, and the sessions themselves are
+ * not part of this file.
+ */
+function mapAgendaCsv(text: string): ParsedAgendaCsv {
+  const { header, rows: table, delimiterLabel } = readCsv(text);
+  if (header.length === 0) return { rows: [], delimiterLabel, error: "That file is empty." };
+
+  const iTitle = columnIndex(header, "title", "name", "agenda", "hall");
+  const iDesc = columnIndex(header, "description");
+  const iType = columnIndex(header, "agenda type", "agenda_type", "type");
+  const iSession = columnIndex(header, "session time", "session_mst");
+  const iBuffer = columnIndex(header, "buffer time", "buffer_time_mst");
+  const iHall = columnIndex(header, "agenda hall type", "hall type", "agenda_hall_type");
+  const iStatus = columnIndex(header, "status");
+  const iLayout = columnIndex(header, "layout", "event_layout");
+
+  if (iTitle === -1) {
+    return {
+      rows: [],
+      delimiterLabel,
+      error:
+        `No "Title" column found. Read the file as ${delimiterLabel}; ` +
+        `columns came out as: ${header.map((h) => h || "(blank)").join(" | ") || "(empty)"}`,
+    };
+  }
+
+  const cell = (r: string[], i: number) => (i === -1 ? "" : (r[i] ?? "").trim());
+
+  const rows = table
+    .map((r) => ({
+      title: cell(r, iTitle),
+      description: cell(r, iDesc),
+      agenda_type: cell(r, iType).toLowerCase(),
+      session_mst: cell(r, iSession),
+      buffer_time_mst: cell(r, iBuffer),
+      agenda_hall_type: cell(r, iHall),
+      status: cell(r, iStatus).toLowerCase(),
+      layout: cell(r, iLayout),
+    }))
+    .filter((r) => r.title !== "");
+
+  if (rows.length === 0) {
+    return { rows: [], delimiterLabel, error: "That file has a header but no usable data rows." };
+  }
+  return { rows, delimiterLabel };
+}
+
+interface AgendaImportSummary {
+  created: number;
+  skipped: number;
+  skippedTitles: string[];
+  invalid: { row: number; title: string; reason: string }[];
+}
+
+function ImportAgendaModal({ onClose, onImported }: { onClose: () => void; onImported: () => void }) {
+  const [fileName, setFileName] = useState("");
+  const [parsed, setParsed] = useState<ParsedAgendaCsv | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [summary, setSummary] = useState<AgendaImportSummary | null>(null);
+
+  async function pickFile(file: File | undefined) {
+    if (!file) return;
+    setError("");
+    setSummary(null);
+    setFileName(file.name);
+    const result = mapAgendaCsv(await file.text());
+    setParsed(result);
+    if (result.error) setError(result.error);
+  }
+
+  async function runImport() {
+    if (!parsed?.rows.length) return;
+    setBusy(true);
+    setError("");
+    try {
+      const { data } = await axios.post("/api/members/lobby-agenda-tracks/import", { rows: parsed.rows });
+      setSummary(data as AgendaImportSummary);
+      onImported();
+    } catch (err) {
+      setError(extractErrorMessage(err, "Could not import this file."));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <ModalPortal onClose={onClose}>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+        <div className="w-full max-w-xl rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
+          <div className="flex items-start justify-between border-b border-white/10 pb-4">
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-pink/15 text-brand-pink">
+                <FileSpreadsheet className="h-5 w-5" />
+              </span>
+              <div>
+                <h3 className="text-base font-bold text-white">Import Agendas from CSV</h3>
+                <p className="text-xs text-zinc-400">
+                  Same columns as Export CSV. Existing halls are skipped, never overwritten.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="rounded-lg p-1.5 text-zinc-400 transition hover:bg-white/10 hover:text-white"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="space-y-4 pt-5">
+            {error && (
+              <p className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-300">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>{error}</span>
+              </p>
+            )}
+
+            {summary ? (
+              <div className="space-y-3">
+                <p className="flex items-start gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-300">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>
+                    Imported <strong>{summary.created}</strong>{" "}
+                    {summary.created === 1 ? "agenda" : "agendas"}.
+                    {summary.skipped > 0 && <> {summary.skipped} already existed and were left alone.</>}
+                  </span>
+                </p>
+
+                {summary.invalid.length > 0 && (
+                  <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-xs text-amber-200">
+                    <p className="mb-1 font-bold uppercase tracking-wider">
+                      {summary.invalid.length} row(s) rejected
+                    </p>
+                    <ul className="space-y-0.5">
+                      {summary.invalid.slice(0, 6).map((row) => (
+                        <li key={row.row}>
+                          Row {row.row}: {row.title || "(no title)"} — {row.reason}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {summary.skippedTitles.length > 0 && (
+                  <details className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-xs text-zinc-400">
+                    <summary className="cursor-pointer font-semibold text-zinc-300">
+                      {summary.skippedTitles.length} skipped as duplicates
+                    </summary>
+                    <p className="mt-2 leading-relaxed">{summary.skippedTitles.join(", ")}</p>
+                  </details>
+                )}
+              </div>
+            ) : (
+              <>
+                <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-6 py-8 text-center transition hover:border-brand-pink/40 hover:bg-white/[0.04]">
+                  <Upload className="h-6 w-6 text-zinc-500" />
+                  <span className="text-sm font-semibold text-zinc-200">
+                    {fileName || "Choose a CSV file"}
+                  </span>
+                  <span className="text-[11px] text-zinc-500">
+                    Needs a <strong>Title</strong> column; the rest are optional. Comma or tab separated.
+                  </span>
+                  <input
+                    type="file"
+                    accept=".csv,text/csv"
+                    className="hidden"
+                    onChange={(e) => pickFile(e.target.files?.[0])}
+                  />
+                </label>
+
+                {parsed && !parsed.error && (
+                  <div className="space-y-3">
+                    <p className="text-sm text-zinc-300">
+                      <strong className="text-white">{parsed.rows.length}</strong> row
+                      {parsed.rows.length === 1 ? "" : "s"} ready to import{" "}
+                      <span className="text-zinc-500">({parsed.delimiterLabel})</span>.
+                    </p>
+                    <p className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-[11px] leading-relaxed text-zinc-400">
+                      A Layout column is matched to this event&apos;s lobby by name; anything blank or
+                      unrecognised goes to the parent lobby. Sessions are not part of this file.
+                    </p>
+
+                    <div className="max-h-48 overflow-y-auto rounded-xl border border-white/10">
+                      <table className="w-full text-left text-xs">
+                        <thead>
+                          <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                            <th className="px-6 py-4 font-black uppercase tracking-wider">Title</th>
+                            <th className="px-6 py-4 font-black uppercase tracking-wider">Type</th>
+                            <th className="px-6 py-4 font-black uppercase tracking-wider">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                          {parsed.rows.slice(0, 50).map((row, i) => (
+                            <tr key={`${row.title}-${i}`} className="bg-zinc-900/30">
+                              <td className="px-3 py-1.5 text-zinc-200">{row.title}</td>
+                              <td className="px-3 py-1.5 text-zinc-500">{row.agenda_type || "table"}</td>
+                              <td className="px-3 py-1.5 text-zinc-500">{row.status || "active"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    {parsed.rows.length > 50 && (
+                      <p className="text-[11px] text-zinc-500">
+                        Showing the first 50 — all {parsed.rows.length} will be imported.
+                      </p>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          <div className="mt-6 flex justify-end gap-2 border-t border-white/10 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-zinc-300 transition hover:bg-white/10 hover:text-white"
+            >
+              {summary ? "Done" : "Cancel"}
+            </button>
+            {!summary && (
+              <button
+                type="button"
+                onClick={runImport}
+                disabled={busy || !parsed?.rows.length}
+                className="btn-brand-gradient inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white disabled:opacity-40"
+              >
+                {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                {busy ? "Importing..." : `Import ${parsed?.rows.length ?? 0}`}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </ModalPortal>
   );
 }
 
@@ -311,6 +586,7 @@ export function AgendaTrackTable({
   const [formAgenda, setFormAgenda] = useState<AgendaTrackRow | "new" | null>(null);
   const [pendingDelete, setPendingDelete] = useState<AgendaTrackRow | null>(null);
   const [busyId, setBusyId] = useState<number | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const visible = useMemo(() => {
@@ -332,6 +608,29 @@ export function AgendaTrackTable({
       return left.localeCompare(right) * direction;
     });
   }, [agendas, keyword, sort]);
+
+  /**
+   * Exports what the importer reads back, so a file can round-trip. The Sessions count is
+   * included for reference only — it is derived from find_event_lobby_agenda_items and the
+   * importer ignores it.
+   */
+  function exportCsv() {
+    downloadCsv(
+      "lobby-agendas.csv",
+      ["Title", "Description", "Agenda Type", "Session Time", "Buffer Time", "Agenda Hall Type", "Status", "Layout", "Sessions"],
+      visible.map((a) => [
+        a.title,
+        a.description,
+        a.agendaType ?? "",
+        a.sessionMst ?? "",
+        a.bufferTimeMst ?? "",
+        a.agendaHallType ?? "",
+        a.status,
+        a.layoutTitle ?? "",
+        a.sessionCount,
+      ]),
+    );
+  }
 
   function toggleSort(key: SortKey) {
     setSort((prev) => (prev.key === key ? { key, dir: prev.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
@@ -396,14 +695,37 @@ export function AgendaTrackTable({
           />
         </div>
 
-        <button
-          type="button"
-          onClick={() => setFormAgenda("new")}
-          className="btn-brand-gradient inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white"
-        >
-          <Plus className="h-4 w-4" />
-          Add Agenda
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            title="Export CSV"
+            onClick={exportCsv}
+            disabled={agendas.length === 0}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-xs font-semibold text-zinc-300 transition hover:bg-white/10 hover:text-white disabled:opacity-40"
+          >
+            <Download className="h-3.5 w-3.5" />
+            Export CSV
+          </button>
+
+          <button
+            type="button"
+            title="Import CSV"
+            onClick={() => setImportOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-xs font-semibold text-zinc-300 transition hover:bg-white/10 hover:text-white"
+          >
+            <Upload className="h-3.5 w-3.5" />
+            Import CSV
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setFormAgenda("new")}
+            className="btn-brand-gradient inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white"
+          >
+            <Plus className="h-4 w-4" />
+            Add Agenda
+          </button>
+        </div>
       </div>
 
       {agendas.length === 0 ? (
@@ -418,7 +740,7 @@ export function AgendaTrackTable({
         <div className="overflow-x-auto rounded-2xl border border-white/10">
           <table className="w-full min-w-[720px] border-collapse text-left">
             <thead>
-              <tr className="bg-brand-purple/40">
+              <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
                 {columns.map((col) => (
                   <th key={col.key} scope="col" className={`px-4 py-3 ${col.className ?? ""}`}>
                     <button
@@ -523,6 +845,13 @@ export function AgendaTrackTable({
         </div>
       )}
 
+      {importOpen && (
+        <ImportAgendaModal
+          onClose={() => setImportOpen(false)}
+          onImported={() => router.refresh()}
+        />
+      )}
+
       {formAgenda && (
         <AgendaFormModal
           agenda={formAgenda === "new" ? null : formAgenda}
@@ -538,7 +867,8 @@ export function AgendaTrackTable({
       )}
 
       {pendingDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+        <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="w-full max-w-md rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
             <div className="flex items-start gap-3">
               <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-400" />
@@ -576,6 +906,7 @@ export function AgendaTrackTable({
             </div>
           </div>
         </div>
+    </ModalPortal>
       )}
     </div>
   );

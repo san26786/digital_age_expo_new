@@ -9,6 +9,7 @@ import type { BannerStandRow, BannerStandStats } from "@/lib/services/eventBanne
 import type { EventBannerStandInput } from "@/lib/validations/eventBannerStand";
 import { TablePagination } from "@/components/dashboard/TablePagination";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 const PAGE_SIZE = 20;
 
 interface Props {
@@ -415,10 +416,10 @@ export function BannerStandsManager({
       <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-md">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[960px] text-left text-sm">
-            <thead className="bg-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 border-b border-white/10">
-              <tr>
+            <thead>
+              <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
                 {userRoleState === "organiser" && (
-                  <th className="px-6 py-5 w-12 text-center">
+                  <th className="px-6 py-4 font-black uppercase tracking-wider w-12 text-center">
                     <input
                       type="checkbox"
                       checked={paged.length > 0 && paged.every((s) => selectedIds.includes(s.id))}
@@ -427,14 +428,14 @@ export function BannerStandsManager({
                     />
                   </th>
                 )}
-                <th className="px-6 py-5">Exhibitor Details</th>
-                <th className="px-6 py-5">Sponsor's Business</th>
-                <th className="px-6 py-5">Topic / Title</th>
-                <th className="px-6 py-5">Event Date</th>
-                <th className="px-6 py-5">Price Matrix</th>
-                <th className="px-6 py-5">Exchange</th>
-                <th className="px-6 py-5">Status</th>
-                <th className="px-6 py-5 text-right">Manage</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Exhibitor Details</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Sponsor's Business</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Topic / Title</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Event Date</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Price Matrix</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Exchange</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider text-right">Manage</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 font-medium">
@@ -554,7 +555,8 @@ export function BannerStandsManager({
 
       {/* ALLOCATE / EDIT MODAL */}
       {modalMode !== null && mounted && createPortal(
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+        <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="relative w-full max-w-2xl overflow-hidden rounded-3xl border border-white/10 bg-zinc-900 p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-black uppercase text-brand-purple tracking-tight mb-6">
               {modalMode === "add" ? "Allocate Banner Stand" : "Edit Allocated Stand Details"}
@@ -758,13 +760,15 @@ export function BannerStandsManager({
               </div>
             </form>
           </div>
-        </div>,
+        </div>
+    </ModalPortal>,
         document.body
       )}
 
       {/* ADJUST / OVERRIDE AMOUNT MODAL */}
       {amountModalOpen && activeRecord && mounted && createPortal(
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-white/10 bg-zinc-900 p-8 shadow-2xl">
             <h2 className="text-xl font-black uppercase text-brand-purple tracking-tight mb-2">
               Adjust Amount
@@ -848,7 +852,8 @@ export function BannerStandsManager({
               </div>
             </form>
           </div>
-        </div>,
+        </div>
+    </ModalPortal>,
         document.body
       )}
     </div>

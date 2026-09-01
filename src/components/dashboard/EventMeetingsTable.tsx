@@ -62,12 +62,12 @@ export function EventMeetingsTable({ meetings, role }: Props) {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[700px] text-left text-sm">
-              <thead className="bg-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 border-b border-white/10">
-                <tr>
-                  <th className="px-6 py-5 font-black">Date</th>
-                  <th className="px-6 py-5 font-black">Time</th>
-                  {role !== "exhibitor" && <th className="px-6 py-5 font-black">Exhibitor</th>}
-                  <th className="px-6 py-5 font-black">Attendee</th>
+              <thead>
+                <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                  <th className="px-6 py-4 font-black uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider">Time</th>
+                  {role !== "exhibitor" && <th className="px-6 py-4 font-black uppercase tracking-wider">Exhibitor</th>}
+                  <th className="px-6 py-4 font-black uppercase tracking-wider">Attendee</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">

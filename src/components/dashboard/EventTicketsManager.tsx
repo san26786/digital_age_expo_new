@@ -10,6 +10,7 @@ import { eventTicketSchema, type EventTicketInput } from "@/lib/validations/even
 import type { EventTicketRow } from "@/lib/services/eventTickets";
 import { TablePagination } from "@/components/dashboard/TablePagination";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 const PAGE_SIZE = 20;
 
 const FIELD_CLASS =
@@ -73,7 +74,8 @@ function TicketFormModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-xl">
+    <ModalPortal>
+      <div className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto overscroll-contain bg-black/80 p-4 backdrop-blur-xl">
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl border border-white/10 bg-zinc-900 p-8 shadow-2xl animate-in fade-in zoom-in duration-300">
         <div className="flex items-center justify-between border-b border-white/10 pb-6 mb-6">
           <h3 className="text-xl font-black uppercase tracking-tight text-white">{isEdit ? "Edit Ticket" : "Add Ticket"}</h3>
@@ -175,6 +177,7 @@ function TicketFormModal({
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }
 
@@ -231,13 +234,13 @@ export function EventTicketsManager({ tickets }: { tickets: EventTicketRow[] }) 
       <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-md">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-sm">
-            <thead className="bg-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 border-b border-white/10">
-              <tr>
-                <th className="px-6 py-5">Ticket</th>
-                <th className="px-6 py-5">Price</th>
-                <th className="px-6 py-5">Early Bird</th>
-                <th className="px-6 py-5">Status</th>
-                <th className="px-6 py-5 text-right">Manage</th>
+            <thead>
+              <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Ticket</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Price</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Early Bird</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider text-right">Manage</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">

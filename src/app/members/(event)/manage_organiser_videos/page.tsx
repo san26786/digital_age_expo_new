@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { TablePagination } from "@/components/dashboard/TablePagination";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 interface OrganiserVideo {
   id: number;
   title: string;
@@ -413,8 +414,9 @@ export default function ManageOrganiserVideosPage() {
       {activePlayer &&
         mounted &&
         createPortal(
-          <div
-            className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center bg-black/90 p-4"
+          <ModalPortal>
+      <div
+            className="fixed inset-0 z-[9999] grid h-screen w-screen place-items-center overflow-y-auto overscroll-contain bg-black/90 p-4"
             onClick={() =>
               setActivePlayer(null)
             }
@@ -447,7 +449,8 @@ export default function ManageOrganiserVideosPage() {
                 allowFullScreen
               />
             </div>
-          </div>,
+          </div>
+    </ModalPortal>,
           document.body
         )}
 
@@ -457,8 +460,9 @@ export default function ManageOrganiserVideosPage() {
       {modalOpen &&
         mounted &&
         createPortal(
-          <div
-            className="fixed inset-0 z-[9999] flex h-screen w-screen items-center justify-center bg-black/70 p-4 backdrop-blur-md"
+          <ModalPortal>
+      <div
+            className="fixed inset-0 z-[9999] grid h-screen w-screen place-items-center overflow-y-auto overscroll-contain bg-black/70 p-4 backdrop-blur-md"
             onClick={closeModal}
           >
             <div
@@ -624,7 +628,8 @@ export default function ManageOrganiserVideosPage() {
                 </div>
               </form>
             </div>
-          </div>,
+          </div>
+    </ModalPortal>,
           document.body
         )}
     </div>

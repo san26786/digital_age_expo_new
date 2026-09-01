@@ -35,6 +35,7 @@ import {
 } from "@/lib/validations/eventLobbyAgendaTrack";
 import type { AgendaItemRow, AgendaTrackRow, AssignableSpeakerOption } from "@/lib/services/eventLobbyAgendaItems";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 const FIELD_CLASS =
   "w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-brand-purple focus:outline-none focus:ring-1 focus:ring-brand-purple";
 const LABEL_CLASS = "mb-1 block text-sm font-semibold text-slate-800";
@@ -109,7 +110,8 @@ function TrackFormModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
+    <ModalPortal>
+      <div className="fixed inset-0 z-[60] grid place-items-center overflow-y-auto overscroll-contain bg-slate-900/60 p-4 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl border border-slate-200">
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <h3 className="text-base font-bold text-slate-900">{isEdit ? "Edit Track" : "New Session Track"}</h3>
@@ -170,6 +172,7 @@ function TrackFormModal({
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }
 
@@ -201,7 +204,8 @@ function ManageTracksModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-slate-900/60 p-4 backdrop-blur-sm">
       <div className="max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl border border-slate-200">
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div className="flex items-center gap-2.5">
@@ -283,6 +287,7 @@ function ManageTracksModal({
         />
       )}
     </div>
+    </ModalPortal>
   );
 }
 
@@ -353,7 +358,8 @@ function SessionFormModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-slate-900/60 p-4 backdrop-blur-sm">
       <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl border border-slate-200">
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div className="flex items-center gap-2.5">
@@ -504,6 +510,7 @@ function SessionFormModal({
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }
 

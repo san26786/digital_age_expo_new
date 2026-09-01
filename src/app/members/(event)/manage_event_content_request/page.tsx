@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plus, Pencil, Trash2, Search, X, FileEdit, FileText, Calendar, AlignLeft, CheckCircle2, Clipboard, Sparkles } from "lucide-react";
 import { TablePagination } from "@/components/dashboard/TablePagination";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 interface ContentRequest {
   id: number;
   title: string;
@@ -160,12 +161,15 @@ export default function ManageEventContentRequestPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black uppercase tracking-wider brand-gradient-text">Manage Content Requests</h1>
-          <p className="text-sm text-zinc-400 font-medium mt-1">
-            Request, draft, and approve custom directory copywriting, newsletter features, and magazine articles.
-          </p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-pink shadow-lg shadow-brand-pink/20">
+            <FileText className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white flex items-center gap-2">Manage Content Requests</h1>
+            <p className="text-xs font-medium text-zinc-400 mt-1">Request, draft, and approve custom directory copywriting, newsletter features, and magazine articles.</p>
+          </div>
         </div>
         <button
           onClick={openAddModal}
@@ -276,7 +280,8 @@ export default function ManageEventContentRequestPage() {
 
       {/* Copywriting Result Drawer / Modal */}
       {viewingResult && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md animate-fade-in">
+        <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="w-full max-w-xl rounded-2xl bg-zinc-950 border border-white/10 p-6 shadow-2xl text-white">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div className="space-y-0.5">
@@ -311,11 +316,13 @@ export default function ManageEventContentRequestPage() {
             </div>
           </div>
         </div>
+    </ModalPortal>
       )}
 
       {/* Form modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-md animate-fade-in">
+        <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-zinc-950 border border-white/10 p-6 shadow-2xl text-white">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <h3 className="text-lg font-black uppercase tracking-wider brand-gradient-text">
@@ -439,6 +446,7 @@ export default function ManageEventContentRequestPage() {
             </form>
           </div>
         </div>
+    </ModalPortal>
       )}
     </div>
   );

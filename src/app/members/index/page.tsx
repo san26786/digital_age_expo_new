@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { Eye, EyeOff, Home, ChevronRight, Lock, User, Sparkles } from "lucide-react";
+import { ModalPortal } from "@/components/ui/ModalPortal";
 
 function MembersLoginContent() {
   const router = useRouter();
@@ -124,7 +125,8 @@ function MembersLoginContent() {
 
       {/* Modal Popup */}
       {showModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
+        <ModalPortal>
+        <div className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-300">
           <div className="glass-panel border-white/20 rounded-[2rem] max-w-md w-full p-8 shadow-2xl space-y-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-6">
               <div className="flex items-center gap-3">
@@ -151,6 +153,7 @@ function MembersLoginContent() {
             </div>
           </div>
         </div>
+        </ModalPortal>
       )}
 
       {/* Navigation */}

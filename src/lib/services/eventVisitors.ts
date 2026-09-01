@@ -1,6 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import type { EventMemberContext } from "@/lib/services/eventAccess";
-import type { EventVisitorInput } from "@/lib/validations/eventVisitor";
+import {
+  eventVisitorSchema,
+  VISITOR_STATUSES,
+  type EventVisitorInput,
+} from "@/lib/validations/eventVisitor";
 
 export const VISITORS_PAGE_SIZE = 50;
 
@@ -511,4 +515,161 @@ export async function deleteVisitor(context: EventMemberContext, id: number) {
     where: { id, event_id: context.eventId },
     data: { is_deleted: 1 },
   });
+}
+
+/* ===========================================================================
+   Email templates, bulk mail and CSV import — the "Select an Email Template"
+   and "Select an Action" toolbar from members/view_visitor_list.tpl.
+   =========================================================================== */
+
+export interface VisitorEmailTemplateOption {
+  id: string;
+  label: string;
+}
+
+/**
+ * Options for the "Select an Email Template" dropdown.
+ *
+ * The legacy page builds this from `Email_General->getEmailTemplateOptionsByProcessName()` —
+ * find_email_templates narrowed to one process. Visitor-facing templates are preferred; if that
+ * matches nothing (which is what happens where process_name was never populated) every enabled
+ * template is offered instead, because an empty dropdown reads as broken.
+ */
+export async function getVisitorEmailTemplates(): Promise<VisitorEmailTemplateOption[]> {
+  const select = { id: true, type: true, action_btn_name: true } as const;
+  const orderBy = [{ priority_order: "asc" as const }, { id: "asc" as const }];
+
+  const scoped = await prisma.find_email_templates.findMany({
+    where: { disable: 0, process_name: { contains: "isitor" } },
+    orderBy,
+    select,
+  });
+
+  const rows = scoped.length > 0
+    ? scoped
+    : await prisma.find_email_templates.findMany({ where: { disable: 0 }, orderBy, select });
+
+  return rows.map((r: any) => ({
+    id: r.id,
+    // action_btn_name is the label the CP sets; `type` is the internal key and always present.
+    label: (r.action_btn_name || r.type || r.id) as string,
+  }));
+}
+
+export interface VisitorImportResult {
+  created: number;
+  skipped: number;
+  skippedEmails: string[];
+  invalid: { row: number; name: string; reason: string }[];
+}
+
+/**
+ * Bulk CSV import — the Next port of view_visitor.php's `importform` modal, which uploaded a
+ * file and inserted rows into find_events_rsvp.
+ *
+ * Duplicates match on EMAIL, case-insensitively, scoped to this event: it is what identifies a
+ * visitor and find_events_rsvp has no other stable key. Existing visitors are SKIPPED, never
+ * updated — an import must not overwrite a status someone set while working a call list — so
+ * re-importing the same file is a no-op.
+ *
+ * Rows are created through createVisitor(), the same function the Add Visitor form calls, so an
+ * imported visitor carries the identical REQUIRED_LEGACY_DEFAULTS and added_by/created_by
+ * stamping as one added by hand. A bulk insert would skip those and produce rows the rest of the
+ * app treats differently.
+ */
+export async function importVisitors(
+  context: EventMemberContext,
+  rows: Record<string, string>[]
+): Promise<VisitorImportResult> {
+  const result: VisitorImportResult = { created: 0, skipped: 0, skippedEmails: [], invalid: [] };
+  if (context.role !== "organiser") return result;
+
+  const existing = await prisma.find_events_rsvp.findMany({
+    where: { event_id: context.eventId },
+    select: { email: true },
+  });
+  const haveEmails = new Set(
+    existing
+      .map((r: { email: string | null }) => (r.email ?? "").trim().toLowerCase())
+      .filter((e: string) => e !== ""),
+  );
+
+  const truthy = (v: string | undefined) =>
+    ["yes", "true", "y", "1"].includes((v ?? "").trim().toLowerCase());
+
+  for (let index = 0; index < rows.length; index++) {
+    const raw = rows[index] ?? {};
+
+    // A single "Name" column is split on the first space when First/Last are absent.
+    let firstName = (raw.first_name ?? "").trim();
+    let lastName = (raw.last_name ?? "").trim();
+    if (!firstName && !lastName && raw.name) {
+      const whole = raw.name.trim();
+      const cut = whole.indexOf(" ");
+      firstName = cut === -1 ? whole : whole.slice(0, cut);
+      lastName = cut === -1 ? "" : whole.slice(cut + 1).trim();
+    }
+
+    // Status is matched case-insensitively so a spreadsheet saying "registered" is accepted;
+    // anything unrecognised falls back to Pending rather than failing the row.
+    const wanted = (raw.status ?? "").trim().toLowerCase();
+    const status =
+      (VISITOR_STATUSES as readonly string[]).find((s) => s.toLowerCase() === wanted) ?? "Pending";
+
+    const candidate = {
+      first_name: firstName,
+      last_name: lastName,
+      email: (raw.email ?? "").trim(),
+      phone: (raw.phone ?? "").trim(),
+      workphone: (raw.workphone ?? "").trim(),
+      gender: (raw.gender ?? "").trim(),
+      business: (raw.business ?? "").trim(),
+      position: (raw.position ?? "").trim(),
+      linkedin_user_profile: (raw.linkedin_user_profile ?? "").trim(),
+      referral_code: (raw.referral_code ?? "").trim(),
+      batch_number: (raw.batch_number ?? "").trim(),
+      source: (raw.source ?? "").trim() || "csv_import",
+      visitor_is_webinars: truthy(raw.visitor_is_webinars),
+      visitor_is_workshops: truthy(raw.visitor_is_workshops),
+      visitor_is_e_magazine: truthy(raw.visitor_is_e_magazine),
+      visitor_is_newsletter: truthy(raw.visitor_is_newsletter),
+      status,
+    };
+
+    const parsed = eventVisitorSchema.safeParse(candidate);
+    if (!parsed.success) {
+      const fields = parsed.error.flatten().fieldErrors;
+      const reason =
+        Object.values(fields).find((m) => Array.isArray(m) && m.length > 0)?.[0] ?? "Invalid row";
+      result.invalid.push({
+        row: index + 1,
+        name: `${firstName} ${lastName}`.trim() || candidate.email || "(blank)",
+        reason,
+      });
+      continue;
+    }
+
+    const key = parsed.data.email.trim().toLowerCase();
+    // Catches a file that repeats someone, not just a clash with the database.
+    if (haveEmails.has(key)) {
+      result.skipped += 1;
+      result.skippedEmails.push(parsed.data.email);
+      continue;
+    }
+    haveEmails.add(key);
+
+    try {
+      await createVisitor(context, parsed.data);
+      result.created += 1;
+    } catch (err) {
+      console.error("[importVisitors] row failed:", err);
+      result.invalid.push({
+        row: index + 1,
+        name: parsed.data.email,
+        reason: "Could not be saved — see server log",
+      });
+    }
+  }
+
+  return result;
 }

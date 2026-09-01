@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import type { IndustryInput } from "@/lib/validations/eventIndustry";
+import { industrySchema, type IndustryInput } from "@/lib/validations/eventIndustry";
 
 /** independent_mst is a shared, non-event-scoped reference table keyed by typ_id — 7 is the
  * "Industry" record type (mirrors members/view_industry_list.php's `where typ_id=7`). */
@@ -177,4 +177,84 @@ export async function updateIndustry(id: number, input: IndustryInput): Promise<
 export async function deleteIndustry(id: number): Promise<void> {
   // Mirrors the legacy action=delete_industry branch's plain `DELETE FROM independent_mst`.
   await prisma.independent_mst.delete({ where: { id } });
+}
+
+export interface IndustryImportResult {
+  created: number;
+  /** Rows whose code (or name, when the code is blank) already exists. */
+  skipped: number;
+  skippedNames: string[];
+  /** Rows rejected by industrySchema — reported rather than silently dropped. */
+  invalid: { row: number; name: string; reason: string }[];
+}
+
+/**
+ * Bulk counterpart of createIndustry(), backing the CSV import on the Event Industry page.
+ *
+ * Duplicate detection happens HERE rather than in the browser on purpose: getIndustries() caps at
+ * 100 rows, so the client cannot see the full set of existing codes and would happily re-create
+ * anything past that cap. Matching is on mstr_cd case-insensitively, falling back to mstr_nm when
+ * a row carries no code (the legacy form allows blank codes).
+ *
+ * Rows already present are SKIPPED, never updated — an import must not silently overwrite a
+ * description someone edited by hand. Re-importing the same file is therefore a no-op.
+ */
+export async function importIndustries(rows: IndustryInput[]): Promise<IndustryImportResult> {
+  const existing = await prisma.independent_mst.findMany({
+    where: { typ_id: INDUSTRY_TYP_ID },
+    select: { mstr_cd: true, mstr_nm: true },
+  });
+
+  const haveCodes = new Set(
+    existing
+      .map((r: { mstr_cd: string | null }) => (r.mstr_cd ?? "").trim().toLowerCase())
+      .filter((c: string) => c !== ""),
+  );
+  const haveNames = new Set(
+    existing.map((r: { mstr_nm: string }) => r.mstr_nm.trim().toLowerCase()),
+  );
+
+  const result: IndustryImportResult = { created: 0, skipped: 0, skippedNames: [], invalid: [] };
+  const toCreate: { mstr_nm: string; mstr_cd: string | null; mstr_desc: string | null }[] = [];
+
+  rows.forEach((raw, index) => {
+    const parsed = industrySchema.safeParse(raw);
+    if (!parsed.success) {
+      const fields = parsed.error.flatten().fieldErrors;
+      const reason =
+        Object.values(fields).find((m) => Array.isArray(m) && m.length > 0)?.[0] ?? "Invalid row";
+      result.invalid.push({ row: index + 1, name: String(raw?.mstr_nm ?? "").slice(0, 60), reason });
+      return;
+    }
+
+    const input = parsed.data;
+    const code = (input.mstr_cd ?? "").trim().toLowerCase();
+    const name = input.mstr_nm.trim().toLowerCase();
+
+    // A file that repeats a row is deduped too, not just a row that clashes with the database.
+    const duplicate = code ? haveCodes.has(code) : haveNames.has(name);
+    if (duplicate) {
+      result.skipped += 1;
+      result.skippedNames.push(input.mstr_nm);
+      return;
+    }
+    if (code) haveCodes.add(code);
+    haveNames.add(name);
+
+    toCreate.push({
+      mstr_nm: input.mstr_nm,
+      mstr_cd: input.mstr_cd || null,
+      mstr_desc: input.mstr_desc || null,
+    });
+  });
+
+  if (toCreate.length > 0) {
+    // Same column set createIndustry() writes; business_value is NOT NULL with no default.
+    await prisma.independent_mst.createMany({
+      data: toCreate.map((r) => ({ ...r, typ_id: INDUSTRY_TYP_ID, business_value: 0 })),
+    });
+    result.created = toCreate.length;
+  }
+
+  return result;
 }

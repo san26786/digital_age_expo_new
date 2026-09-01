@@ -4,6 +4,8 @@ import { getDomain } from "@/lib/services/domain";
 import { getEventMemberContext } from "@/lib/services/eventAccess";
 import { getSponsorshipSetupRows, getSponsorshipSetupStats } from "@/lib/services/eventSponsorshipSetup";
 import { EventSponsorshipSetupManager } from "@/components/dashboard/EventSponsorshipSetupManager";
+import { MembersBreadcrumb, MembersPageHeader } from "@/components/ui/MembersPageShell";
+import { Handshake } from "lucide-react";
 
 export const metadata = { title: "Event Sponsorship Setup" };
 
@@ -31,13 +33,15 @@ export default async function EventSponsorshipSetupPage({ searchParams }: PagePr
 
   if (context.role !== "organiser") {
     return (
-      <div className="space-y-8">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="h-px w-8 bg-brand-pink" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-pink">Restricted Access</p>
-          </div>
-          <h1 className="text-4xl font-black uppercase tracking-tight text-white">Sponsorship Setup</h1>
+      <div className="section-transition space-y-8 animate-fade-in text-white">
+        <MembersBreadcrumb label="Sponsorship Setup" />
+
+        <div className="glass-panel rounded-2xl p-8 shadow-2xl border border-white/10">
+          <MembersPageHeader
+            title="Sponsorship Setup"
+            icon={Handshake}
+            pill="Restricted Access"
+          />
         </div>
         <div className="glass-panel rounded-3xl p-12 text-center border-dashed border-white/10">
           <p className="text-zinc-400 font-medium italic">
@@ -52,17 +56,17 @@ export default async function EventSponsorshipSetupPage({ searchParams }: PagePr
   const stats = await getSponsorshipSetupStats(context.eventId);
 
   return (
-    <div className="space-y-8">
+    <div className="section-transition space-y-8 animate-fade-in text-white">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 border-b border-white/10 pb-6">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="h-px w-8 bg-brand-pink" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-pink">Sponsorship Management</p>
-          </div>
-          <h1 className="text-4xl font-black uppercase tracking-tight text-white">Sponsorship Setup</h1>
-          <p className="text-zinc-400 font-medium max-w-2xl">
-            Configure sponsorship tiers, availability, pricing, early bird discounts, and perks for this event.
-          </p>
+        <MembersBreadcrumb label="Sponsorship Setup" />
+
+        <div className="glass-panel rounded-2xl p-8 shadow-2xl border border-white/10">
+          <MembersPageHeader
+            title="Sponsorship Setup"
+            description="Configure sponsorship tiers, availability, pricing, early bird discounts, and perks for this event."
+            icon={Handshake}
+            pill="Sponsorship Management"
+          />
         </div>
         <div className="glass-panel px-6 py-3 rounded-full border-brand-pink/20 bg-white/5">
           <span className="text-sm font-black uppercase tracking-widest text-brand-pink">

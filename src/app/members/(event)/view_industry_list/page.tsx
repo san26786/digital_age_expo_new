@@ -7,6 +7,8 @@ import { getEventMemberContext } from "@/lib/services/eventAccess";
 import { getIndustries } from "@/lib/services/eventIndustry";
 import { IndustryManager } from "@/components/dashboard/IndustryManager";
 import { DEFAULT_EVENT_ID } from "@/lib/site-config";
+import { MembersBreadcrumb, MembersPageHeader } from "@/components/ui/MembersPageShell";
+import { Factory } from "lucide-react";
 
 export const metadata = { title: "Event Industry" };
 
@@ -46,16 +48,16 @@ export default async function ViewIndustryListPage({
   const industries = await getIndustries();
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <div className="h-px w-8 bg-brand-pink" />
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-pink">Event Context</p>
-        </div>
-        <h1 className="text-4xl font-black uppercase tracking-tight text-white">Event Industry</h1>
-        <p className="text-zinc-400 font-medium max-w-2xl">
-          Manage, add, update, and edit industry categories and services across the platform using the industries model.
-        </p>
+    <div className="section-transition space-y-8 animate-fade-in text-white">
+      <MembersBreadcrumb label="Event Industry" />
+
+      <div className="glass-panel rounded-2xl p-8 shadow-2xl border border-white/10">
+        <MembersPageHeader
+          title="Event Industry"
+          description="Manage, add, update, and edit industry categories and services across the platform using the industries model."
+          icon={Factory}
+          pill="Event Context"
+        />
       </div>
 
       <div>

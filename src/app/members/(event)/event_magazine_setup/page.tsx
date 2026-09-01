@@ -8,6 +8,8 @@ import {
   getMagazineOptions,
 } from "@/lib/services/eventMagazineSetup";
 import { EventMagazineSetupManager } from "@/components/dashboard/EventMagazineSetupManager";
+import { MembersBreadcrumb, MembersPageHeader } from "@/components/ui/MembersPageShell";
+import { BookOpen } from "lucide-react";
 
 export const metadata = { title: "Manage Magazine Page Setup" };
 
@@ -35,13 +37,15 @@ export default async function EventMagazineSetupPage({ searchParams }: PageProps
 
   if (context.role !== "organiser") {
     return (
-      <div className="space-y-8">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="h-px w-8 bg-brand-pink" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-pink">Restricted Access</p>
-          </div>
-          <h1 className="text-4xl font-black uppercase tracking-tight text-white">Magazine Page Setup</h1>
+      <div className="section-transition space-y-8 animate-fade-in text-white">
+        <MembersBreadcrumb label="Magazine Page Setup" />
+
+        <div className="glass-panel rounded-2xl p-8 shadow-2xl border border-white/10">
+          <MembersPageHeader
+            title="Magazine Page Setup"
+            icon={BookOpen}
+            pill="Restricted Access"
+          />
         </div>
         <div className="glass-panel rounded-3xl p-12 text-center border-dashed border-white/10">
           <p className="text-zinc-400 font-medium italic">
@@ -57,20 +61,17 @@ export default async function EventMagazineSetupPage({ searchParams }: PageProps
   const initialOptions = await getMagazineOptions();
 
   return (
-    <div className="space-y-8">
+    <div className="section-transition space-y-8 animate-fade-in text-white">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 border-b border-white/10 pb-6">
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <div className="h-px w-8 bg-brand-pink" />
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-pink">Event Administration</p>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-white">
-            Manage Magazine Page Setup
-          </h1>
-          <p className="text-zinc-400 font-medium max-w-2xl">
-            Configure section names, advert sizes, available pages, used counts, and automated magazine page rate setup for Event #{context.eventId}.
-          </p>
+        <MembersBreadcrumb label="Manage Magazine Page Setup" />
+
+        <div className="glass-panel rounded-2xl p-8 shadow-2xl border border-white/10">
+          <MembersPageHeader
+            title="Manage Magazine Page Setup"
+            icon={BookOpen}
+            pill="Event Administration"
+          />
         </div>
       </div>
 

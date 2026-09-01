@@ -5,6 +5,8 @@ import { getDomain } from "@/lib/services/domain";
 import { getEventMemberContext } from "@/lib/services/eventAccess";
 import { getEventFaqs } from "@/lib/services/eventFaqDisplay";
 import { EventFaqList } from "@/components/dashboard/EventFaqList";
+import { MembersBreadcrumb, MembersPageHeader } from "@/components/ui/MembersPageShell";
+import { HelpCircle } from "lucide-react";
 
 export const metadata = { title: "Event FAQ" };
 
@@ -27,18 +29,16 @@ export default async function EventFaqPage() {
   const faqData = await getEventFaqs(context);
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <div className="h-px w-8 bg-brand-pink" />
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-pink">Support Center</p>
-        </div>
-        <h1 className="text-4xl font-black uppercase tracking-tight text-white">Event FAQ</h1>
-        <p className="text-zinc-400 font-medium max-w-2xl">
-          {faqData.canManage
-            ? "Manage frequently asked questions to help your exhibitors navigate the event."
-            : "Find answers to the most common questions about this event."}
-        </p>
+    <div className="section-transition space-y-8 animate-fade-in text-white">
+      <MembersBreadcrumb label="Event FAQ" />
+
+      <div className="glass-panel rounded-2xl p-8 shadow-2xl border border-white/10">
+        <MembersPageHeader
+          title="Event FAQ"
+          description={faqData.canManage ? "Manage frequently asked questions to help your exhibitors navigate the event." : "Find answers to the most common questions about this event."}
+          icon={HelpCircle}
+          pill="Support Center"
+        />
       </div>
 
       <div>

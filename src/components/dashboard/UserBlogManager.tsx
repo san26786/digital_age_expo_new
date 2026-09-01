@@ -7,6 +7,7 @@ import { AlertTriangle, Eye, Pencil, Plus, Trash2, X } from "lucide-react";
 import { BLOG_STATUSES } from "@/lib/validations/userBlog";
 import type { BlogPostRow } from "@/lib/services/userBlog";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 /**
  * Port of legacy members/user_blog.tpl + blocks/user_blog_list.tpl.
  *
@@ -254,7 +255,8 @@ export function UserBlogManager({ eventId, posts }: Props) {
       )}
 
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+        <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="glass-panel max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl p-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <h3 className="text-lg font-black uppercase text-white">
@@ -373,6 +375,7 @@ export function UserBlogManager({ eventId, posts }: Props) {
             </form>
           </div>
         </div>
+    </ModalPortal>
       )}
     </div>
   );

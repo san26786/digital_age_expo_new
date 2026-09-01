@@ -25,6 +25,7 @@ import type {
   MagazineOptions,
 } from "@/lib/services/eventMagazineSetup";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 interface Props {
   initialItems: MagazineSetupRow[];
   initialStats: MagazineSetupStats;
@@ -527,8 +528,8 @@ export function EventMagazineSetupManager({
         <div className="overflow-x-auto rounded-2xl border border-white/10 bg-zinc-950/60">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-white/10 bg-white/[0.02] text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                <th className="py-4 px-4 w-10 text-center">
+              <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                <th className="px-6 py-4 font-black uppercase tracking-wider w-10 text-center">
                   <button
                     type="button"
                     onClick={handleSelectAll}
@@ -541,14 +542,14 @@ export function EventMagazineSetupManager({
                     )}
                   </button>
                 </th>
-                <th className="py-4 px-4">ID</th>
-                <th className="py-4 px-4">Section Name</th>
-                <th className="py-4 px-4">Section Code / Size</th>
-                <th className="py-4 px-4">Event Category</th>
-                <th className="py-4 px-4 w-28">Available</th>
-                <th className="py-4 px-4 w-28">Used</th>
-                <th className="py-4 px-4 text-center">System</th>
-                <th className="py-4 px-4 text-right">Manage</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">ID</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Section Name</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Section Code / Size</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Event Category</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider w-28">Available</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider w-28">Used</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider text-center">System</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider text-right">Manage</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 text-xs text-zinc-300">
@@ -658,7 +659,8 @@ export function EventMagazineSetupManager({
 
       {/* Add / Edit Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+        <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="glass-panel w-full max-w-lg rounded-3xl p-6 border border-white/10 bg-zinc-900 shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <h3 className="text-xl font-black uppercase tracking-tight text-white">
@@ -781,6 +783,7 @@ export function EventMagazineSetupManager({
             </form>
           </div>
         </div>
+    </ModalPortal>
       )}
     </div>
   );

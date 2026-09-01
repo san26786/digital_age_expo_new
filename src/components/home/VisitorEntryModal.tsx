@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { X, LogIn, CheckCircle2, Ticket } from "lucide-react";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 /**
  * "Visitor Login" entry point — surfaced when the homepage is opened with
  * `?view=virtual-event` (the nav menu's Visitor Login links, see menu.ts ids 24 & 82).
@@ -40,7 +41,8 @@ export function VisitorEntryModal() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/70 backdrop-blur-sm p-4">
       <div className="bg-slate-900 border border-white/15 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5 relative">
         <button
           type="button"
@@ -117,5 +119,6 @@ export function VisitorEntryModal() {
         )}
       </div>
     </div>
+    </ModalPortal>
   );
 }

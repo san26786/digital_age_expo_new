@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import type { SponsorshipSetupRow, SponsorshipSetupStats } from "@/lib/services/eventSponsorshipSetup";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 interface Props {
   initialItems: SponsorshipSetupRow[];
   initialStats: SponsorshipSetupStats;
@@ -522,9 +523,9 @@ export function EventSponsorshipSetupManager({ initialItems, initialStats, event
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-zinc-300">
-              <thead className="bg-zinc-950 text-[11px] font-black uppercase tracking-wider text-zinc-400 border-b border-white/10">
-                <tr>
-                  <th className="px-4 py-4 w-10 text-center">
+              <thead>
+                <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                  <th className="px-6 py-4 font-black uppercase tracking-wider w-10 text-center">
                     <button type="button" onClick={toggleSelectAll} className="text-zinc-400 hover:text-white">
                       {isAllSelected ? (
                         <CheckSquare className="h-4 w-4 text-brand-pink" />
@@ -533,15 +534,15 @@ export function EventSponsorshipSetupManager({ initialItems, initialStats, event
                       )}
                     </button>
                   </th>
-                  <th className="px-4 py-4 w-16">ID</th>
-                  <th className="px-6 py-4 font-bold">Sponsorship Title</th>
-                  <th className="px-4 py-4 font-bold">Category</th>
-                  <th className="px-4 py-4 font-bold w-24 text-center">Available</th>
-                  <th className="px-4 py-4 font-bold w-24 text-center">Used</th>
-                  <th className="px-4 py-4 font-bold w-20 text-center">Order</th>
-                  <th className="px-4 py-4 font-bold w-20 text-center">Active</th>
-                  <th className="px-4 py-4 font-bold w-20 text-center">Sold Out</th>
-                  <th className="px-6 py-4 font-bold text-right">Manage</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider w-16">ID</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider">Sponsorship Title</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider">Category</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider w-24 text-center">Available</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider w-24 text-center">Used</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider w-20 text-center">Order</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider w-20 text-center">Active</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider w-20 text-center">Sold Out</th>
+                  <th className="px-6 py-4 font-black uppercase tracking-wider text-right">Manage</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -711,7 +712,8 @@ export function EventSponsorshipSetupManager({ initialItems, initialStats, event
 
       {/* Detail Modal */}
       {isDetailModalOpen && detailItem && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+        <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="w-full max-w-2xl rounded-3xl border border-white/10 bg-zinc-900 p-6 space-y-6 shadow-2xl text-white">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
@@ -784,11 +786,13 @@ export function EventSponsorshipSetupManager({ initialItems, initialStats, event
             </div>
           </div>
         </div>
+    </ModalPortal>
       )}
 
       {/* Add / Edit Form Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in overflow-y-auto">
+        <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="w-full max-w-3xl my-8 rounded-3xl border border-white/10 bg-zinc-900 p-6 space-y-6 shadow-2xl text-white">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
@@ -980,6 +984,7 @@ export function EventSponsorshipSetupManager({ initialItems, initialStats, event
             </form>
           </div>
         </div>
+    </ModalPortal>
       )}
     </div>
   );

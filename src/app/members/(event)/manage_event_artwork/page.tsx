@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Plus, Pencil, Trash2, Search, X, CheckSquare, XSquare, Clock, LayoutGrid, List, FileImage, CheckCircle2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, X, CheckSquare, XSquare, Clock, LayoutGrid, List, FileImage, CheckCircle2, Image } from "lucide-react";
 import { TablePagination } from "@/components/dashboard/TablePagination";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 interface ArtworkSubmission {
   id: number;
   exhibitor: string;
@@ -189,12 +190,15 @@ export default function ManageEventArtworkPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black uppercase tracking-wider brand-gradient-text">Manage Stand Artworks</h1>
-          <p className="text-sm text-zinc-400 font-medium mt-1">
-            Review, approve, and manage exhibition stand graphics and banner artwork submissions from exhibitors.
-          </p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-pink shadow-lg shadow-brand-pink/20">
+            <Image className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white flex items-center gap-2">Manage Stand Artworks</h1>
+            <p className="text-xs font-medium text-zinc-400 mt-1">Review, approve, and manage exhibition stand graphics and banner artwork submissions from exhibitors.</p>
+          </div>
         </div>
         <button
           onClick={openAddModal}
@@ -363,7 +367,8 @@ export default function ManageEventArtworkPage() {
       {modalOpen &&
         mounted &&
         createPortal(
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-md animate-fade-in">
+          <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
             <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-zinc-950 border border-white/10 p-6 shadow-2xl text-white">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <h3 className="text-lg font-black uppercase tracking-wider brand-gradient-text">
@@ -481,7 +486,8 @@ export default function ManageEventArtworkPage() {
                 </div>
               </form>
             </div>
-          </div>,
+          </div>
+    </ModalPortal>,
           document.body
         )}
 
@@ -489,7 +495,8 @@ export default function ManageEventArtworkPage() {
       {viewingImage &&
         mounted &&
         createPortal(
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4" onClick={() => setViewingImage(null)}>
+          <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in" onClick={() => setViewingImage(null)}>
             <button className="absolute top-4 right-4 text-white hover:text-zinc-400">
               <X className="h-8 w-8" />
             </button>
@@ -499,7 +506,8 @@ export default function ManageEventArtworkPage() {
               alt="Expanded Artwork"
               className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg border border-white/10 shadow-2xl"
             />
-          </div>,
+          </div>
+    </ModalPortal>,
           document.body
         )}
     </div>

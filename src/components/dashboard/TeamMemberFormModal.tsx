@@ -7,6 +7,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 import { eventTeamMemberSchema, type EventTeamMemberInput } from "@/lib/validations/eventTeamMember";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 const FIELD_CLASS =
   "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:border-brand-pink focus:outline-none transition-all";
 
@@ -64,7 +65,8 @@ export function TeamMemberFormModal({ defaultValues, onClose, onSaved }: Props) 
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-xl">
+    <ModalPortal>
+      <div className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto overscroll-contain bg-black/80 p-4 backdrop-blur-xl">
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-3xl border border-white/10 bg-zinc-900 p-8 shadow-2xl animate-in fade-in zoom-in duration-300">
         <div className="flex items-center justify-between border-b border-white/10 pb-6 mb-6">
           <h3 className="text-xl font-black uppercase tracking-tight text-white">
@@ -167,5 +169,6 @@ export function TeamMemberFormModal({ defaultValues, onClose, onSaved }: Props) 
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }

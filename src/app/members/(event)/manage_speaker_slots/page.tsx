@@ -4,6 +4,8 @@ import { getDomain } from "@/lib/services/domain";
 import { getEventMemberContext } from "@/lib/services/eventAccess";
 import { getSpeakerSlots, getAssignableSpeakers } from "@/lib/services/eventSpeakerSlots";
 import { SpeakerSlotsManager } from "@/components/dashboard/SpeakerSlotsManager";
+import { MembersBreadcrumb, MembersPageHeader } from "@/components/ui/MembersPageShell";
+import { CalendarClock } from "lucide-react";
 
 export const metadata = { title: "Manage Speaker Slots" };
 
@@ -23,7 +25,7 @@ export default async function ManageSpeakerSlotsPage() {
 
   if (context.role !== "organiser") {
     return (
-      <div className="space-y-8">
+      <div className="section-transition space-y-8 animate-fade-in text-white">
         <h1 className="text-4xl font-black uppercase tracking-tight text-white">Manage Speaker Slots</h1>
         <div className="glass-panel rounded-3xl p-12 text-center border-dashed border-white/10">
           <p className="text-zinc-500 font-medium italic">
@@ -37,12 +39,15 @@ export default async function ManageSpeakerSlotsPage() {
   const [slots, speakers] = await Promise.all([getSpeakerSlots(context), getAssignableSpeakers(context)]);
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-4xl font-black uppercase tracking-tight text-white">Manage Speaker&apos;s Slots</h1>
-        <p className="text-zinc-400 font-medium max-w-2xl">
-          Allocate keynote sessions, workshops, and presentation slots to active speakers across event venues and halls.
-        </p>
+    <div className="section-transition space-y-8 animate-fade-in text-white">
+      <MembersBreadcrumb label="Manage Speaker&apos;s Slots" />
+
+      <div className="glass-panel rounded-2xl p-8 shadow-2xl border border-white/10">
+        <MembersPageHeader
+          title="Manage Speaker&apos;s Slots"
+          description="Allocate keynote sessions, workshops, and presentation slots to active speakers across event venues and halls."
+          icon={CalendarClock}
+        />
       </div>
 
       <div>

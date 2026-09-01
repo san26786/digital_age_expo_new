@@ -18,6 +18,7 @@ import {
 import { assetUrl } from "@/lib/assets";
 import type { NewsFeedRow } from "@/lib/services/eventNewsFeed";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 /**
  * Port of legacy members/news_feed.tpl + blocks/news_feed_form.tpl.
  *
@@ -364,7 +365,8 @@ export function EventNewsFeedManager({ eventId, items }: Props) {
       )}
 
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+        <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="glass-panel max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl p-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <h3 className="text-lg font-black uppercase text-white">
@@ -544,6 +546,7 @@ export function EventNewsFeedManager({ eventId, items }: Props) {
             </form>
           </div>
         </div>
+    </ModalPortal>
       )}
     </div>
   );

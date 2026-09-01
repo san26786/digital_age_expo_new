@@ -9,6 +9,7 @@ import { Target, Video, Link2, Users, Pencil, Trash2, X, Check } from "lucide-re
 import { eventLobbySpotSchema, LOBBY_SPOT_TYPES, type EventLobbySpotInput } from "@/lib/validations/eventLobbySpot";
 import type { LobbySpotRow } from "@/lib/services/eventLobbySpots";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 const FIELD_CLASS =
   "w-full rounded-md border border-indigo-950/20 bg-white px-3.5 py-2.5 text-sm text-indigo-950 placeholder:text-indigo-950/40 focus:border-fuchsia-500 focus:outline-none";
 
@@ -97,7 +98,8 @@ function SpotFormModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="w-full max-w-md rounded-md bg-white p-6 shadow-2xl">
         <div className="flex items-center justify-between border-b border-slate-200 pb-4">
           <h3 className="text-lg font-black uppercase text-purple-900">{isEdit ? "Edit Spot" : "Add Spot"}</h3>
@@ -168,6 +170,7 @@ function SpotFormModal({
         </form>
       </div>
     </div>
+    </ModalPortal>
   );
 }
 

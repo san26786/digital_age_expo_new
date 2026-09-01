@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import type { LetterLogRow, LetterLogsResult } from "@/lib/services/eventLetterLogs";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 interface LetterLogsManagerProps {
   initialData: LetterLogsResult;
   eventId: number;
@@ -106,12 +107,12 @@ ${log.bodyPlain || log.bodyHtml?.replace(/<[^>]+>/g, "") || "No content recorded
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left text-xs border-collapse">
             <thead>
-              <tr className="border-b border-white/5 bg-white/5 font-black uppercase tracking-wider text-zinc-500">
-                <th className="px-4 py-3.5 w-16">ID</th>
-                <th className="px-4 py-3.5">Recipient</th>
-                <th className="px-4 py-3.5">Subject</th>
-                <th className="px-4 py-3.5 w-44">Date</th>
-                <th className="px-4 py-3.5 w-36 text-right">Manage</th>
+              <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                <th className="px-6 py-4 font-black uppercase tracking-wider w-16">ID</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Recipient</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Subject</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider w-44">Date</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider w-36 text-right">Manage</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 font-medium text-zinc-300">
@@ -199,7 +200,8 @@ ${log.bodyPlain || log.bodyHtml?.replace(/<[^>]+>/g, "") || "No content recorded
 
       {/* Modal for Viewing Letter */}
       {activeModalLog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overflow-y-auto">
+        <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="glass-panel relative w-full max-w-3xl rounded-2xl shadow-2xl border border-white/10 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-white/10 bg-black/30 px-6 py-4 text-white">
               <div className="flex items-center gap-2">
@@ -267,6 +269,7 @@ ${log.bodyPlain || log.bodyHtml?.replace(/<[^>]+>/g, "") || "No content recorded
             </div>
           </div>
         </div>
+        </ModalPortal>
       )}
     </div>
   );

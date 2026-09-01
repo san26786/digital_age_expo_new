@@ -263,11 +263,11 @@ export default async function UserIndexPage() {
                   <div className="overflow-x-auto rounded-2xl border border-white/5 bg-white/5">
                     <table className="w-full text-left text-[11px]">
                       <thead>
-                        <tr className="border-b border-white/10 bg-white/5">
-                          <th className="px-4 py-3 font-black uppercase tracking-widest text-zinc-500">Comment</th>
-                          <th className="px-4 py-3 font-black uppercase tracking-widest text-zinc-500">Type</th>
-                          <th className="px-4 py-3 font-black uppercase tracking-widest text-zinc-500 text-right">Points</th>
-                          <th className="px-4 py-3 font-black uppercase tracking-widest text-zinc-500 text-right">Balance</th>
+                        <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                          <th className="px-6 py-4 font-black uppercase tracking-wider">Comment</th>
+                          <th className="px-6 py-4 font-black uppercase tracking-wider">Type</th>
+                          <th className="px-6 py-4 font-black uppercase tracking-wider text-right">Points</th>
+                          <th className="px-6 py-4 font-black uppercase tracking-wider text-right">Balance</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5">

@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import type { EventPartnerItem } from "@/lib/services/eventPartners";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 interface EventPartnersManagerProps {
   eventId: number;
   initialPartners: EventPartnerItem[];
@@ -361,7 +362,8 @@ export function EventPartnersManager({
       {isModalOpen &&
         mounted &&
         createPortal(
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+          <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
             <div className="glass-panel w-full max-w-lg rounded-3xl border border-white/20 p-6 shadow-2xl space-y-6">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div className="flex items-center gap-3">
@@ -474,7 +476,8 @@ export function EventPartnersManager({
                 </div>
               </form>
             </div>
-          </div>,
+          </div>
+    </ModalPortal>,
           document.body
         )}
     </div>

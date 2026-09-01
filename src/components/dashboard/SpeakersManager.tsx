@@ -32,6 +32,7 @@ import {
 import type { SpeakerRow, SpeakerStats } from "@/lib/services/eventSpeakers";
 import { TablePagination } from "@/components/dashboard/TablePagination";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 const PAGE_SIZE = 20;
 
 const FIELD_CLASS =
@@ -140,7 +141,8 @@ function SpeakerFormModal({
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in duration-300">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-3xl bg-zinc-950 border border-white/10 p-6 sm:p-8 shadow-2xl space-y-6">
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div className="space-y-1">
@@ -491,7 +493,8 @@ function SpeakerFormModal({
           </div>
         </form>
       </div>
-    </div>,
+    </div>
+    </ModalPortal>,
     document.body
   );
 }
@@ -547,7 +550,8 @@ function ChangeAmountModal({
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in duration-300">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="w-full max-w-md rounded-3xl bg-zinc-950 border border-white/10 p-8 shadow-2xl space-y-6">
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div className="space-y-1">
@@ -629,7 +633,8 @@ function ChangeAmountModal({
           </div>
         </form>
       </div>
-    </div>,
+    </div>
+    </ModalPortal>,
     document.body
   );
 }
@@ -673,7 +678,8 @@ function ImportCSVModal({ onClose, onSaved }: { onClose: () => void; onSaved: ()
   if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in duration-300">
+    <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
       <div className="w-full max-w-xl rounded-3xl bg-zinc-950 border border-white/10 p-8 shadow-2xl space-y-6">
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div className="space-y-1">
@@ -723,7 +729,8 @@ function ImportCSVModal({ onClose, onSaved }: { onClose: () => void; onSaved: ()
           </div>
         </div>
       </div>
-    </div>,
+    </div>
+    </ModalPortal>,
     document.body
   );
 }
@@ -1004,9 +1011,9 @@ export function SpeakersManager({
         {/* Table */}
         <div className="overflow-x-auto rounded-2xl border border-white/5">
           <table className="w-full min-w-[950px] text-left text-sm">
-            <thead className="bg-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 border-b border-white/5">
-              <tr>
-                <th className="px-4 py-5 w-10">
+            <thead>
+              <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+                <th className="px-6 py-4 font-black uppercase tracking-wider w-10">
                   <input
                     type="checkbox"
                     onChange={handleSelectAll}
@@ -1014,13 +1021,13 @@ export function SpeakersManager({
                     className="h-4 w-4 rounded accent-brand-pink cursor-pointer"
                   />
                 </th>
-                <th className="px-4 py-5">Speaker / Business</th>
-                <th className="px-4 py-5">Contact Details</th>
-                <th className="px-4 py-5">Topic / Hall</th>
-                <th className="px-4 py-5">Status</th>
-                <th className="px-4 py-5">Account</th>
-                <th className="px-4 py-5">Price</th>
-                <th className="px-4 py-5 text-center">Manage</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Speaker / Business</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Contact Details</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Topic / Hall</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Status</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Account</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider">Price</th>
+                <th className="px-6 py-4 font-black uppercase tracking-wider text-center">Manage</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">

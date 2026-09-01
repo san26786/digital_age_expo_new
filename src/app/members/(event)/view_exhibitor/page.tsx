@@ -5,6 +5,8 @@ import { getDomain } from "@/lib/services/domain";
 import { getEventMemberContext } from "@/lib/services/eventAccess";
 import { getExhibitorsAdmin, getExhibitorsAdminStats } from "@/lib/services/eventExhibitorAdmin";
 import { ExhibitorsAdminManager } from "@/components/dashboard/ExhibitorsAdminManager";
+import { MembersBreadcrumb, MembersPageHeader } from "@/components/ui/MembersPageShell";
+import { Store } from "lucide-react";
 
 export const metadata = { title: "View Exhibitor" };
 
@@ -24,7 +26,7 @@ export default async function ViewExhibitorPage() {
 
   if (context.role !== "organiser") {
     return (
-      <div className="space-y-8">
+      <div className="section-transition space-y-8 animate-fade-in text-white">
         <h1 className="text-4xl font-black uppercase tracking-tight text-white">View Exhibitor</h1>
         <div className="glass-panel rounded-3xl p-12 text-center border-dashed">
           <p className="text-zinc-500 font-medium italic">
@@ -41,12 +43,15 @@ export default async function ViewExhibitorPage() {
   ]);
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-4xl font-black uppercase tracking-tight text-white">View Exhibitor</h1>
-        <p className="text-zinc-400 font-medium max-w-2xl">
-          Manage, allocate stands, configure digital booths, and track every exhibitor registered for this event.
-        </p>
+    <div className="section-transition space-y-8 animate-fade-in text-white">
+      <MembersBreadcrumb label="View Exhibitor" />
+
+      <div className="glass-panel rounded-2xl p-8 shadow-2xl border border-white/10">
+        <MembersPageHeader
+          title="View Exhibitor"
+          description="Manage, allocate stands, configure digital booths, and track every exhibitor registered for this event."
+          icon={Store}
+        />
       </div>
 
       <div>

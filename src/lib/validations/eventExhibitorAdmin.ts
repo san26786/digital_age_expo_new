@@ -30,6 +30,17 @@ export const EXHIBITOR_BULK_STATUS_ACTIONS = [
   "excluded",
 ] as const;
 
+/**
+ * The legacy "Add Trade Stand" form (members/view_exhibitor.php) posts every dropdown as a string,
+ * including the ones that are really foreign keys — Exhibitor business (find_listings.id),
+ * Available Stand Size (find_orders.id), Exhibition Zone / Exhibitor Stand Layout
+ * (find_event_lobby_child_layout_manager.id), Virtual Booth Number (find_event_lobby_spots.id) and
+ * Stand Color (find_event_template_color_options.id). An unselected <select> posts "", which is
+ * "no value" and not the number 0 — so these accept a number, a numeric string or an empty string
+ * and are normalised to `number | null` at the service boundary by `toNumberOrNull()`.
+ */
+const optionalId = z.union([z.number(), z.string()]).optional().nullable();
+
 export const eventExhibitorAdminSchema = z.object({
   first_name: z.string().trim().min(1, "First name is required"),
   last_name: z.string().trim().min(1, "Last name is required"),
@@ -72,7 +83,40 @@ export const eventExhibitorAdminSchema = z.object({
   is_e_magazine: z.boolean().optional().default(false),
   is_newsletter: z.boolean().optional().default(false),
   visitor_notification_mail: z.boolean().optional().default(true),
+  // --- Trade stand allocation (legacy: Exhibitor / Available Stand Size / Exhibition Zone /
+  // Virtual Booth Number / Exhibitor Stand Layout / Stand Color) ---------------------------
+  listing_id: optionalId,
+  available_stand_size: optionalId,
+  exhibition_zone_id: optionalId,
+  spot_id: optionalId,
+  ex_stand_layout_id: optionalId,
+  stand_color_id: optionalId,
+  include_column_listing: z.boolean().optional().default(false),
+  include_logo_listing: z.boolean().optional().default(false),
   status: z.enum(EXHIBITOR_STATUSES).default("pending"),
 });
 
 export type EventExhibitorAdminInput = z.infer<typeof eventExhibitorAdminSchema>;
+
+/**
+ * Total Amount as the legacy form computes it (view_exhibitor.php:728):
+ *   $exhibitor['order_subtotal'] = stand_price - discount - exchange_amount - charitable_amount
+ *
+ * It is a READ-ONLY display field on the form and is deliberately NOT part of the schema: it is
+ * never posted and never stored — find_event_exhibitor has no order_subtotal column, the legacy
+ * page recomputes it on every render. Exported here so the form and any server-side report derive
+ * it the same way instead of each re-implementing the arithmetic.
+ */
+export function exhibitorOrderSubtotal(input: {
+  stand_price?: number | string | null;
+  discount?: number | string | null;
+  exchange_amount?: number | string | null;
+  charitable_amount?: number | string | null;
+}): number {
+  const n = (v: number | string | null | undefined) => {
+    if (v === null || v === undefined || v === "") return 0;
+    const parsed = Number(v);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+  return n(input.stand_price) - n(input.discount) - n(input.exchange_amount) - n(input.charitable_amount);
+}

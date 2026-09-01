@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Download, Plus, Pencil, Trash2, Search, X, FileText, FileCheck, HardDrive, Filter, CheckCircle2 } from "lucide-react";
 import { TablePagination } from "@/components/dashboard/TablePagination";
 
+import { ModalPortal } from "@/components/ui/ModalPortal";
 interface ResourceItem {
   id: number;
   title: string;
@@ -163,12 +164,15 @@ export default function ManageEventDownloadPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-black uppercase tracking-wider brand-gradient-text">Manage Downloads</h1>
-          <p className="text-sm text-zinc-400 font-medium mt-1">
-            Provide and distribute downloadable materials, directories, and guides for this event.
-          </p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
+        <div className="flex items-center gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-pink shadow-lg shadow-brand-pink/20">
+            <Download className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white flex items-center gap-2">Manage Downloads</h1>
+            <p className="text-xs font-medium text-zinc-400 mt-1">Provide and distribute downloadable materials, directories, and guides for this event.</p>
+          </div>
         </div>
         <button
           onClick={openAddModal}
@@ -255,14 +259,14 @@ export default function ManageEventDownloadPage() {
       {/* Table List */}
       <div className="overflow-x-auto rounded-xl border border-white/10 bg-zinc-950/40 backdrop-blur-md">
         <table className="w-full min-w-[780px] text-left text-sm text-zinc-300">
-          <thead className="bg-white/5 text-zinc-200 border-b border-white/10">
-            <tr>
-              <th className="px-5 py-4 font-bold uppercase tracking-wider text-xs">Resource Info</th>
-              <th className="px-5 py-4 font-bold uppercase tracking-wider text-xs">Category</th>
-              <th className="px-5 py-4 font-bold uppercase tracking-wider text-xs">File Info</th>
-              <th className="px-5 py-4 font-bold uppercase tracking-wider text-xs">Downloads</th>
-              <th className="px-5 py-4 font-bold uppercase tracking-wider text-xs">Uploaded</th>
-              <th className="px-5 py-4 font-bold uppercase tracking-wider text-xs">Actions</th>
+          <thead>
+            <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
+              <th className="px-6 py-4 font-black uppercase tracking-wider">Resource Info</th>
+              <th className="px-6 py-4 font-black uppercase tracking-wider">Category</th>
+              <th className="px-6 py-4 font-black uppercase tracking-wider">File Info</th>
+              <th className="px-6 py-4 font-black uppercase tracking-wider">Downloads</th>
+              <th className="px-6 py-4 font-black uppercase tracking-wider">Uploaded</th>
+              <th className="px-6 py-4 font-black uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-white/5">
@@ -321,7 +325,8 @@ export default function ManageEventDownloadPage() {
 
       {/* Add / Edit Resource Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-md animate-fade-in">
+        <ModalPortal>
+      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
           <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-zinc-950 border border-white/10 p-6 shadow-2xl text-white">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <h3 className="text-lg font-black uppercase tracking-wider brand-gradient-text">
@@ -422,6 +427,7 @@ export default function ManageEventDownloadPage() {
             </form>
           </div>
         </div>
+    </ModalPortal>
       )}
     </div>
   );
