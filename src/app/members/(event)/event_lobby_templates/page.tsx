@@ -1,11 +1,13 @@
 import { numericParam } from "@/lib/searchParams";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
-import { Home, ChevronRight, LayoutTemplate, Sparkles, CheckCircle2 } from "lucide-react";
+import { Home, ChevronRight, LayoutTemplate } from "lucide-react";
 import { authOptions } from "@/lib/auth/options";
 import { getDomain } from "@/lib/services/domain";
 import { getEventMemberContext } from "@/lib/services/eventAccess";
 import { LobbySubNav } from "@/components/dashboard/LobbySubNav";
+import { LobbyTemplateManager } from "@/components/dashboard/LobbyTemplateManager";
+import { listLobbyTemplates } from "@/lib/services/eventLobbyTemplates";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Lobby Templates | Event Management" };
@@ -61,64 +63,29 @@ export default async function EventLobbyTemplatesPage({
     );
   }
 
-  const templates = [
-    { id: "modern", name: "Cyberpunk & Neon Luxury", description: "Deep dark canvas with vibrant magenta and purple glow accents.", active: true },
-    { id: "corporate", name: "Executive Conference", description: "Clean corporate blue and platinum slate aesthetic.", active: false },
-    { id: "minimal", name: "Minimalist Light & Shadow", description: "High contrast clean typography with subtle monochrome styling.", active: false },
-  ];
+  const templates = await listLobbyTemplates(context);
 
   return (
     <div className="section-transition space-y-6 animate-fade-in">
       <Breadcrumb eventId={eventId} />
       <LobbySubNav eventId={eventId} active="templates" />
 
-      <div className="glass-panel rounded-2xl p-8 shadow-2xl border border-white/10 text-white space-y-6">
+      <div className="glass-panel rounded-2xl p-6 md:p-8 shadow-2xl border border-white/10 text-white space-y-6">
         <div className="flex items-center gap-4 border-b border-white/10 pb-6">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-pink shadow-lg shadow-brand-pink/20">
             <LayoutTemplate className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-black uppercase tracking-tight text-white">Virtual Lobby Theme Templates</h1>
+            <h1 className="text-2xl font-black uppercase tracking-tight text-white">Event Lobby Templates</h1>
             <p className="text-xs font-medium text-zinc-400">
-              Select pre-designed immersive visual themes and layouts for Event #{eventId}.
+              The shared catalogue of lobby layouts — auditoriums, exhibition halls and stand designs — that an
+              event imports its lobby from. Managing these from Event #{eventId} affects every event that has not
+              already imported them.
             </p>
           </div>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          {templates.map((tpl) => (
-            <div
-              key={tpl.id}
-              className={`glass-panel rounded-2xl p-6 border transition-all space-y-4 flex flex-col justify-between ${
-                tpl.active ? "border-brand-pink shadow-lg shadow-brand-pink/20 bg-gradient-to-br from-purple-950/40 to-black/60" : "border-white/10"
-              }`}
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-black uppercase text-fuchsia-300">Template</span>
-                  {tpl.active && (
-                    <span className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                      <CheckCircle2 className="h-3 w-3" /> Active Theme
-                    </span>
-                  )}
-                </div>
-                <h3 className="text-base font-extrabold text-white">{tpl.name}</h3>
-                <p className="text-xs text-zinc-300 leading-relaxed">{tpl.description}</p>
-              </div>
-              <button
-                type="button"
-                disabled={tpl.active}
-                className={`w-full rounded-xl py-2.5 text-xs font-extrabold uppercase tracking-wider transition ${
-                  tpl.active
-                    ? "bg-white/10 text-zinc-400 cursor-not-allowed"
-                    : "btn-sophisticated text-white"
-                }`}
-              >
-                {tpl.active ? "Currently Active" : "Apply Template"}
-              </button>
-            </div>
-          ))}
-        </div>
+        <LobbyTemplateManager templates={templates} />
       </div>
     </div>
   );

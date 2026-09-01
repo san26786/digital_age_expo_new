@@ -38,3 +38,33 @@ export async function getEventAddonServices(): Promise<EventAddonService[]> {
     price: r.business_value !== null && r.business_value !== undefined ? String(r.business_value) : null,
   }));
 }
+
+export interface MasterOption {
+  code: string;
+  label: string;
+}
+
+/**
+ * Generic equivalent of the legacy `Common->getAssocMstrCDMstrNmByTypCD($typCd)` — the
+ * common_type row named by `typCd`, joined to its independent_mst children.
+ *
+ * Used by the Lobby Agenda form for "TST" (session/buffer durations) and "AGTYPE" (hall types).
+ * Shared platform master data, not event-scoped.
+ */
+export async function getMasterOptions(typCd: string): Promise<MasterOption[]> {
+  const type = await prisma.common_type.findUnique({
+    where: { typ_cd: typCd },
+    select: { id: true },
+  });
+  if (!type) return [];
+
+  const rows = await prisma.independent_mst.findMany({
+    where: { typ_id: type.id, status: "enabled" },
+    orderBy: [{ sequence: "asc" }, { id: "asc" }],
+    select: { mstr_cd: true, mstr_nm: true },
+  });
+
+  return rows
+    .filter((r: any) => r.mstr_cd)
+    .map((r: any) => ({ code: String(r.mstr_cd), label: r.mstr_nm ?? String(r.mstr_cd) }));
+}

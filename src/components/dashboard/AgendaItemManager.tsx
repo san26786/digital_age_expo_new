@@ -29,6 +29,8 @@ import {
 import {
   eventLobbyAgendaTrackSchema,
   AGENDA_TRACK_STATUSES,
+  normaliseAgendaTrackStatus,
+  normaliseAgendaTrackType,
   type EventLobbyAgendaTrackInput,
 } from "@/lib/validations/eventLobbyAgendaTrack";
 import type { AgendaItemRow, AgendaTrackRow, AssignableSpeakerOption } from "@/lib/services/eventLobbyAgendaItems";
@@ -259,7 +261,20 @@ function ManageTracksModal({
 
       {formTrack && (
         <TrackFormModal
-          defaultValues={formTrack === "new" ? undefined : formTrack}
+          defaultValues={
+            formTrack === "new"
+              ? undefined
+              : {
+                  // Mapped field by field: AgendaTrackRow is camelCase, the form input is
+                  // snake_case, so spreading the row quietly dropped agenda_type and left the
+                  // status union unsatisfied.
+                  id: formTrack.id,
+                  title: formTrack.title,
+                  description: formTrack.description,
+                  agenda_type: normaliseAgendaTrackType(formTrack.agendaType),
+                  status: normaliseAgendaTrackStatus(formTrack.status),
+                }
+          }
           onClose={() => setFormTrack(null)}
           onSaved={() => {
             setFormTrack(null);

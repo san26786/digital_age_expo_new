@@ -41,21 +41,21 @@ model event_schedules {
   color                     String    @db.VarChar(255)
   trigger_on                Int?
   event_phase_length        Int?
-  description               String?   @db.Text
-  page_summary              String?   @db.Text
-  requirement               String?   @db.Text
-  process                   String?   @db.Text
-  why                       String?   @db.Text
-  what                      String?   @db.Text
-  when_desc                 String?   @db.Text
-  who                       String?   @db.Text
-  how                       String?   @db.Text
-  tnc                       String?   @db.Text
+  description               String?
+  page_summary              String?
+  requirement               String?
+  process                   String?
+  why                       String?
+  what                      String?
+  when_desc                 String?
+  who                       String?
+  how                       String?
+  tnc                       String?
   visible_to_public         Int?      @default(0)
   visible_on_the_event_menu Int?      @default(0)
   visible_on_the_road_map   Int?      @default(0)
   breakdown_by_group        Int?      @default(1)
-  icon                      String    @db.Text
+  icon                      String
 }
 
 model find_advertise_books {
@@ -66,10 +66,10 @@ model find_advertise_books {
   page_format           Int      @default(0)
   page                  Int?
   enable_header         Boolean? @default(false)
-  header_image          String?  @db.Text
+  header_image          String?
   enable_footer         Boolean? @default(false)
-  footer_image          String?  @db.Text
-  welcome_message       String?  @db.Text
+  footer_image          String?
+  welcome_message       String?
   font_family           String?  @db.VarChar(255)
   status                Int      @default(1)
   primary_color         String?  @db.VarChar(255)
@@ -94,9 +94,9 @@ model find_article {
   author_full_name     String?   @db.VarChar(255)
   title                String?   @db.VarChar(255)
   friendly_url         String?   @db.VarChar(255)
-  short_description    String?   @db.Text
+  short_description    String?
   image                String?   @db.VarChar(255)
-  description          String?   @db.Text
+  description          String?
   categories           String?   @db.VarChar(255)
   value                String?   @db.VarChar(255)
   services             String?   @db.VarChar(255)
@@ -108,12 +108,12 @@ model find_article {
   featured             Int?      @default(0)
   feature_start_date   DateTime? @db.Timestamp(0)
   feature_end_date     DateTime? @db.Timestamp(0)
-  video_attachment     String?   @db.Text
-  audio_attachment     String?   @db.Text
+  video_attachment     String?
+  audio_attachment     String?
   attachment           String?   @db.VarChar(255)
   attachment_type      String?   @db.VarChar(255)
   attachment_name      String?   @db.VarChar(255)
-  sponsor_image        String?   @db.Text
+  sponsor_image        String?
   article_type         String?   @default("6701") @db.VarChar(255)
   article              Int
   is_deleted           Boolean?  @default(false)
@@ -135,7 +135,7 @@ model find_banner_stands {
   exhibitor_user_id     String?                    @db.VarChar(255)
   order_id              Int?
   stand_id              Int?
-  stand_price           Float?                     @db.DoublePrecision
+  stand_price           Float?
   name                  String                     @db.VarChar(255)
   first_name            String?                    @db.VarChar(255)
   last_name             String?                    @db.VarChar(255)
@@ -145,7 +145,7 @@ model find_banner_stands {
   position              String?                    @db.VarChar(255)
   speaker_hall          String?                    @db.VarChar(255)
   title                 String?                    @db.VarChar(255)
-  description           String?                    @db.Text
+  description           String?
   linkedin_user_profile String?                    @db.VarChar(255)
   date                  DateTime?                  @db.Date
   start_time            DateTime?                  @db.Time(0)
@@ -154,11 +154,11 @@ model find_banner_stands {
   status                find_banner_stands_status? @default(active)
   amount                Decimal                    @db.Decimal(10, 2)
   discount              Decimal?                   @db.Decimal(10, 2)
-  charitable_amount     Float?                     @db.DoublePrecision
+  charitable_amount     Float?
   used                  Boolean?                   @default(false)
   invoice_mail_send     Boolean?                   @default(false)
   exchange_services     Int?                       @default(0)
-  exchange_amount       Float?                     @db.DoublePrecision
+  exchange_amount       Float?
 }
 
 model find_blog {
@@ -167,17 +167,17 @@ model find_blog {
   user_id          Int
   title            String   @db.VarChar(255)
   friendly_url     String   @db.VarChar(255)
-  content          String   @db.Text
-  content_short    String?  @db.Text
+  content          String
+  content_short    String?
   date             DateTime @db.Timestamp(0)
   date_updated     DateTime @db.Timestamp(0)
   date_publish     DateTime @db.Timestamp(0)
   status           String   @db.VarChar(15)
   impressions      Int
-  keywords         String?  @db.Text
+  keywords         String?
   meta_title       String   @db.VarChar(255)
-  meta_description String?  @db.Text
-  meta_keywords    String?  @db.Text
+  meta_description String?
+  meta_keywords    String?
   image_extension  String   @db.VarChar(4)
 
   @@index([title, keywords, content_short], map: "find_blog_search")
@@ -187,10 +187,10 @@ model find_book_section_setting {
   id                  Int     @id @default(autoincrement())
   section_name        String? @db.VarChar(255)
   section_code        String? @db.VarChar(255)
-  section_size        Float?  @db.DoublePrecision
+  section_size        Float?
   section_page_size   Int?
-  section_width_size  Float?  @db.DoublePrecision
-  section_height_size Float?  @db.DoublePrecision
+  section_width_size  Float?
+  section_height_size Float?
   section_sub_section Int?    @default(1)
   actual_width_size   Int?
   actual_height_size  Int?
@@ -221,21 +221,21 @@ model find_classifieds {
   primary_category_id         Int      @default(0)
   title                       String   @default("") @db.VarChar(255)
   friendly_url                String   @default("") @db.VarChar(255)
-  date                        DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
-  description                 String?  @db.Text
+  date                        DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
+  description                 String?
   meta_title                  String   @default("") @db.VarChar(255)
-  meta_description            String?  @db.Text
-  meta_keywords               String?  @db.Text
-  keywords                    String?  @db.Text
+  meta_description            String?
+  meta_keywords               String?
+  keywords                    String?
   price                       Decimal? @db.Decimal(10, 2)
-  price_per_hrs               Float?   @db.DoublePrecision
-  price_per_day               Float?   @db.DoublePrecision
+  price_per_hrs               Float?
+  price_per_day               Float?
   tax_percentage              Decimal? @default(20.00) @db.Decimal(10, 2)
   inc_tax_price               Decimal? @default(0.00) @db.Decimal(10, 2)
   agency_price                Decimal? @default(0.00) @db.Decimal(10, 2)
-  expire_date                 DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
+  expire_date                 DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
   www                         String?  @default("") @db.VarChar(350)
-  buttoncode                  String?  @db.Text
+  buttoncode                  String?
   type                        String   @db.VarChar(255)
   classified_category_mstr_cd String?  @db.VarChar(255)
   priority                    Int      @default(0)
@@ -287,12 +287,12 @@ model find_domains {
   phone                                 String?  @db.VarChar(255)
   fav                                   String?  @db.VarChar(255)
   domain_loader                         String?  @db.VarChar(255)
-  address                               String?  @db.Text
+  address                               String?
   partner_logo                          String?  @db.VarChar(255)
   domain_ratecard_pdf                   String   @db.VarChar(255)
   rate_card_image                       String   @db.VarChar(255)
   partner_url                           String?  @db.VarChar(255)
-  dashboard                             String?  @db.Text
+  dashboard                             String?
   faq_listing_id                        Int?
   default_listing_id                    Int?
   article_type                          String?  @default("6701") @db.VarChar(255)
@@ -318,7 +318,7 @@ model find_domains {
   display_domain_based_listing          Int
   display_member_domain_based_register  Int
   date_created                          DateTime @default(now()) @db.Timestamp(0)
-  default_event_name                    String?  @db.Text
+  default_event_name                    String?
   index_page                            String?  @db.VarChar(255)
   parent_domain                         String?  @db.VarChar(255)
   bc_monthly_package_group              Int?
@@ -328,7 +328,7 @@ model find_domains {
   business_plan_two                     String?  @db.VarChar(255)
   business_plan_three                   String?  @db.VarChar(255)
   domain_prospectus                     String?  @db.VarChar(255)
-  short_description                     String   @db.Text
+  short_description                     String
   prospectus_image                      String   @db.VarChar(255)
   publication_type                      String   @db.VarChar(255)
   default_package_id                    Int?
@@ -365,8 +365,8 @@ model find_email_log {
   from_name           String   @db.VarChar(300)
   from_email          String   @db.VarChar(765)
   subject             String   @db.VarChar(765)
-  body_plain          String?  @db.Text
-  body_html           String?  @db.Text
+  body_plain          String?
+  body_html           String?
   ip_address          String?  @db.VarChar(255)
   device              String?  @db.VarChar(255)
   email_template_id   String?  @db.VarChar(255)
@@ -377,68 +377,68 @@ model find_event_about_show {
   id          Int    @id @unique(map: "find_event_about_show_id") @default(autoincrement())
   user_id     Int
   event_id    Int
-  custom_417  String @db.Text
-  custom_418  String @db.Text
-  custom_419  String @db.Text
-  custom_420  String @db.Text
-  custom_422  String @db.Text
-  custom_423  String @db.Text
-  custom_424  String @db.Text
-  custom_429  String @db.Text
-  custom_430  String @db.Text
-  custom_431  String @db.Text
-  custom_432  String @db.Text
-  custom_433  String @db.Text
-  custom_434  String @db.Text
-  custom_435  String @db.Text
-  custom_436  String @db.Text
-  custom_437  String @db.Text
-  custom_438  String @db.Text
-  custom_439  String @db.Text
-  custom_440  String @db.Text
-  custom_441  String @db.Text
-  custom_442  String @db.Text
-  custom_443  String @db.Text
-  custom_444  String @db.Text
-  custom_445  String @db.Text
-  custom_446  String @db.Text
-  custom_447  String @db.Text
-  custom_448  String @db.Text
-  custom_449  String @db.Text
-  custom_450  String @db.Text
-  custom_451  String @db.Text
-  custom_452  String @db.Text
-  custom_453  String @db.Text
-  custom_454  String @db.Text
-  custom_455  String @db.Text
-  custom_456  String @db.Text
-  custom_457  String @db.Text
-  custom_458  String @db.Text
-  custom_459  String @db.Text
-  custom_460  String @db.Text
-  custom_461  String @db.Text
-  custom_462  String @db.Text
-  custom_463  String @db.Text
-  custom_464  String @db.Text
-  custom_465  String @db.Text
-  custom_466  String @db.Text
-  custom_467  String @db.Text
-  custom_468  String @db.Text
-  custom_469  String @db.Text
-  custom_470  String @db.Text
-  custom_471  String @db.Text
-  custom_472  String @db.Text
-  custom_473  String @db.Text
-  custom_474  String @db.Text
-  custom_475  String @db.Text
-  custom_476  String @db.Text
-  custom_477  String @db.Text
-  custom_478  String @db.Text
-  custom_479  String @db.Text
-  custom_480  String @db.Text
-  custom_481  String @db.Text
-  custom_482  String @db.Text
-  custom_483  String @db.Text
+  custom_417  String
+  custom_418  String
+  custom_419  String
+  custom_420  String
+  custom_422  String
+  custom_423  String
+  custom_424  String
+  custom_429  String
+  custom_430  String
+  custom_431  String
+  custom_432  String
+  custom_433  String
+  custom_434  String
+  custom_435  String
+  custom_436  String
+  custom_437  String
+  custom_438  String
+  custom_439  String
+  custom_440  String
+  custom_441  String
+  custom_442  String
+  custom_443  String
+  custom_444  String
+  custom_445  String
+  custom_446  String
+  custom_447  String
+  custom_448  String
+  custom_449  String
+  custom_450  String
+  custom_451  String
+  custom_452  String
+  custom_453  String
+  custom_454  String
+  custom_455  String
+  custom_456  String
+  custom_457  String
+  custom_458  String
+  custom_459  String
+  custom_460  String
+  custom_461  String
+  custom_462  String
+  custom_463  String
+  custom_464  String
+  custom_465  String
+  custom_466  String
+  custom_467  String
+  custom_468  String
+  custom_469  String
+  custom_470  String
+  custom_471  String
+  custom_472  String
+  custom_473  String
+  custom_474  String
+  custom_475  String
+  custom_476  String
+  custom_477  String
+  custom_478  String
+  custom_479  String
+  custom_480  String
+  custom_481  String
+  custom_482  String
+  custom_483  String
   custom_484  String @default("") @db.VarChar(255)
   custom_485  String @default("") @db.VarChar(255)
   custom_486  String @default("") @db.VarChar(255)
@@ -454,45 +454,45 @@ model find_event_about_show {
   custom_496  String @default("") @db.VarChar(255)
   custom_497  String @default("") @db.VarChar(255)
   custom_498  String @default("") @db.VarChar(255)
-  custom_501  String @db.Text
+  custom_501  String
   custom_502  String @default("") @db.VarChar(255)
-  custom_503  String @db.Text
+  custom_503  String
   custom_504  String @default("") @db.VarChar(255)
-  custom_505  String @db.Text
-  custom_506  String @db.Text
-  custom_507  String @db.Text
-  custom_508  String @db.Text
-  custom_509  String @db.Text
-  custom_510  String @db.Text
+  custom_505  String
+  custom_506  String
+  custom_507  String
+  custom_508  String
+  custom_509  String
+  custom_510  String
   custom_511  String @default("") @db.VarChar(255)
-  custom_512  String @db.Text
-  custom_513  String @db.Text
-  custom_514  String @db.Text
-  custom_515  String @db.Text
+  custom_512  String
+  custom_513  String
+  custom_514  String
+  custom_515  String
   custom_516  String @default("") @db.VarChar(255)
-  custom_517  String @db.Text
-  custom_518  String @db.Text
-  custom_519  String @db.Text
-  custom_520  String @db.Text
-  custom_521  String @db.Text
-  custom_522  String @db.Text
-  custom_523  String @db.Text
-  custom_282  String @db.Text
-  custom_283  String @db.Text
+  custom_517  String
+  custom_518  String
+  custom_519  String
+  custom_520  String
+  custom_521  String
+  custom_522  String
+  custom_523  String
+  custom_282  String
+  custom_283  String
   custom_284  String @db.VarChar(255)
   custom_285  String @db.VarChar(255)
   custom_286  String @db.VarChar(255)
   custom_287  String @db.VarChar(255)
   custom_288  String @db.VarChar(255)
   custom_289  String @db.VarChar(255)
-  custom_833  String @db.Text
+  custom_833  String
   custom_1415 String @db.VarChar(255)
   custom_1416 String @db.VarChar(255)
   custom_1417 String @db.VarChar(255)
   custom_1418 String @db.VarChar(255)
   custom_1419 String @db.VarChar(255)
   custom_1420 String @db.VarChar(255)
-  custom_1556 String @db.Text
+  custom_1556 String
 }
 
 model find_event_advertisor {
@@ -517,9 +517,9 @@ model find_event_advertisor {
   listing_id                              Int?
   added_by_user_id                        Int?
   title                                   String?                       @db.VarChar(255)
-  description                             String?                       @db.Text
+  description                             String?
   profile_pic                             String                        @db.VarChar(255)
-  image                                   String?                       @db.Text
+  image                                   String?
   status                                  find_event_advertisor_status? @default(active)
   display_order                           Int
   book_id                                 Int?                          @default(0)
@@ -548,7 +548,7 @@ model find_event_checklists {
   event_id Int?
   user_id  Int?
   task_cd  String? @db.VarChar(255)
-  value    String? @db.Text
+  value    String?
 
   @@unique([event_id, user_id, task_cd], map: "find_event_checklists_Common Values")
 }
@@ -581,7 +581,7 @@ model find_event_excluded {
   import_batch_number       Int?
   save_the_date             Boolean?
   date_created              DateTime @default(now()) @db.Timestamp(0)
-  mailgun_log               String?  @db.Text
+  mailgun_log               String?
 
   @@index([email], map: "find_event_excluded_IDX_FEE_email")
   @@index([email], map: "find_event_excluded_idx_find_event_excluded_email")
@@ -610,10 +610,10 @@ model find_event_exhibitor {
   stand_number                                           String?                     @db.VarChar(255)
   stand_size                                             String?                     @db.VarChar(255)
   stand_price                                            Int?
-  discount                                               Float?                      @default(0) @db.DoublePrecision
-  charitable_amount                                      Float?                      @default(0) @db.DoublePrecision
-  exchange_amount                                        Float?                      @default(0) @db.DoublePrecision
-  org_comments                                           String?                     @db.Text
+  discount                                               Float?                      @default(0)
+  charitable_amount                                      Float?                      @default(0)
+  exchange_amount                                        Float?                      @default(0)
+  org_comments                                           String?
   exh_point                                              Int?
   advertise_order                                        Int?
   tax_percent                                            Decimal?                    @default(20.00) @db.Decimal(10, 2)
@@ -645,7 +645,7 @@ model find_event_exhibitor {
   important_info_for_your_stand_at_the_trade_show        Boolean?
   promote_your_business_to_our_community                 Int?                        @default(0)
   spot_id                                                Int?
-  about_us                                               String?                     @db.Text
+  about_us                                               String?
   website                                                String?                     @db.VarChar(255)
   facebook                                               String?                     @db.VarChar(255)
   twitter                                                String?                     @db.VarChar(255)
@@ -668,7 +668,7 @@ model find_event_exhibitor {
   is_business_presentation                               Int?                        @default(0)
   event_web_request_to_become_an_exhibitor_welcome_email Int?                        @default(0)
   event_web_exhibitor_registration_welcome_email         Int?                        @default(0)
-  password                                               String?                     @db.Text
+  password                                               String?
   exhibitor_account_login                                Int?                        @default(0)
   exibitor_stand_ready                                   Int?                        @default(0)
   batch                                                  Int?
@@ -773,7 +773,7 @@ model find_event_lobby_agenda {
   user_id              Int?
   listing_id           Int?
   created_on           DateTime @default(now()) @db.Timestamp(0)
-  updated_on           DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
+  updated_on           DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
   copied_agenda_id     Int?
 }
 
@@ -785,7 +785,7 @@ model find_event_lobby_agenda_items {
   start_date_time          DateTime  @db.Timestamp(0)
   end_date_time            DateTime  @db.Timestamp(0)
   title                    String    @db.VarChar(255)
-  description              String    @db.Text
+  description              String
   speaker_name             String?   @db.VarChar(100)
   speaker_id               Int?
   video_type               String?   @db.VarChar(50)
@@ -799,7 +799,7 @@ model find_event_lobby_agenda_items {
   user_id                  Int?
   listing_id               Int?
   created_on               DateTime  @default(now()) @db.Timestamp(0)
-  updated_on               DateTime  @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
+  updated_on               DateTime  @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
   is_business_speaker      Boolean?  @default(true)
   is_masterclass_speaker   Boolean?  @default(false)
   is_keynote_speaker       Boolean?  @default(false)
@@ -839,7 +839,7 @@ model find_event_lobby_briefcase {
   event_layout_id Int
   is_downloaded   Int      @default(0)
   created_on      DateTime @default(now()) @db.Timestamp(0)
-  updated_on      DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
+  updated_on      DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
 
   @@index([event_layout_id], map: "find_event_lobby_briefcase_IDX_EVENT_LAYOUT_ID")
   @@index([user_id], map: "find_event_lobby_briefcase_IDX_USER_ID")
@@ -851,7 +851,7 @@ model find_event_lobby_child_layout_manager {
   event_layout_id            Int?
   template_id                Int?
   layout_type                String   @db.VarChar(255)
-  description                String?  @db.Text
+  description                String?
   title                      String?  @db.VarChar(255)
   image                      String?  @db.VarChar(255)
   help_image                 String?  @db.VarChar(255)
@@ -862,7 +862,7 @@ model find_event_lobby_child_layout_manager {
   user_id                    Int?
   listing_id                 Int?
   created_on                 DateTime @default(now()) @db.Timestamp(0)
-  updated_on                 DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
+  updated_on                 DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
   copied_child_id            Int?
   package_id                 Int?
   is_default                 Int      @default(0)
@@ -879,14 +879,14 @@ model find_event_lobby_layout_manager {
   title                  String?                                 @db.VarChar(255)
   splash_image           String?                                 @db.VarChar(255)
   image                  String?                                 @db.VarChar(255)
-  description            String?                                 @db.Text
+  description            String?
   status                 find_event_lobby_layout_manager_status?
   event_id               Int
   agenda_welcome_message String?                                 @db.VarChar(300)
   agenda_path            String?                                 @db.VarChar(255)
   user_id                Int?
   listing_id             Int?
-  chat_script            String?                                 @db.Text
+  chat_script            String?
   video_path             String?                                 @db.VarChar(100)
   play_lobby_video       Int                                     @default(0)
   spot_color             String?                                 @db.VarChar(20)
@@ -901,7 +901,7 @@ model find_event_lobby_layout_type_assets {
   layout_child_id       Int?
   event_layout_id       Int?
   event_layout_child_id Int?
-  title                 String?  @db.Text
+  title                 String?
   exhibition_stand_id   Int
   asset_type            String?  @db.VarChar(255)
   asset_url             String?  @db.VarChar(255)
@@ -916,7 +916,7 @@ model find_event_lobby_layout_type_assets {
   is_exhibitor_asset    Boolean?
   is_default            Boolean?
   is_iframe             Boolean? @default(false)
-  external_link         String?  @db.Text
+  external_link         String?
   default_asset_id      Int?
   default_asset_type    String?  @db.VarChar(20)
   thumbnail_url         String?  @db.VarChar(255)
@@ -965,7 +965,7 @@ model find_event_lobby_polling_options {
   user_id     Int?
   listing_id  Int?
   created_on  DateTime @default(now()) @db.Timestamp(0)
-  updated_on  DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
+  updated_on  DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
 
   @@index([question_id], map: "find_event_lobby_polling_options_IDX_QUESTION_ID")
 }
@@ -978,7 +978,7 @@ model find_event_lobby_polling_questions {
   user_id       Int?
   listing_id    Int?
   created_on    DateTime @default(now()) @db.Timestamp(0)
-  updated_on    DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
+  updated_on    DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
 
   @@index([event_id], map: "find_event_lobby_polling_questions_IDX_EVENT_ID")
 }
@@ -991,7 +991,7 @@ model find_event_lobby_polling_response {
   user_id     Int
   listing_id  Int?
   created_on  DateTime @default(now()) @db.Timestamp(0)
-  updated_on  DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
+  updated_on  DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
 }
 
 model find_event_lobby_spots {
@@ -1006,7 +1006,7 @@ model find_event_lobby_spots {
   spot_type                              String?  @db.VarChar(255)
   height                                 String?  @db.VarChar(255)
   width                                  String?  @db.VarChar(255)
-  dimension                              String?  @db.Text
+  dimension                              String?
   pre_redirection_type                   String?  @db.VarChar(255)
   pre_redirection_path                   String?  @db.VarChar(255)
   post_action_type                       String?  @db.VarChar(255)
@@ -1044,8 +1044,8 @@ model find_event_lobby_spots {
   meeting_password                       String?  @db.VarChar(50)
   help_text                              String?  @db.VarChar(200)
   sponsor_type_id                        Int?
-  block_width                            String?  @db.Text
-  block_height                           String?  @db.Text
+  block_width                            String?
+  block_height                           String?
   package_field                          String?  @db.VarChar(255)
   is_button                              Int      @default(0)
   is_welcome_tour                        Int      @default(0)
@@ -1053,7 +1053,7 @@ model find_event_lobby_spots {
   welcome_tour_step                      Int?
   welcome_tour_desc                      String?  @db.VarChar(255)
   template_spot_id                       Int?
-  spot_attributes                        String?  @db.Text
+  spot_attributes                        String?
   agenda_id                              Int?
   show_session_name                      Int?     @default(0)
   show_other_dtl                         Int?     @default(0)
@@ -1065,7 +1065,7 @@ model find_event_lobby_spots {
 model find_event_lobby_templates {
   id          Int      @id @default(autoincrement())
   layout_type String   @db.VarChar(255)
-  description String?  @db.Text
+  description String?
   title       String?  @db.VarChar(255)
   image       String?  @db.VarChar(255)
   help_image  String?  @db.VarChar(255)
@@ -1074,7 +1074,7 @@ model find_event_lobby_templates {
   event_id    Int?
   user_id     Int?
   created_on  DateTime @default(now()) @db.Timestamp(0)
-  updated_on  DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
+  updated_on  DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
 
   @@index([layout_type], map: "find_event_lobby_templates_IDX_LAYOUT_TYPE")
 }
@@ -1091,7 +1091,7 @@ model find_event_lobby_visitor_enquires {
   event_id             Int
   user_id              Int
   created_on           DateTime @default(now()) @db.Timestamp(0)
-  updated_on           DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
+  updated_on           DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
 }
 
 model find_event_magazine_setup {
@@ -1128,9 +1128,9 @@ model find_event_marketer {
   listing_id                              Int?
   added_by_user_id                        Int?
   title                                   String?                     @db.VarChar(255)
-  description                             String?                     @db.Text
+  description                             String?
   profile_pic                             String                      @db.VarChar(255)
-  image                                   String?                     @db.Text
+  image                                   String?
   status                                  find_event_marketer_status? @default(active)
   display_order                           Int
   book_id                                 Int?                        @default(0)
@@ -1172,8 +1172,8 @@ model find_event_member {
   batch_number                                    String   @db.VarChar(255)
   status                                          String?  @db.VarChar(255)
   joining_status                                  String?  @default("Pending") @db.VarChar(255)
-  description                                     String?  @db.Text
-  profile_pic                                     String?  @db.Text
+  description                                     String?
+  profile_pic                                     String?
   is_contact                                      Boolean? @default(false)
   signatory_director                              Int      @default(0)
   signatory_organiser                             Int      @default(0)
@@ -1272,10 +1272,10 @@ model find_event_partner {
   stand_number                String?                   @db.VarChar(255)
   stand_size                  String?                   @db.VarChar(255)
   stand_price                 Int?
-  discount                    Float?                    @default(0) @db.DoublePrecision
-  org_comments                String                    @db.Text
+  discount                    Float?                    @default(0)
+  org_comments                String
   exh_point                   Int
-  charitable_amount           Float?                    @default(0) @db.DoublePrecision
+  charitable_amount           Float?                    @default(0)
   advertise_order             Int?
   tax_percent                 Decimal?                  @default(20.00) @db.Decimal(10, 2)
   tax_amount                  Decimal?                  @db.Decimal(10, 2)
@@ -1284,7 +1284,7 @@ model find_event_partner {
   member_company_profile      Int?                      @default(0)
   invoice_created             Int                       @default(0)
   exchange_services           Int                       @default(0)
-  exchange_amount             Float?                    @default(0) @db.DoublePrecision
+  exchange_amount             Float?                    @default(0)
   credit_note_generated       Int                       @default(0)
   credit_note_date            DateTime?                 @db.Date
   credit_note_number          Int?
@@ -1317,16 +1317,16 @@ model find_event_phases {
   trigger_on         Int
   event_phase_length Int
   status             find_event_phases_status
-  description        String?                  @db.Text
-  page_summary       String?                  @db.Text
-  requirement        String?                  @db.Text
-  process            String?                  @db.Text
-  why                String?                  @db.Text
-  what               String?                  @db.Text
-  when_desc          String?                  @db.Text
-  who                String?                  @db.Text
-  how                String?                  @db.Text
-  tnc                String?                  @db.Text
+  description        String?
+  page_summary       String?
+  requirement        String?
+  process            String?
+  why                String?
+  what               String?
+  when_desc          String?
+  who                String?
+  how                String?
+  tnc                String?
 }
 
 model find_event_promotions {
@@ -1349,8 +1349,8 @@ model find_event_promotions {
   listing_id                              Int?
   added_by_user_id                        Int?
   title                                   String?                       @db.VarChar(255)
-  description                             String?                       @db.Text
-  image                                   String?                       @db.Text
+  description                             String?
+  image                                   String?
   status                                  find_event_promotions_status? @default(active)
   display_order                           Int
   book_id                                 Int?                          @default(0)
@@ -1376,7 +1376,7 @@ model find_event_publication_contacts {
   type                  String  @db.VarChar(255)
   name                  String  @db.VarChar(255)
   email                 String  @db.VarChar(255)
-  telephone             String  @db.Text
+  telephone             String
   linkedin_user_profile String? @db.VarChar(255)
 }
 
@@ -1388,7 +1388,7 @@ model find_event_schedule_meeting {
   event_id     Int
   user_id      Int
   created_on   DateTime @default(now()) @db.Timestamp(0)
-  updated_on   DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
+  updated_on   DateTime @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
 }
 
 model find_event_sponsorer {
@@ -1461,26 +1461,26 @@ model find_event_sponsorship_setup {
   event_category_id          Int
   sponsor_type               String?   @db.VarChar(255)
   title                      String    @db.VarChar(255)
-  description                String?   @db.Text
-  short_description          String?   @db.Text
-  price                      Float     @db.DoublePrecision
+  description                String?
+  short_description          String?
+  price                      Float
   apply_early_bird           Boolean?  @default(false)
-  early_bird_discount        Float?    @db.DoublePrecision
+  early_bird_discount        Float?
   early_bird_expiry          DateTime? @db.Date
   registered_member_discount Boolean?  @default(false)
   display_order              Int?
   available                  Int       @default(1)
   used                       Int       @default(0)
   sold_out                   Int?      @default(0)
-  before_event_benefits      String?   @db.Text
-  during_event_benefits      String?   @db.Text
-  after_event_benefits       String?   @db.Text
+  before_event_benefits      String?
+  during_event_benefits      String?
+  after_event_benefits       String?
   active                     Boolean?  @default(false)
   show_benefits              Int?
   created_on                 DateTime  @default(now()) @db.Timestamp(0)
   updated_on                 DateTime  @default(now()) @db.Timestamp(0)
-  banner1                    String?   @db.Text
-  banner2                    String?   @db.Text
+  banner1                    String?
+  banner2                    String?
   banner1_spot_id            String?   @db.VarChar(255)
   banner2_spot_id            String?   @db.VarChar(255)
   image                      String?   @db.VarChar(255)
@@ -1517,20 +1517,20 @@ model find_event_ticket {
   user_id                        Int?      @default(0)
   name                           String    @db.VarChar(255)
   sub_title                      String    @db.VarChar(255)
-  description                    String?   @db.Text
-  additional_info                String?   @db.Text
-  imp_note                       String?   @db.Text
+  description                    String?
+  additional_info                String?
+  imp_note                       String?
   ticket_category_cd             String?   @db.VarChar(50)
-  early_bird_discount            Float?    @db.DoublePrecision
+  early_bird_discount            Float?
   apply_early_bird               Boolean?  @default(false)
   early_bird_expiry              DateTime? @db.Date
   group_ticket_price             Decimal?  @db.Decimal(10, 2)
-  half_group_ticket_price        Float?    @default(0) @db.DoublePrecision
+  half_group_ticket_price        Float?    @default(0)
   max_attendees_allow            Int?
   featured_ticket                Int?      @default(0)
   sold_out_ticket                Int?      @default(0)
   amount                         Decimal?  @db.Decimal(10, 2)
-  registered_member_discount     Float?    @db.DoublePrecision
+  registered_member_discount     Float?
   sequence                       Int?      @default(0)
   active                         Boolean?  @default(true)
   standard_featured_ticket       Int?      @default(0)
@@ -1553,18 +1553,18 @@ model find_event_ticket_purchased {
   event_category_id              Int?
   user_id                        Int?      @default(0)
   name                           String    @db.VarChar(255)
-  description                    String?   @db.Text
+  description                    String?
   additional_info                String?   @db.VarChar(255)
-  early_bird_discount            Float?    @db.DoublePrecision
+  early_bird_discount            Float?
   apply_early_bird               Boolean?  @default(false)
   early_bird_expiry              DateTime? @db.Date
   group_ticket_price             Decimal?  @db.Decimal(10, 2)
-  half_group_ticket_price        Float?    @default(0) @db.DoublePrecision
+  half_group_ticket_price        Float?    @default(0)
   max_attendees_allow            Int?
   featured_ticket                Int?      @default(0)
   sold_out_ticket                Int?      @default(0)
   amount                         Decimal?  @db.Decimal(10, 2)
-  registered_member_discount     Float?    @db.DoublePrecision
+  registered_member_discount     Float?
   sequence                       Int?      @default(0)
   active                         Boolean?  @default(true)
   standard_featured_ticket       Int?      @default(0)
@@ -1615,22 +1615,22 @@ model find_events {
   friendly_url                               String                                     @db.VarChar(200)
   image_extension                            String?                                    @db.VarChar(4)
   image_file_name                            String                                     @db.VarChar(100)
-  description_short                          String                                     @db.Text
-  description                                String                                     @db.Text
+  description_short                          String
+  description                                String
   event_sub_category                         String?                                    @db.VarChar(225)
   club_group_id                              String?                                    @db.VarChar(255)
   venue                                      String                                     @db.VarChar(150)
-  location                                   String                                     @db.Text
+  location                                   String
   location_id                                Int
   latitude                                   Decimal                                    @default(0.0000000000) @db.Decimal(15, 10)
   longitude                                  Decimal                                    @default(0.0000000000) @db.Decimal(15, 10)
   meta_title                                 String                                     @db.VarChar(150)
-  meta_description                           String                                     @db.Text
+  meta_description                           String
   meta_keywords                              String                                     @db.VarChar(200)
   keywords                                   String                                     @db.VarChar(250)
   admission                                  String                                     @db.VarChar(250)
   contact_name                               String                                     @db.VarChar(100)
-  contact_address                            String?                                    @db.Text
+  contact_address                            String?
   website                                    String                                     @db.VarChar(250)
   email                                      String                                     @db.VarChar(150)
   phone                                      String                                     @db.VarChar(25)
@@ -1649,7 +1649,7 @@ model find_events {
   impressions                                Int                                        @default(0)
   expired_sent                               Boolean                                    @default(false)
   hide_home                                  Int                                        @default(0)
-  event_brite_url                            String                                     @db.Text
+  event_brite_url                            String
   visitor_event_brite_url                    String?                                    @db.VarChar(500)
   enable_video_calling                       Boolean?
   enable_exhibitor_module                    Boolean?
@@ -1675,15 +1675,15 @@ model find_events {
   show_magazine_option                       Boolean?                                   @default(false)
   previous_event_id                          Int?                                       @default(0)
   next_event_id                              Int?                                       @default(0)
-  generated_magazine                         String?                                    @db.Text
+  generated_magazine                         String?
   publication_mstr_id                        Int?                                       @default(0)
   label                                      String                                     @db.VarChar(255)
   created_at                                 DateTime                                   @db.Timestamp(0)
   updated_at                                 DateTime                                   @db.Timestamp(0)
   ceremony_date                              DateTime                                   @db.Timestamp(0)
-  about_booking_tickets                      String?                                    @db.Text
-  about_payment_options                      String?                                    @db.Text
-  about_award_night                          String?                                    @db.Text
+  about_booking_tickets                      String?
+  about_payment_options                      String?
+  about_award_night                          String?
   show_addititonal_tab                       Boolean?                                   @default(false)
   show_detail                                Boolean?                                   @default(false)
   show_schedule                              Boolean?                                   @default(false)
@@ -1692,12 +1692,12 @@ model find_events {
   show_event_region                          Int                                        @default(0)
   event_industry                             String?                                    @db.VarChar(255)
   event_region                               String?                                    @db.VarChar(255)
-  category_description                       String?                                    @db.Text
+  category_description                       String?
   hide_host                                  Int                                        @default(0)
   hide_partner                               Int                                        @default(0)
   hide_supporter                             Int                                        @default(0)
   show_brought                               Int                                        @default(0)
-  hash_tags                                  String?                                    @db.Text
+  hash_tags                                  String?
   lock_event_schedule                        Boolean?                                   @default(false)
   apply_ticket_discount                      Boolean?                                   @default(false)
   apply_sponsor_discount                     Boolean?                                   @default(false)
@@ -1738,9 +1738,9 @@ model find_events {
   allow_display_individual_sponsor_details   Boolean                                    @default(true)
   hide_sponsor_now_btn                       Boolean?
   hide_apply_now_btn                         Boolean?                                   @default(false)
-  about_event_sponsorship                    String?                                    @db.Text
-  sponsorship_packages                       String?                                    @db.Text
-  why_sponsorship                            String?                                    @db.Text
+  about_event_sponsorship                    String?
+  sponsorship_packages                       String?
+  why_sponsorship                            String?
   is_virtual_event                           Boolean?
   layout_id                                  Int?
   print_certificate_on_template_with_no_logo Int?                                       @default(0)
@@ -1839,10 +1839,10 @@ model find_events_categories {
   id                     Int     @id @default(autoincrement())
   title                  String  @db.VarChar(765)
   friendly_url           String  @db.VarChar(765)
-  keywords               String? @db.Text
+  keywords               String?
   meta_title             String  @db.VarChar(765)
-  meta_keywords          String? @db.Text
-  meta_description       String? @db.Text
+  meta_keywords          String?
+  meta_description       String?
   hashtags               String  @db.VarChar(255)
   active                 Boolean @default(false)
   default_event_category Int?
@@ -1869,187 +1869,187 @@ model find_events_dates {
 }
 
 model find_events_rsvp {
-  id                                                           Int                            @id @default(autoincrement())
-  event_id                                                     Int
-  batch_number                                                 String?                        @db.VarChar(255)
-  user_id                                                      Int?
-  date                                                         DateTime                       @default(now()) @db.Timestamp(0)
-  first_name                                                   String?                        @db.VarChar(255)
-  last_name                                                    String?                        @db.VarChar(255)
-  name                                                         String?                        @db.VarChar(255)
-  email                                                        String                         @db.VarChar(255)
-  phone                                                        String?                        @db.VarChar(255)
-  workphone                                                    String?                        @db.VarChar(255)
-  business                                                     String?                        @db.VarChar(255)
-  description                                                  String?                        @db.VarChar(255)
-  position                                                     String?                        @db.VarChar(255)
-  added_by_user_id                                             Int?
-  added_by_visitor_user_id                                     Int?                           @default(0)
-  status                                                       String                         @default("Registered") @db.VarChar(100)
-  joining_status                                               String?                        @default("Pending") @db.VarChar(255)
-  linkedin_user_profile                                        String?                        @db.VarChar(255)
-  linked_profile_user_id                                       Int?
-  linked_profile_listing_id                                    Int?
-  initial_table_position                                       Int
-  anchor_seat_holder                                           Int
-  last_position_holder                                         Int
-  created_by_user_id                                           Int?
-  is_deleted                                                   Int                            @default(0)
-  location_id                                                  Int?
-  location_name                                                String?                        @db.Text
-  country_name                                                 String?                        @db.Text
-  franchise_user_id                                            Int?
-  franchise_name                                               String?                        @db.Text
-  excluded_from_advertise                                      Boolean?                       @default(false)
-  import_batch_number                                          Int?                           @default(0)
-  flag                                                         Boolean?                       @default(false)
-  exhibitor_request_pass                                       Int                            @default(0)
-  visitor_mail                                                 Int                            @default(0)
-  event_follow_up_email_for_checkedin_visitors                 Int                            @default(0)
-  post_event_thank_you_and_survey                              Int                            @default(0)
-  no_show_event_visitor_email                                  Int                            @default(0)
-  request_for_the_buzz_magazine_artwork                        Int                            @default(0)
-  event_magazine_book_mail                                     Int                            @default(0)
-  save_the_date                                                Boolean?                       @default(false)
-  email_batch_processed_flag                                   Int                            @default(0)
-  custom_email_to_visitor                                      Int                            @default(0)
-  view_my_advert_email_no_answer                               Int                            @default(0)
-  view_my_advert_email_back_up                                 Int                            @default(0)
-  view_my_advert_email                                         Int                            @default(0)
-  st_reminder_to_networking_event                              Int                            @default(0) @map("1st_reminder_to_networking_event")
-  offer_of_the_month                                           Int                            @default(0)
-  reminder_for_trade_show                                      Int                            @default(0)
-  exhibit_at_trade_show                                        Int                            @default(0)
-  html_event_reminder                                          Int                            @default(0)
-  registration_request                                         Int                            @default(0)
-  registration_request_with_advert_size                        Int                            @default(0)
-  invitation_to_attend_with_previous_event_link                Int?                           @default(0)
-  greetings_for_christmas                                      Int                            @default(0)
-  trade_stand_purchase_offer_for_non_exhibitors                Int                            @default(0)
-  introduction_email_to_visitor                                Int                            @default(0)
-  past_attendee_targeting                                      Int                            @default(0)
-  updated_trade_show_link_for_non_exhibitors                   Int                            @default(0)
-  the_booth_announcement                                       Boolean
-  send_along_information                                       Boolean
-  booth_teaser                                                 Boolean
-  while_at_the_show                                            Boolean
-  keep_it_simple                                               Boolean
-  request_a_follow_up_chat                                     Boolean
-  offer_to_soothe_their_pain_points                            Boolean
-  how_can_i_help                                               Boolean
-  preshow_reach_out_to_contacts_from_last_year_s_show          Int                            @default(0) @map("01_preshow-reach_out_to_contacts_from_last_year’s_show")
-  preshow_let_current_customers___vendors_know_you_ll_be_going Int                            @default(0) @map("02_preshow_let_current_customers_/_vendors_know_you’ll_be_going")
-  preshow___introduce_the_trade_show_team                      Int                            @default(0) @map("04_preshow_-_introduce_the_trade_show_team")
-  preshow___share_educational_content                          Int                            @default(0) @map("05_preshow_-_share_educational_content")
-  preshow_booth_display_teaser_email_template_2                Int                            @default(0) @map("06_preshow-booth_display_teaser_email_template_2")
-  event_cancellation_notice_and_coronavirus_update             Int                            @default(0)
-  virtual_networking_invite                                    Int                            @default(0)
-  award_guest                                                  Int?                           @default(0)
-  allergey_from_shell_fish                                     Int?
-  allergey_from_dairy_products                                 Int?
-  dietary_requirement                                          String?                        @db.Text
-  any_other_food_allergy                                       String?                        @db.Text
-  vegetarian                                                   Int?                           @default(0)
-  vegan                                                        Int?                           @default(0)
-  allergy_from_nuts                                            Int?                           @default(0)
-  updated_on                                                   DateTime?                      @default(now()) @db.Timestamp(0)
-  linkedin_connection_request                                  Int                            @default(0)
-  send_nomination_link_to_visitor                              Int                            @default(0)
-  thank_you_for_nomination                                     Int                            @default(0)
-  zoom_meeting_invitation                                      Int                            @default(0)
-  test_linked_in_3rd                                           Int                            @default(0)
-  virtual_meeting_invite_a_business                            Int                            @default(0) @map("virtual-meeting-invite-a-business")
-  virtual_meeting_invite_a_business_reminder                   Int                            @default(0) @map("virtual-meeting-invite-a-business-reminder")
-  digital_buzz                                                 Int                            @default(0) @map("digital buzz")
-  digital_buzz_artwork_request                                 Int                            @default(0)
-  invitation_to_advertise_in_digital_buzz                      Int                            @default(0)
-  how_to_win_more_customers                                    Int                            @default(0)
-  how_to_get_your_business_back_on_track_in_2020               Int                            @default(0)
-  top_trading_tips_during_the_off_seasons                      Int                            @default(0)
-  digital_buzz_advertisement_last_few_left                     Int                            @default(0)
-  last_chance_to_advertise_for_free_in_digital_buzz            Int                            @default(0) @map("last chance to advertise for free in digital buzz")
-  new_digital_buzz___free_advert_for_your_brand                Int                            @default(0) @map("new_digital_buzz_-_free_advert_for_your_brand")
-  event_reminder_to_attendees                                  Int                            @default(0)
-  visitor_ticket_booking_and_hotel_room_reservation            Int                            @default(0)
-  telecalling_grade_id                                         String?                        @db.VarChar(255)
-  telecalling_grade_sequence                                   Int?
-  updated_by                                                   Int?
-  password                                                     String?                        @db.VarChar(255)
-  the_buzz_digital_version                                     Int                            @default(0)
-  newsletter_invitation                                        Int                            @default(0)
-  welcome_newsletter_email                                     Int                            @default(0)
-  virtual_trade_show_invitation_mail                           Int                            @default(0)
-  visitor_why_exhibit                                          String?                        @db.VarChar(255)
-  visitor_referrer_from                                        String?                        @db.VarChar(255)
-  visitor_is_webinars                                          Int?                           @default(0)
-  visitor_is_workshops                                         Int?                           @default(0)
-  visitor_is_e_magazine                                        Int?                           @default(0)
-  visitor_is_newsletter                                        Int?                           @default(0)
-  visitor_is_business_presentation                             Int                            @default(0)
-  event_web_registration_welcome_email                         Int                            @default(0)
-  event_web_exhibitor_registration_welcome_email               Int                            @default(0)
-  event_web_request_to_become_an_exhibitor_welcome_email       Int                            @default(0)
-  referral_code                                                String?                        @db.VarChar(255)
-  referral_mstr_id                                             String?                        @db.VarChar(11)
-  send_visitor_pass_to_registered_members                      Int                            @default(0)
-  email_batch_id                                               Int?                           @default(0)
-  event_cancellation_notice                                    Int                            @default(0)
-  send_badge_to_visitor                                        Int                            @default(0)
-  website                                                      String?                        @db.VarChar(255)
-  free_visitor_ticket_for_dae_2021                             Int                            @default(0)
-  visitor_bonus_for_stand_visit                                Int                            @default(0)
-  exhibitor_invitation_registration_dae                        Int                            @default(0)
-  dae_visitor_invitation_1                                     Int                            @default(0)
-  dae_visitor_invitation_2                                     Int                            @default(0)
-  dae_meet_the_exhibitors_2                                    Int                            @default(0)
-  dae_visitor_invitation_3                                     Int                            @default(0)
-  dae_visitor_invitation_4                                     Int                            @default(0)
-  dae_day_1                                                    Int                            @default(0)
-  dae_visitor_day_1                                            Int                            @default(0)
-  dae_day_2                                                    Int                            @default(0)
-  dae_day_3                                                    Int                            @default(0)
-  dae_social_media_invitation                                  Int                            @default(0)
-  closure_of_day_3                                             Int                            @default(0)
-  is_event_brite_attendee                                      Boolean?                       @default(false)
-  source                                                       String?                        @db.VarChar(255)
-  photo_download_access_invite                                 Int                            @default(0)
-  video_interview_download_invite                              Int                            @default(0)
-  stand_visitor___account_activation                           Int                            @default(0) @map("stand_visitor_-_account_activation")
-  business_card___account_activation                           Int                            @default(0) @map("business_card_-_account_activation")
-  free_membership_account_activation                           Int                            @default(0)
-  face_2_face_meeting                                          Int                            @default(0)
-  back_in_bournemouth                                          Int                            @default(0) @map("back-in-bournemouth")
-  growth_hub_networking_event                                  Int                            @default(0) @map("growth-hub-networking-event")
-  face_2_face_networking_event_invite_jersey                   Int                            @default(0)
-  face_2_face_networking_event_invite_jersey_without_business  Int                            @default(0)
-  sms_isle_of_wight_networking_event                           Int                            @default(0)
-  face_2_face_networking_event_invite_southampton              Int                            @default(0)
-  is_duplicated                                                Int                            @default(0)
-  job_title                                                    String?                        @db.VarChar(255)
-  designation                                                  String?                        @db.VarChar(255)
-  company_name_for_email                                       String?                        @db.VarChar(255)
-  email_status                                                 find_events_rsvp_email_status?
-  no_of_employees                                              Int?
-  industry                                                     String?                        @db.VarChar(255)
-  company_linkedin_url                                         String?                        @db.VarChar(255)
-  facebook_url                                                 String?                        @db.VarChar(255)
-  twitter_url                                                  String?                        @db.VarChar(255)
-  city                                                         String?                        @db.VarChar(255)
-  state                                                        String?                        @db.VarChar(255)
-  additional_request                                           String?                        @db.VarChar(255)
-  event_interested_in                                          String?                        @db.VarChar(255)
-  do_electric_point                                            Int                            @default(0)
-  send_award_night_nomination_link                             Int                            @default(0)
-  send_business_awards_nomination_link                         Int                            @default(0)
-  event_request_type                                           String?                        @db.VarChar(255)
-  send_nomination_link_to_linkedin_contacts                    Int                            @default(0)
-  reminder_award_applications                                  Int                            @default(0)
-  southampton_england_awards                                   Int                            @default(0)
-  gender                                                       String?                        @db.Text
-  gender_confidence                                            String?                        @db.Text
-  primary_award_category                                       String?                        @db.Text
-  secondary_award_category                                     String?                        @db.Text
-  best_business_nominated                                      Int                            @default(0)
+  id                                                          Int                            @id @default(autoincrement())
+  event_id                                                    Int
+  batch_number                                                String?                        @db.VarChar(255)
+  user_id                                                     Int?
+  date                                                        DateTime                       @default(now()) @db.Timestamp(0)
+  first_name                                                  String?                        @db.VarChar(255)
+  last_name                                                   String?                        @db.VarChar(255)
+  name                                                        String?                        @db.VarChar(255)
+  email                                                       String                         @db.VarChar(255)
+  phone                                                       String?                        @db.VarChar(255)
+  workphone                                                   String?                        @db.VarChar(255)
+  business                                                    String?                        @db.VarChar(255)
+  description                                                 String?                        @db.VarChar(255)
+  position                                                    String?                        @db.VarChar(255)
+  added_by_user_id                                            Int?
+  added_by_visitor_user_id                                    Int?                           @default(0)
+  status                                                      String                         @default("Registered") @db.VarChar(100)
+  joining_status                                              String?                        @default("Pending") @db.VarChar(255)
+  linkedin_user_profile                                       String?                        @db.VarChar(255)
+  linked_profile_user_id                                      Int?
+  linked_profile_listing_id                                   Int?
+  initial_table_position                                      Int
+  anchor_seat_holder                                          Int
+  last_position_holder                                        Int
+  created_by_user_id                                          Int?
+  is_deleted                                                  Int                            @default(0)
+  location_id                                                 Int?
+  location_name                                               String?
+  country_name                                                String?
+  franchise_user_id                                           Int?
+  franchise_name                                              String?
+  excluded_from_advertise                                     Boolean?                       @default(false)
+  import_batch_number                                         Int?                           @default(0)
+  flag                                                        Boolean?                       @default(false)
+  exhibitor_request_pass                                      Int                            @default(0)
+  visitor_mail                                                Int                            @default(0)
+  event_follow_up_email_for_checkedin_visitors                Int                            @default(0)
+  post_event_thank_you_and_survey                             Int                            @default(0)
+  no_show_event_visitor_email                                 Int                            @default(0)
+  request_for_the_buzz_magazine_artwork                       Int                            @default(0)
+  event_magazine_book_mail                                    Int                            @default(0)
+  save_the_date                                               Boolean?                       @default(false)
+  email_batch_processed_flag                                  Int                            @default(0)
+  custom_email_to_visitor                                     Int                            @default(0)
+  view_my_advert_email_no_answer                              Int                            @default(0)
+  view_my_advert_email_back_up                                Int                            @default(0)
+  view_my_advert_email                                        Int                            @default(0)
+  st_reminder_to_networking_event                             Int                            @default(0) @map("1st_reminder_to_networking_event")
+  offer_of_the_month                                          Int                            @default(0)
+  reminder_for_trade_show                                     Int                            @default(0)
+  exhibit_at_trade_show                                       Int                            @default(0)
+  html_event_reminder                                         Int                            @default(0)
+  registration_request                                        Int                            @default(0)
+  registration_request_with_advert_size                       Int                            @default(0)
+  invitation_to_attend_with_previous_event_link               Int?                           @default(0)
+  greetings_for_christmas                                     Int                            @default(0)
+  trade_stand_purchase_offer_for_non_exhibitors               Int                            @default(0)
+  introduction_email_to_visitor                               Int                            @default(0)
+  past_attendee_targeting                                     Int                            @default(0)
+  updated_trade_show_link_for_non_exhibitors                  Int                            @default(0)
+  the_booth_announcement                                      Boolean
+  send_along_information                                      Boolean
+  booth_teaser                                                Boolean
+  while_at_the_show                                           Boolean
+  keep_it_simple                                              Boolean
+  request_a_follow_up_chat                                    Boolean
+  offer_to_soothe_their_pain_points                           Boolean
+  how_can_i_help                                              Boolean
+  preshow_reach_out_to_contacts_from_last_year_s_show         Int                            @default(0) @map("01_preshow-reach_out_to_contacts_from_last_year’s_show")
+  preshow_let_current_customers___vendors_know_you_ll_be_goi  Int                            @default(0) @map("02_preshow_let_current_customers_/_vendors_know_you’ll_be_goi")
+  preshow___introduce_the_trade_show_team                     Int                            @default(0) @map("04_preshow_-_introduce_the_trade_show_team")
+  preshow___share_educational_content                         Int                            @default(0) @map("05_preshow_-_share_educational_content")
+  preshow_booth_display_teaser_email_template_2               Int                            @default(0) @map("06_preshow-booth_display_teaser_email_template_2")
+  event_cancellation_notice_and_coronavirus_update            Int                            @default(0)
+  virtual_networking_invite                                   Int                            @default(0)
+  award_guest                                                 Int?                           @default(0)
+  allergey_from_shell_fish                                    Int?
+  allergey_from_dairy_products                                Int?
+  dietary_requirement                                         String?
+  any_other_food_allergy                                      String?
+  vegetarian                                                  Int?                           @default(0)
+  vegan                                                       Int?                           @default(0)
+  allergy_from_nuts                                           Int?                           @default(0)
+  updated_on                                                  DateTime?                      @default(now()) @db.Timestamp(0)
+  linkedin_connection_request                                 Int                            @default(0)
+  send_nomination_link_to_visitor                             Int                            @default(0)
+  thank_you_for_nomination                                    Int                            @default(0)
+  zoom_meeting_invitation                                     Int                            @default(0)
+  test_linked_in_3rd                                          Int                            @default(0)
+  virtual_meeting_invite_a_business                           Int                            @default(0) @map("virtual-meeting-invite-a-business")
+  virtual_meeting_invite_a_business_reminder                  Int                            @default(0) @map("virtual-meeting-invite-a-business-reminder")
+  digital_buzz                                                Int                            @default(0) @map("digital buzz")
+  digital_buzz_artwork_request                                Int                            @default(0)
+  invitation_to_advertise_in_digital_buzz                     Int                            @default(0)
+  how_to_win_more_customers                                   Int                            @default(0)
+  how_to_get_your_business_back_on_track_in_2020              Int                            @default(0)
+  top_trading_tips_during_the_off_seasons                     Int                            @default(0)
+  digital_buzz_advertisement_last_few_left                    Int                            @default(0)
+  last_chance_to_advertise_for_free_in_digital_buzz           Int                            @default(0) @map("last chance to advertise for free in digital buzz")
+  new_digital_buzz___free_advert_for_your_brand               Int                            @default(0) @map("new_digital_buzz_-_free_advert_for_your_brand")
+  event_reminder_to_attendees                                 Int                            @default(0)
+  visitor_ticket_booking_and_hotel_room_reservation           Int                            @default(0)
+  telecalling_grade_id                                        String?                        @db.VarChar(255)
+  telecalling_grade_sequence                                  Int?
+  updated_by                                                  Int?
+  password                                                    String?                        @db.VarChar(255)
+  the_buzz_digital_version                                    Int                            @default(0)
+  newsletter_invitation                                       Int                            @default(0)
+  welcome_newsletter_email                                    Int                            @default(0)
+  virtual_trade_show_invitation_mail                          Int                            @default(0)
+  visitor_why_exhibit                                         String?                        @db.VarChar(255)
+  visitor_referrer_from                                       String?                        @db.VarChar(255)
+  visitor_is_webinars                                         Int?                           @default(0)
+  visitor_is_workshops                                        Int?                           @default(0)
+  visitor_is_e_magazine                                       Int?                           @default(0)
+  visitor_is_newsletter                                       Int?                           @default(0)
+  visitor_is_business_presentation                            Int                            @default(0)
+  event_web_registration_welcome_email                        Int                            @default(0)
+  event_web_exhibitor_registration_welcome_email              Int                            @default(0)
+  event_web_request_to_become_an_exhibitor_welcome_email      Int                            @default(0)
+  referral_code                                               String?                        @db.VarChar(255)
+  referral_mstr_id                                            String?                        @db.VarChar(11)
+  send_visitor_pass_to_registered_members                     Int                            @default(0)
+  email_batch_id                                              Int?                           @default(0)
+  event_cancellation_notice                                   Int                            @default(0)
+  send_badge_to_visitor                                       Int                            @default(0)
+  website                                                     String?                        @db.VarChar(255)
+  free_visitor_ticket_for_dae_2021                            Int                            @default(0)
+  visitor_bonus_for_stand_visit                               Int                            @default(0)
+  exhibitor_invitation_registration_dae                       Int                            @default(0)
+  dae_visitor_invitation_1                                    Int                            @default(0)
+  dae_visitor_invitation_2                                    Int                            @default(0)
+  dae_meet_the_exhibitors_2                                   Int                            @default(0)
+  dae_visitor_invitation_3                                    Int                            @default(0)
+  dae_visitor_invitation_4                                    Int                            @default(0)
+  dae_day_1                                                   Int                            @default(0)
+  dae_visitor_day_1                                           Int                            @default(0)
+  dae_day_2                                                   Int                            @default(0)
+  dae_day_3                                                   Int                            @default(0)
+  dae_social_media_invitation                                 Int                            @default(0)
+  closure_of_day_3                                            Int                            @default(0)
+  is_event_brite_attendee                                     Boolean?                       @default(false)
+  source                                                      String?                        @db.VarChar(255)
+  photo_download_access_invite                                Int                            @default(0)
+  video_interview_download_invite                             Int                            @default(0)
+  stand_visitor___account_activation                          Int                            @default(0) @map("stand_visitor_-_account_activation")
+  business_card___account_activation                          Int                            @default(0) @map("business_card_-_account_activation")
+  free_membership_account_activation                          Int                            @default(0)
+  face_2_face_meeting                                         Int                            @default(0)
+  back_in_bournemouth                                         Int                            @default(0) @map("back-in-bournemouth")
+  growth_hub_networking_event                                 Int                            @default(0) @map("growth-hub-networking-event")
+  face_2_face_networking_event_invite_jersey                  Int                            @default(0)
+  face_2_face_networking_event_invite_jersey_without_business Int                            @default(0)
+  sms_isle_of_wight_networking_event                          Int                            @default(0)
+  face_2_face_networking_event_invite_southampton             Int                            @default(0)
+  is_duplicated                                               Int                            @default(0)
+  job_title                                                   String?                        @db.VarChar(255)
+  designation                                                 String?                        @db.VarChar(255)
+  company_name_for_email                                      String?                        @db.VarChar(255)
+  email_status                                                find_events_rsvp_email_status?
+  no_of_employees                                             Int?
+  industry                                                    String?                        @db.VarChar(255)
+  company_linkedin_url                                        String?                        @db.VarChar(255)
+  facebook_url                                                String?                        @db.VarChar(255)
+  twitter_url                                                 String?                        @db.VarChar(255)
+  city                                                        String?                        @db.VarChar(255)
+  state                                                       String?                        @db.VarChar(255)
+  additional_request                                          String?                        @db.VarChar(255)
+  event_interested_in                                         String?                        @db.VarChar(255)
+  do_electric_point                                           Int                            @default(0)
+  send_award_night_nomination_link                            Int                            @default(0)
+  send_business_awards_nomination_link                        Int                            @default(0)
+  event_request_type                                          String?                        @db.VarChar(255)
+  send_nomination_link_to_linkedin_contacts                   Int                            @default(0)
+  reminder_award_applications                                 Int                            @default(0)
+  southampton_england_awards                                  Int                            @default(0)
+  gender                                                      String?
+  gender_confidence                                           String?
+  primary_award_category                                      String?
+  secondary_award_category                                    String?
+  best_business_nominated                                     Int                            @default(0)
 
   @@index([email], map: "find_events_rsvp_email joining check")
   @@index([email], map: "find_events_rsvp_idx_email")
@@ -2074,9 +2074,9 @@ model find_feeds_external {
   listing_id   Int?                     @default(0)
   book_id      Int?                     @default(0)
   title        String                   @db.VarChar(765)
-  description  String?                  @db.Text
+  description  String?
   url          String?                  @db.VarChar(765)
-  image        String?                  @db.Text
+  image        String?
   type         find_feeds_external_type @default(external_feed)
   limit        Int
   friendly_url String?                  @db.VarChar(255)
@@ -2095,16 +2095,16 @@ model find_fields {
   group_id            Int
   name                String   @db.VarChar(765)
   variable_name       String?  @db.VarChar(255)
-  description         String?  @db.Text
+  description         String?
   type                String   @db.VarChar(45)
   required            Int
-  options             String?  @db.Text
-  selected            String?  @db.Text
+  options             String?
+  selected            String?
   character_limit     Int
   select_limit        Int
   ordering            Int
   regex               String   @db.VarChar(765)
-  regex_error         String?  @db.Text
+  regex_error         String?
   search              Int
   admin_only          Int
   editable            Int
@@ -2134,130 +2134,130 @@ model find_fields_groups {
 }
 
 model find_guest_speaker {
-  id                                                           Int       @id @default(autoincrement())
-  event_id                                                     Int
-  listing_id                                                   Int?
-  speaker_id                                                   Int?
-  slot_id                                                      Int?
-  batch_number                                                 String    @db.VarChar(255)
-  user_id                                                      Int?
-  date                                                         DateTime  @default(now()) @db.Timestamp(0)
-  first_name                                                   String?   @db.VarChar(255)
-  last_name                                                    String?   @db.VarChar(255)
-  name                                                         String?   @db.VarChar(255)
-  email                                                        String    @db.VarChar(255)
-  phone                                                        String?   @db.VarChar(255)
-  workphone                                                    String?   @db.VarChar(255)
-  business                                                     String?   @db.VarChar(255)
-  position                                                     String?   @db.VarChar(255)
-  added_by_user_id                                             Int?
-  added_by_visitor_user_id                                     Int?      @default(0)
-  status                                                       String    @default("Registered") @db.VarChar(100)
-  joining_status                                               String?   @default("Pending") @db.VarChar(255)
-  linkedin_user_profile                                        String?   @db.VarChar(255)
-  linked_profile_user_id                                       Int?
-  linked_profile_listing_id                                    Int?
-  initial_table_position                                       Int
-  anchor_seat_holder                                           Int
-  last_position_holder                                         Int
-  created_by_user_id                                           Int?
-  is_deleted                                                   Int       @default(0)
-  location_id                                                  Int?
-  location_name                                                String?   @db.Text
-  country_name                                                 String?   @db.Text
-  franchise_user_id                                            Int?
-  franchise_name                                               String?   @db.Text
-  excluded_from_advertise                                      Boolean?  @default(false)
-  import_batch_number                                          Int?      @default(0)
-  flag                                                         Boolean?  @default(false)
-  exhibitor_request_pass                                       Int       @default(0)
-  guest_mail                                                   Int       @default(0)
-  event_follow_up_email_for_checkedin_guests                   Int       @default(0)
-  post_event_thank_you_and_survey                              Int       @default(0) @map("post-event_thank_you_and_survey")
-  no_show_event_guest_email                                    Int       @default(0)
-  request_for_the_buzz_magazine_artwork                        Int       @default(0)
-  event_magazine_book_mail                                     Int       @default(0)
-  save_the_date                                                Boolean?  @default(false)
-  email_batch_processed_flag                                   Int       @default(0)
-  custom_email_to_guest                                        Int       @default(0)
-  view_my_advert_email_no_answer                               Int       @default(0)
-  view_my_advert_email_back_up                                 Int       @default(0)
-  view_my_advert_email                                         Int       @default(0)
-  st_reminder_to_networking_event                              Int       @default(0) @map("1st_reminder_to_networking_event")
-  offer_of_the_month                                           Int       @default(0)
-  reminder_for_trade_show                                      Int       @default(0)
-  exhibit_at_trade_show                                        Int       @default(0)
-  html_event_reminder                                          Int       @default(0)
-  registration_request                                         Int       @default(0)
-  registration_request_with_advert_size                        Int       @default(0)
-  invitation_to_attend_with_previous_event_link                Int?      @default(0)
-  greetings_for_christmas                                      Int       @default(0)
-  trade_stand_purchase_offer_for_non_exhibitors                Int       @default(0)
-  introduction_email_to_guest                                  Int       @default(0)
-  past_attendee_targeting                                      Int       @default(0)
-  updated_trade_show_link_for_non_exhibitors                   Int       @default(0)
-  the_booth_announcement                                       Boolean
-  send_along_information                                       Boolean
-  booth_teaser                                                 Boolean
-  while_at_the_show                                            Boolean
-  keep_it_simple                                               Boolean
-  request_a_follow_up_chat                                     Boolean
-  offer_to_soothe_their_pain_points                            Boolean
-  how_can_i_help                                               Boolean
-  preshow_reach_out_to_contacts_from_last_year_s_show          Int       @default(0) @map("01_preshow-reach_out_to_contacts_from_last_year’s_show")
-  preshow_let_current_customers___vendors_know_you_ll_be_going Int       @default(0) @map("02_preshow_let_current_customers_/_vendors_know_you’ll_be_going")
-  preshow___introduce_the_trade_show_team                      Int       @default(0) @map("04_preshow_-_introduce_the_trade_show_team")
-  preshow___share_educational_content                          Int       @default(0) @map("05_preshow_-_share_educational_content")
-  preshow_booth_display_teaser_email_template_2                Int       @default(0) @map("06_preshow-booth_display_teaser_email_template_2")
-  event_cancellation_notice_and_coronavirus_update             Int       @default(0)
-  virtual_networking_invite                                    Int       @default(0)
-  award_guest                                                  Int?      @default(0)
-  allergey_from_shell_fish                                     Int?
-  allergey_from_dairy_products                                 Int?
-  dietary_requirement                                          String?   @db.Text
-  any_other_food_allergy                                       String?   @db.Text
-  vegetarian                                                   Int?      @default(0)
-  vegan                                                        Int?      @default(0)
-  allergy_from_nuts                                            Int?      @default(0)
-  updated_on                                                   DateTime? @default(now()) @db.Timestamp(0)
-  linkedin_connection_request                                  Int       @default(0)
-  send_nomination_link_to_guest                                Int       @default(0)
-  thank_you_for_nomination                                     Int       @default(0)
-  zoom_meeting_invitation                                      Int       @default(0)
-  test_linked_in_3rd                                           Int       @default(0)
-  virtual_meeting_invite_a_business                            Int       @default(0) @map("virtual-meeting-invite-a-business")
-  virtual_meeting_invite_a_business_reminder                   Int       @default(0) @map("virtual-meeting-invite-a-business-reminder")
-  digital_buzz                                                 Int       @default(0) @map("digital buzz")
-  digital_buzz_artwork_request                                 Int       @default(0)
-  invitation_to_advertise_in_digital_buzz                      Int       @default(0)
-  how_to_win_more_customers                                    Int       @default(0)
-  how_to_get_your_business_back_on_track_in_2020               Int       @default(0)
-  top_trading_tips_during_the_off_seasons                      Int       @default(0)
-  digital_buzz_advertisement_last_few_left                     Int       @default(0)
-  last_chance_to_advertise_for_free_in_digital_buzz            Int       @default(0) @map("last chance to advertise for free in digital buzz")
-  new_digital_buzz___free_advert_for_your_brand                Int       @default(0) @map("new_digital_buzz_-_free_advert_for_your_brand")
-  event_reminder_to_attendees                                  Int       @default(0)
-  guest_ticket_booking_and_hotel_room_reservation              Int       @default(0)
-  telecalling_grade_id                                         String?   @db.VarChar(255)
-  telecalling_grade_sequence                                   Int?
-  updated_by                                                   Int?
-  password                                                     String?   @db.VarChar(255)
-  the_buzz_digital_version                                     Int       @default(0)
-  newsletter_invitation                                        Int       @default(0)
-  welcome_newsletter_email                                     Int       @default(0)
-  virtual_trade_show_invitation_mail                           Int       @default(0)
-  guest_why_exhibit                                            String?   @db.VarChar(255)
-  guest_referrer_from                                          String?   @db.VarChar(255)
-  guest_is_webinars                                            Int?      @default(0)
-  guest_is_workshops                                           Int?      @default(0)
-  guest_is_e_magazine                                          Int?      @default(0)
-  guest_is_newsletter                                          Int?      @default(0)
-  event_web_registration_welcome_email                         Int       @default(0)
-  event_web_exhibitor_registration_welcome_email               Int       @default(0)
-  event_web_request_to_become_an_exhibitor_welcome_email       Int       @default(0)
-  referral_code                                                String?   @db.VarChar(255)
-  referral_mstr_id                                             String?   @db.VarChar(11)
-  is_auto_generate                                             Boolean   @default(false)
+  id                                                         Int       @id @default(autoincrement())
+  event_id                                                   Int
+  listing_id                                                 Int?
+  speaker_id                                                 Int?
+  slot_id                                                    Int?
+  batch_number                                               String    @db.VarChar(255)
+  user_id                                                    Int?
+  date                                                       DateTime  @default(now()) @db.Timestamp(0)
+  first_name                                                 String?   @db.VarChar(255)
+  last_name                                                  String?   @db.VarChar(255)
+  name                                                       String?   @db.VarChar(255)
+  email                                                      String    @db.VarChar(255)
+  phone                                                      String?   @db.VarChar(255)
+  workphone                                                  String?   @db.VarChar(255)
+  business                                                   String?   @db.VarChar(255)
+  position                                                   String?   @db.VarChar(255)
+  added_by_user_id                                           Int?
+  added_by_visitor_user_id                                   Int?      @default(0)
+  status                                                     String    @default("Registered") @db.VarChar(100)
+  joining_status                                             String?   @default("Pending") @db.VarChar(255)
+  linkedin_user_profile                                      String?   @db.VarChar(255)
+  linked_profile_user_id                                     Int?
+  linked_profile_listing_id                                  Int?
+  initial_table_position                                     Int
+  anchor_seat_holder                                         Int
+  last_position_holder                                       Int
+  created_by_user_id                                         Int?
+  is_deleted                                                 Int       @default(0)
+  location_id                                                Int?
+  location_name                                              String?
+  country_name                                               String?
+  franchise_user_id                                          Int?
+  franchise_name                                             String?
+  excluded_from_advertise                                    Boolean?  @default(false)
+  import_batch_number                                        Int?      @default(0)
+  flag                                                       Boolean?  @default(false)
+  exhibitor_request_pass                                     Int       @default(0)
+  guest_mail                                                 Int       @default(0)
+  event_follow_up_email_for_checkedin_guests                 Int       @default(0)
+  post_event_thank_you_and_survey                            Int       @default(0) @map("post-event_thank_you_and_survey")
+  no_show_event_guest_email                                  Int       @default(0)
+  request_for_the_buzz_magazine_artwork                      Int       @default(0)
+  event_magazine_book_mail                                   Int       @default(0)
+  save_the_date                                              Boolean?  @default(false)
+  email_batch_processed_flag                                 Int       @default(0)
+  custom_email_to_guest                                      Int       @default(0)
+  view_my_advert_email_no_answer                             Int       @default(0)
+  view_my_advert_email_back_up                               Int       @default(0)
+  view_my_advert_email                                       Int       @default(0)
+  st_reminder_to_networking_event                            Int       @default(0) @map("1st_reminder_to_networking_event")
+  offer_of_the_month                                         Int       @default(0)
+  reminder_for_trade_show                                    Int       @default(0)
+  exhibit_at_trade_show                                      Int       @default(0)
+  html_event_reminder                                        Int       @default(0)
+  registration_request                                       Int       @default(0)
+  registration_request_with_advert_size                      Int       @default(0)
+  invitation_to_attend_with_previous_event_link              Int?      @default(0)
+  greetings_for_christmas                                    Int       @default(0)
+  trade_stand_purchase_offer_for_non_exhibitors              Int       @default(0)
+  introduction_email_to_guest                                Int       @default(0)
+  past_attendee_targeting                                    Int       @default(0)
+  updated_trade_show_link_for_non_exhibitors                 Int       @default(0)
+  the_booth_announcement                                     Boolean
+  send_along_information                                     Boolean
+  booth_teaser                                               Boolean
+  while_at_the_show                                          Boolean
+  keep_it_simple                                             Boolean
+  request_a_follow_up_chat                                   Boolean
+  offer_to_soothe_their_pain_points                          Boolean
+  how_can_i_help                                             Boolean
+  preshow_reach_out_to_contacts_from_last_year_s_show        Int       @default(0) @map("01_preshow-reach_out_to_contacts_from_last_year’s_show")
+  preshow_let_current_customers___vendors_know_you_ll_be_goi Int       @default(0) @map("02_preshow_let_current_customers_/_vendors_know_you’ll_be_goi")
+  preshow___introduce_the_trade_show_team                    Int       @default(0) @map("04_preshow_-_introduce_the_trade_show_team")
+  preshow___share_educational_content                        Int       @default(0) @map("05_preshow_-_share_educational_content")
+  preshow_booth_display_teaser_email_template_2              Int       @default(0) @map("06_preshow-booth_display_teaser_email_template_2")
+  event_cancellation_notice_and_coronavirus_update           Int       @default(0)
+  virtual_networking_invite                                  Int       @default(0)
+  award_guest                                                Int?      @default(0)
+  allergey_from_shell_fish                                   Int?
+  allergey_from_dairy_products                               Int?
+  dietary_requirement                                        String?
+  any_other_food_allergy                                     String?
+  vegetarian                                                 Int?      @default(0)
+  vegan                                                      Int?      @default(0)
+  allergy_from_nuts                                          Int?      @default(0)
+  updated_on                                                 DateTime? @default(now()) @db.Timestamp(0)
+  linkedin_connection_request                                Int       @default(0)
+  send_nomination_link_to_guest                              Int       @default(0)
+  thank_you_for_nomination                                   Int       @default(0)
+  zoom_meeting_invitation                                    Int       @default(0)
+  test_linked_in_3rd                                         Int       @default(0)
+  virtual_meeting_invite_a_business                          Int       @default(0) @map("virtual-meeting-invite-a-business")
+  virtual_meeting_invite_a_business_reminder                 Int       @default(0) @map("virtual-meeting-invite-a-business-reminder")
+  digital_buzz                                               Int       @default(0) @map("digital buzz")
+  digital_buzz_artwork_request                               Int       @default(0)
+  invitation_to_advertise_in_digital_buzz                    Int       @default(0)
+  how_to_win_more_customers                                  Int       @default(0)
+  how_to_get_your_business_back_on_track_in_2020             Int       @default(0)
+  top_trading_tips_during_the_off_seasons                    Int       @default(0)
+  digital_buzz_advertisement_last_few_left                   Int       @default(0)
+  last_chance_to_advertise_for_free_in_digital_buzz          Int       @default(0) @map("last chance to advertise for free in digital buzz")
+  new_digital_buzz___free_advert_for_your_brand              Int       @default(0) @map("new_digital_buzz_-_free_advert_for_your_brand")
+  event_reminder_to_attendees                                Int       @default(0)
+  guest_ticket_booking_and_hotel_room_reservation            Int       @default(0)
+  telecalling_grade_id                                       String?   @db.VarChar(255)
+  telecalling_grade_sequence                                 Int?
+  updated_by                                                 Int?
+  password                                                   String?   @db.VarChar(255)
+  the_buzz_digital_version                                   Int       @default(0)
+  newsletter_invitation                                      Int       @default(0)
+  welcome_newsletter_email                                   Int       @default(0)
+  virtual_trade_show_invitation_mail                         Int       @default(0)
+  guest_why_exhibit                                          String?   @db.VarChar(255)
+  guest_referrer_from                                        String?   @db.VarChar(255)
+  guest_is_webinars                                          Int?      @default(0)
+  guest_is_workshops                                         Int?      @default(0)
+  guest_is_e_magazine                                        Int?      @default(0)
+  guest_is_newsletter                                        Int?      @default(0)
+  event_web_registration_welcome_email                       Int       @default(0)
+  event_web_exhibitor_registration_welcome_email             Int       @default(0)
+  event_web_request_to_become_an_exhibitor_welcome_email     Int       @default(0)
+  referral_code                                              String?   @db.VarChar(255)
+  referral_mstr_id                                           String?   @db.VarChar(11)
+  is_auto_generate                                           Boolean   @default(false)
 
   @@index([email], map: "find_guest_speaker_email joining check")
 }
@@ -2266,7 +2266,7 @@ model find_invoices {
   id                                                 Int                                        @id @default(autoincrement())
   invoice_number                                     String?                                    @db.VarChar(11)
   order_id                                           Int?
-  sale_invoice_number                                Float?                                     @default(0) @db.DoublePrecision
+  sale_invoice_number                                Float?                                     @default(0)
   user_id                                            Int?
   type                                               String?                                    @db.VarChar(765)
   type_id                                            Int?
@@ -2274,17 +2274,17 @@ model find_invoices {
   date                                               DateTime?                                  @db.Date
   date_due                                           DateTime?                                  @db.Date
   date_paid                                          DateTime?                                  @db.Timestamp(0)
-  amount                                             Float?                                     @db.DoublePrecision
+  amount                                             Float?
   subtotal                                           Decimal?                                   @db.Decimal(10, 2)
-  discount                                           Float?                                     @default(0) @db.DoublePrecision
+  discount                                           Float?                                     @default(0)
   discount_code_value                                Decimal?                                   @db.Decimal(10, 2)
-  charitable_amount                                  Float?                                     @default(0) @db.DoublePrecision
-  credit_note_amount                                 Float?                                     @default(0) @db.DoublePrecision
+  charitable_amount                                  Float?                                     @default(0)
+  credit_note_amount                                 Float?                                     @default(0)
   tax_rate                                           Decimal?                                   @db.Decimal(10, 2)
   tax                                                Decimal?                                   @db.Decimal(10, 2)
   tax_rate2                                          Decimal?                                   @db.Decimal(10, 2)
   tax2                                               Decimal?                                   @db.Decimal(10, 2)
-  net_amount                                         Float?                                     @default(0) @db.DoublePrecision
+  net_amount                                         Float?                                     @default(0)
   total                                              Decimal?                                   @db.Decimal(10, 2)
   status                                             find_invoices_status?                      @default(unpaid)
   gateway_id                                         String?                                    @db.VarChar(165)
@@ -2297,7 +2297,7 @@ model find_invoices {
   overdue_2_sent                                     Int?
   overdue_3_sent                                     Int?
   affiliate_program_tracking_code                    String?                                    @db.VarChar(765)
-  notes                                              String?                                    @db.Text
+  notes                                              String?
   sync                                               Int?
   trans_sync                                         Int?                                       @default(0)
   invoice_mail_send                                  Boolean?                                   @default(false)
@@ -2305,14 +2305,14 @@ model find_invoices {
   allocated_regional_franchise_id                    Int?
   allocated_zonal_franchise_id                       Int?
   allocated_master_franchise_id                      Int?
-  allocated_unit_franchise_commission_percentage     Float?                                     @db.DoublePrecision
-  allocated_regional_franchise_commission_percentage Float?                                     @db.DoublePrecision
-  allocated_zonal_franchise_commission_percentage    Float?                                     @db.DoublePrecision
-  allocated_master_franchise_commission_percentage   Float?                                     @db.DoublePrecision
-  unit_franchise_commission_amount                   Float?                                     @db.DoublePrecision
-  regional_franchise_commission_amount               Float?                                     @db.DoublePrecision
-  zonal_franchise_commission_amount                  Float?                                     @db.DoublePrecision
-  master_franchise_commission_amount                 Float?                                     @db.DoublePrecision
+  allocated_unit_franchise_commission_percentage     Float?
+  allocated_regional_franchise_commission_percentage Float?
+  allocated_zonal_franchise_commission_percentage    Float?
+  allocated_master_franchise_commission_percentage   Float?
+  unit_franchise_commission_amount                   Float?
+  regional_franchise_commission_amount               Float?
+  zonal_franchise_commission_amount                  Float?
+  master_franchise_commission_amount                 Float?
   advertise_id                                       Int?
   payment_submitted                                  Boolean?                                   @default(false)
   event_id                                           Int?
@@ -2332,7 +2332,7 @@ model find_language_phrases {
   languageid   Int     @db.SmallInt
   section      String  @db.VarChar(150)
   variablename String  @db.VarChar(750)
-  content      String? @db.Text
+  content      String?
   updated      Int
 
   @@unique([languageid, section, variablename], map: "find_language_phrases_languageid")
@@ -2347,7 +2347,7 @@ model find_latest_promotion {
   product_id          Int?
   user_id             Int
   title               String    @db.VarChar(1500)
-  description         String?   @db.Text
+  description         String?
   offer_price         Int?
   primary_category_id Int
   status              String    @db.VarChar(150)
@@ -2374,8 +2374,8 @@ model find_letter_log {
   from_name           String?   @db.VarChar(300)
   from_email          String?   @db.VarChar(765)
   subject             String?   @db.VarChar(765)
-  body_plain          String?   @db.Text
-  body_html           String?   @db.Text
+  body_plain          String?
+  body_html           String?
   ip_address          String?   @db.VarChar(255)
   device              String?   @db.VarChar(255)
   email_template_id   String?   @db.VarChar(255)
@@ -2388,9 +2388,9 @@ model find_listing_business_opportunity {
   listing_id                   Int
   type_id                      Int?
   mstr_id                      Int?
-  opportunity_intro            String  @db.Text
-  section_title                String  @db.Text
-  section_description          String  @db.Text
+  opportunity_intro            String
+  section_title                String
+  section_description          String
   youtube_link                 String  @db.VarChar(255)
   sequence                     Int
   acttive                      String  @db.VarChar(10)
@@ -2402,14 +2402,14 @@ model find_listing_business_opportunity {
   hide_section_title           String  @db.VarChar(10)
   secondary_image              String  @default("") @db.VarChar(255)
   video                        String  @db.VarChar(255)
-  additional_info              String  @db.Text
+  additional_info              String
   button_link                  String  @default("") @db.VarChar(255)
   button_text                  String  @default("") @db.VarChar(255)
   trips_type                   String  @db.VarChar(255)
   tripstype_price              String  @default("") @db.VarChar(255)
   icon                         String  @default("") @db.VarChar(255)
   linked_strategy_mstr_id      String? @db.VarChar(255)
-  section_sub_title            String  @db.Text
+  section_sub_title            String
   GenerateSectionDescription   String  @db.VarChar(255)
 }
 
@@ -2456,7 +2456,7 @@ model find_listing_listing_faq {
   type_id        Int?
   mstr_id        Int?
   faq_question   String @default("") @db.VarChar(255)
-  faq_response   String @db.Text
+  faq_response   String
   faq_ticket_id  Int?
   faq_sequence   String @default("") @db.VarChar(255)
   faq_area       String @default("") @db.VarChar(255)
@@ -2479,19 +2479,19 @@ model find_listing_members {
   work_phone          String? @db.VarChar(255)
   position            String? @db.VarChar(255)
   event_member_id     Int?    @default(0)
-  profile_pic         String? @db.Text
-  description         String? @db.Text
+  profile_pic         String?
+  description         String?
   active              Int?    @default(0)
   is_listing_member   Int?
   meeting_link        String? @db.VarChar(225)
-  pain_points         String? @db.Text
-  empathy             String? @db.Text
-  about_you           String? @db.Text
-  problem_restatement String? @db.Text
-  soluation_overview  String? @db.Text
-  call_to_action      String? @db.Text
-  profile_summary     String? @db.Text
-  profile_highlight   String? @db.Text
+  pain_points         String?
+  empathy             String?
+  about_you           String?
+  problem_restatement String?
+  soluation_overview  String?
+  call_to_action      String?
+  profile_summary     String?
+  profile_highlight   String?
   group_member        Int?
   members_facebook    String? @db.VarChar(255)
   members_linkedin    String? @db.VarChar(255)
@@ -2517,17 +2517,17 @@ model find_listings {
   trading_name                      String               @db.VarChar(200)
   country_of_registration           String?              @db.VarChar(255)
   friendly_url                      String               @default("") @db.VarChar(255)
-  description_short                 String?              @db.Text
+  description_short                 String?
   challenge_description             String               @db.VarChar(255)
   top_business_priority             Int
   second_business_priority          Int
   third_business_priority           Int
-  description                       String?              @db.Text
-  description_2                     String?              @db.Text
+  description                       String?
+  description_2                     String?
   meta_title                        String               @default("") @db.VarChar(255)
-  meta_description                  String?              @db.Text
-  meta_keywords                     String?              @db.Text
-  keywords                          String?              @db.Text
+  meta_description                  String?
+  meta_keywords                     String?
+  keywords                          String?
   logo_extension                    String?              @db.VarChar(4)
   logo_background                   String?              @db.VarChar(4)
   listing_logo                      String?              @db.VarChar(500)
@@ -2552,17 +2552,17 @@ model find_listings {
   location_search_text              String               @default("") @db.VarChar(255)
   latitude                          Decimal              @default(0.0000000000) @db.Decimal(15, 10)
   longitude                         Decimal              @default(0.0000000000) @db.Decimal(15, 10)
-  coordinates_date_checked          DateTime             @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
-  hours                             String?              @db.Text
+  coordinates_date_checked          DateTime             @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
+  hours                             String?
   www                               String               @default("") @db.VarChar(255)
   www_status                        Int                  @default(1)
   www_reciprocal                    Int                  @default(1)
-  www_date_checked                  DateTime             @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
+  www_date_checked                  DateTime             @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
   website_clicks                    Int                  @default(0)
   phone_views                       Int                  @default(0)
   email_views                       Int                  @default(0)
   shares                            Int                  @default(0)
-  www_screenshot_last_updated       DateTime             @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
+  www_screenshot_last_updated       DateTime             @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
   facebook_page_id                  String               @default("") @db.VarChar(75)
   google_page_id                    String               @default("") @db.VarChar(75)
   linkedin_id                       String               @default("") @db.VarChar(75)
@@ -2575,14 +2575,14 @@ model find_listings {
   youtube_url                       String               @db.VarChar(255)
   primary_listing_member_display    Int?                 @default(0)
   ip                                String               @default("") @db.VarChar(45)
-  date                              DateTime             @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
-  date_update                       DateTime             @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
+  date                              DateTime             @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
+  date_update                       DateTime             @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
   ip_update                         String               @default("") @db.VarChar(45)
   impressions                       Int                  @default(0)
   impressions_weekly                Int?                 @default(0)
   search_impressions                Int                  @default(0)
   emails                            Int                  @default(0)
-  rating                            Float                @default(0) @db.DoublePrecision
+  rating                            Float                @default(0)
   banner_impressions                Int                  @default(0)
   banner_clicks                     Int                  @default(0)
   counterip                         String               @default("") @db.VarChar(15)
@@ -2597,7 +2597,7 @@ model find_listings {
   template_file_results             String               @default("") @db.VarChar(75)
   category_limit                    Int                  @default(0)
   featured                          Int                  @default(0)
-  featured_date                     DateTime             @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
+  featured_date                     DateTime             @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
   friendly_url_allow                Int                  @default(0)
   html_editor_allow                 Int                  @default(0)
   phone_allow                       Int                  @default(0)
@@ -2642,7 +2642,7 @@ model find_listings {
   meta_keywords_limit               Int                  @default(0)
   keywords_limit                    Int                  @default(0)
   timezone                          String               @default("") @db.VarChar(50)
-  custom_1                          String               @db.Text
+  custom_1                          String
   custom_1_allow                    Boolean              @default(false)
   banner_limit_1                    Int                  @db.SmallInt
   banner_limit_2                    Int                  @db.SmallInt
@@ -2694,26 +2694,26 @@ model find_listings {
   advert_text_1                     String?              @db.VarChar(255)
   advert_text_2                     String?              @db.VarChar(255)
   advert_text_3                     String?              @db.VarChar(255)
-  advert_text_4                     String?              @db.Text
-  advert_text_5                     String?              @db.Text
-  advert_text_6                     String?              @db.Text
+  advert_text_4                     String?
+  advert_text_5                     String?
+  advert_text_6                     String?
   enable_invoice_email              Boolean?             @default(false)
   listing_employes                  Int?
   listing_type                      String?              @db.VarChar(255)
-  listing_promotional_banner1       String?              @db.Text
-  listing_promotional_banner2       String?              @db.Text
-  listing_promotional_banner3       String?              @db.Text
-  listing_banner_extention1         String?              @db.Text
+  listing_promotional_banner1       String?
+  listing_promotional_banner2       String?
+  listing_promotional_banner3       String?
+  listing_banner_extention1         String?
   listing_banner_extention2         Int?
-  listing_banner_extention3         String?              @db.Text
+  listing_banner_extention3         String?
   flag_src                          Boolean?             @default(false)
   need_any_services_banner          String?              @db.VarChar(255)
   allow_members_to_manage_listing   Boolean?             @default(false)
   affiliate_user_id                 Int?
   is_affiliate                      Int?
   affiliate_comission_percent       Decimal?             @db.Decimal(10, 2)
-  joining_instruction               String?              @db.Text
-  calendy_link                      String?              @db.Text
+  joining_instruction               String?
+  calendy_link                      String?
   premium                           Int                  @default(0)
   is_deleted                        Int                  @default(0)
   show_all_recurring_events         Int                  @default(0)
@@ -2788,7 +2788,7 @@ model find_magzine_advert_rate_card {
   advert_size               String? @db.VarChar(255)
   advert_rate               Int
   retail_price              Int?    @default(0)
-  printed_edition_price     Float?  @db.DoublePrecision
+  printed_edition_price     Float?
   advert_rate_card_title    String  @db.VarChar(255)
   is_default                Int
   ratecard_image            String? @db.VarChar(255)
@@ -2817,14 +2817,14 @@ model find_meeting {
   to_oragnisation            String?                   @db.VarChar(255)
   to_phone                   String?                   @db.VarChar(255)
   to_email                   String?                   @db.VarChar(50)
-  subject                    String?                   @db.Text
-  location                   String?                   @db.Text
+  subject                    String?
+  location                   String?
   start_time                 DateTime?                 @db.Timestamp(0)
   end_time                   DateTime?                 @db.Timestamp(0)
   mstr_slot_id               Int?
   reminder                   String?                   @db.VarChar(255)
   is_reminder_sent           Boolean?                  @default(false)
-  overview                   String?                   @db.Text
+  overview                   String?
   attendies                  Int?
   is_recurring               Boolean?                  @default(false)
   recurring_type             String?                   @db.VarChar(255)
@@ -2903,7 +2903,7 @@ model find_orders {
   id                                                 Int                                      @id @default(autoincrement())
   order_id                                           Int                                      @unique(map: "find_orders_order_id")
   order_description                                  String?                                  @db.VarChar(255)
-  sale_order_number                                  Float?                                   @default(0) @db.DoublePrecision
+  sale_order_number                                  Float?                                   @default(0)
   type                                               String                                   @db.VarChar(765)
   type_id                                            Int
   magzine_advert_rate_card_id                        Int?
@@ -2943,13 +2943,13 @@ model find_orders {
   sync                                               Int?
   order_userid                                       Int?
   price                                              Decimal?                                 @db.Decimal(12, 2)
-  order_sub_total                                    Float?                                   @db.DoublePrecision
-  discount                                           Float?                                   @db.DoublePrecision
-  charitable_amount                                  Float?                                   @db.DoublePrecision
+  order_sub_total                                    Float?
+  discount                                           Float?
+  charitable_amount                                  Float?
   credit_note_amount                                 Decimal?                                 @db.Decimal(10, 2)
-  net_payable                                        Float?                                   @default(0) @db.DoublePrecision
-  tax_amount                                         Float?                                   @default(0) @db.DoublePrecision
-  total_payable                                      Float?                                   @default(0) @db.DoublePrecision
+  net_payable                                        Float?                                   @default(0)
+  tax_amount                                         Float?                                   @default(0)
+  total_payable                                      Float?                                   @default(0)
   credit_note_date                                   DateTime?                                @db.Date
   credit_note_generated                              Boolean?                                 @default(false)
   credit_note_number                                 Int?
@@ -2970,20 +2970,20 @@ model find_orders {
   allocated_regional_franchise_id                    Int?
   allocated_zonal_franchise_id                       Int?
   allocated_master_franchise_id                      Int?
-  allocated_unit_franchise_commission_percentage     Float?                                   @db.DoublePrecision
-  allocated_regional_franchise_commission_percentage Float?                                   @db.DoublePrecision
-  allocated_zonal_franchise_commission_percentage    Float?                                   @db.DoublePrecision
-  allocated_master_franchise_commission_percentage   Float?                                   @db.DoublePrecision
-  unit_franchise_commission_amount                   Float?                                   @db.DoublePrecision
-  regional_franchise_commission_amount               Float?                                   @db.DoublePrecision
-  zonal_franchise_commission_amount                  Float?                                   @db.DoublePrecision
-  master_franchise_commission_amount                 Float?                                   @db.DoublePrecision
+  allocated_unit_franchise_commission_percentage     Float?
+  allocated_regional_franchise_commission_percentage Float?
+  allocated_zonal_franchise_commission_percentage    Float?
+  allocated_master_franchise_commission_percentage   Float?
+  unit_franchise_commission_amount                   Float?
+  regional_franchise_commission_amount               Float?
+  zonal_franchise_commission_amount                  Float?
+  master_franchise_commission_amount                 Float?
   listing_user_id                                    Int
   event_id                                           Int?
-  early_bird_discount_percentage                     Float?                                   @db.DoublePrecision
-  early_bird_discount_value                          Float?                                   @db.DoublePrecision
-  member_discount_percentage                         Float?                                   @db.DoublePrecision
-  member_discount_value                              Float?                                   @db.DoublePrecision
+  early_bird_discount_percentage                     Float?
+  early_bird_discount_value                          Float?
+  member_discount_percentage                         Float?
+  member_discount_value                              Float?
   allow_only_credit_purchase                         Int?
   promote_now_link                                   Boolean?                                 @default(false)
   points                                             Int?
@@ -3016,11 +3016,11 @@ model find_pages {
   id                    Int     @id @default(autoincrement())
   active                Int
   title                 String  @db.VarChar(765)
-  content               String? @db.Text
+  content               String?
   friendly_url          String  @db.VarChar(765)
   meta_title            String  @db.VarChar(765)
-  meta_description      String? @db.Text
-  meta_keywords         String? @db.Text
+  meta_description      String?
+  meta_keywords         String?
   header_template_file  String  @db.VarChar(225)
   footer_template_file  String  @db.VarChar(225)
   wrapper_template_file String  @db.VarChar(225)
@@ -3029,7 +3029,7 @@ model find_pages {
 model find_products {
   id                    Int     @id @default(autoincrement())
   name                  String  @db.VarChar(765)
-  description           String? @db.Text
+  description           String?
   type                  String  @db.VarChar(765)
   type_id               Int
   group_id              Int
@@ -3051,7 +3051,7 @@ model find_products_groups {
   domain_id                   Int?    @default(0)
   name                        String  @db.VarChar(765)
   display_package_name        String? @db.VarChar(255)
-  display_package_description String? @db.Text
+  display_package_description String?
   user_limit                  Int?
   hidden                      Int
   ordering                    Int
@@ -3072,7 +3072,7 @@ model find_products_pricing {
   setup_price            Decimal @db.Decimal(10, 2)
   fkd_price              Decimal @db.Decimal(10, 2)
   price                  Decimal @db.Decimal(10, 2)
-  non_membership_price   Float   @default(0) @db.DoublePrecision
+  non_membership_price   Float   @default(0)
   show_non_member_price  Int     @default(0)
   prorate                Int
   prorate_day            Int
@@ -3084,7 +3084,7 @@ model find_products_pricing {
   renewable              Int
   overdue_action         String  @db.VarChar(75)
   overdue_pricing_id     Int?
-  gateway_ids            String? @db.Text
+  gateway_ids            String?
   stripe_product_id      String? @db.VarChar(255)
   stripe_pricing_id      String? @db.VarChar(255)
   test_stripe_product_id String? @db.VarChar(255)
@@ -3126,7 +3126,7 @@ model find_reviews {
   mobile        String?  @db.VarChar(100)
   workphone     String?  @db.VarChar(100)
   title         String   @db.VarChar(765)
-  review        String?  @db.Text
+  review        String?
   sync          Int      @default(0)
   course_cd     String?  @db.VarChar(255)
 
@@ -3139,13 +3139,13 @@ model find_search_log {
   user_id          Int?
   date             DateTime @db.Timestamp(0)
   ip               String   @db.VarChar(135)
-  results          String?  @db.Text
-  category_results String?  @db.Text
-  location_results String?  @db.Text
+  results          String?
+  category_results String?
+  location_results String?
   count            Int
   keywords         String   @db.VarChar(765)
-  execution_time   Float    @db.DoublePrecision
-  terms            String?  @db.Text
+  execution_time   Float
+  terms            String?
   hash             String   @db.VarChar(96)
 }
 
@@ -3153,7 +3153,7 @@ model find_show_info {
   id          Int    @id @default(autoincrement())
   event_id    Int
   user_id     Int
-  description String @db.Text
+  description String
   Ispublish   Int
 }
 
@@ -3164,19 +3164,19 @@ model find_speakers {
   listing_id                                       Int?
   exhibitor_user_id                                String               @db.VarChar(255)
   order_id                                         Int?
-  speaker_price                                    Float                @db.DoublePrecision
+  speaker_price                                    Float
   exchange_services                                Int?
-  exchange_amount                                  Float?               @db.DoublePrecision
-  discount                                         Float?               @db.DoublePrecision
-  charitable_amount                                Float?               @db.DoublePrecision
-  business                                         String?              @db.Text
+  exchange_amount                                  Float?
+  discount                                         Float?
+  charitable_amount                                Float?
+  business                                         String?
   first_name                                       String?              @db.VarChar(255)
   last_name                                        String?              @db.VarChar(255)
   name                                             String               @db.VarChar(255)
   speaker_hall                                     String?              @db.VarChar(255)
   title                                            String?              @db.VarChar(255)
-  description                                      String?              @db.Text
-  description_encrypt                              String?              @db.Text
+  description                                      String?
+  description_encrypt                              String?
   linkedin_user_profile                            String?              @db.VarChar(255)
   facebook_url                                     String?              @db.VarChar(255)
   twitter_url                                      String?              @db.VarChar(255)
@@ -3210,8 +3210,8 @@ model find_speakers {
   joining_status                                   String?              @default("Pending") @db.VarChar(255)
   linked_profile_user_id                           Int?
   import_batch_number                              String?              @db.VarChar(255)
-  speaker_type_id                                  Float?               @db.DoublePrecision
-  speaker_type_price                               Float?               @db.DoublePrecision
+  speaker_type_id                                  Float?
+  speaker_type_price                               Float?
   key_note_flag                                    Int?                 @default(0)
   is_business_speaker                              Boolean              @default(true)
   is_masterclass_speaker                           Boolean              @default(false)
@@ -3222,17 +3222,17 @@ model find_speakers {
   is_vip_session_speaker                           Boolean              @default(false)
   speaker_group                                    String?              @db.VarChar(255)
   speaker_keyword                                  String?              @db.VarChar(255)
-  talk_duration                                    String?              @db.Text
-  preferred_date                                   String?              @db.Text
-  preferred_time                                   String?              @db.Text
+  talk_duration                                    String?
+  preferred_date                                   String?
+  preferred_time                                   String?
   conduct_workshop                                 Boolean              @default(false)
-  workshop_topic                                   String?              @db.Text
-  workshop_duration                                String?              @db.Text
-  workshop_preferred_date                          String?              @db.Text
-  workshop_preferred_time                          String?              @db.Text
+  workshop_topic                                   String?
+  workshop_duration                                String?
+  workshop_preferred_date                          String?
+  workshop_preferred_time                          String?
   is_networking_speaker                            Boolean              @default(false)
-  workshop_description                             String?              @db.Text
-  topic_description                                String?              @db.Text
+  workshop_description                             String?
+  topic_description                                String?
   why_exhibit                                      String?              @db.VarChar(255)
   referrer_from                                    String?              @db.VarChar(255)
   referral_code                                    String?              @db.VarChar(255)
@@ -3244,14 +3244,14 @@ model find_speakers {
   is_business_presentation                         Int?                 @default(0)
   is_keynote_forum                                 Int                  @default(0)
   speaker_digitalageexpo_account_login             Int                  @default(0)
-  password                                         String?              @db.Text
+  password                                         String?
   event_web_speaker_registration_welcome_email     Int                  @default(0)
   hide_home                                        Int                  @default(0)
   previous_event_speaker_mail                      Int                  @default(0)
   tentative_schedule                               Int                  @default(0)
   speakers_confirmation_and_other_information      Int                  @default(0)
-  past_event_youtube_urls                          String?              @db.Text
-  event_youtube_url                                String?              @db.Text
+  past_event_youtube_urls                          String?
+  event_youtube_url                                String?
   speaker_schedule_update_reminder                 Int                  @default(0)
   update_date                                      DateTime?            @default(now()) @db.Timestamp(0)
   slot_reminder_date                               DateTime?            @db.Date
@@ -3277,7 +3277,7 @@ model find_speakers_questions {
   last_name               String?                        @db.VarChar(255)
   name                    String                         @db.VarChar(255)
   title                   String?                        @db.VarChar(255)
-  description             String?                        @db.Text
+  description             String?
   date                    DateTime                       @db.Date
   start_time              DateTime?                      @db.Time(0)
   end_time                DateTime?                      @db.Time(0)
@@ -3294,23 +3294,23 @@ model find_speakers_questions {
   is_vip_session_speaker  Boolean                        @default(false)
   speaker_group           String?                        @db.VarChar(255)
   speaker_keyword         String?                        @db.VarChar(255)
-  talk_duration           String?                        @db.Text
+  talk_duration           String?
   preferred_date          DateTime?                      @db.Date
   preferred_time          DateTime?                      @db.Time(0)
   conduct_workshop        Boolean                        @default(false)
-  workshop_topic          String?                        @db.Text
-  workshop_duration       String?                        @db.Text
-  workshop_preferred_date String?                        @db.Text
-  workshop_preferred_time String?                        @db.Text
-  workshop_description    String?                        @db.Text
-  topic_description       String?                        @db.Text
+  workshop_topic          String?
+  workshop_duration       String?
+  workshop_preferred_date String?
+  workshop_preferred_time String?
+  workshop_description    String?
+  topic_description       String?
   created_on              DateTime?                      @default(now()) @db.Timestamp(0)
 }
 
 model find_sponsorship_categories {
   id                         Int       @id @default(autoincrement())
   title                      String    @db.VarChar(255)
-  description                String    @db.Text
+  description                String
   short_description          String?   @db.VarChar(500)
   friendly_url               String    @db.VarChar(255)
   keywords                   String    @db.VarChar(255)
@@ -3322,7 +3322,7 @@ model find_sponsorship_categories {
   price                      Int
   retail_price               Int?
   apply_early_bird           Boolean?  @default(false)
-  early_bird_discount        Float?    @db.DoublePrecision
+  early_bird_discount        Float?
   early_bird_expiry          DateTime? @db.Date
   registered_member_discount Boolean?  @default(false)
   extension                  String    @db.VarChar(255)
@@ -3341,9 +3341,9 @@ model find_sponsorship_categories {
   sponsorship_category_id    Int?
   active                     Boolean?  @default(false)
   max_month                  Int?
-  before_event_benefits      String?   @db.Text
-  during_event_benefits      String?   @db.Text
-  after_event_benefits       String?   @db.Text
+  before_event_benefits      String?
+  during_event_benefits      String?
+  after_event_benefits       String?
   show_benefits              Int?
 }
 
@@ -3374,9 +3374,9 @@ model find_transactions {
   invoice_id     Int
   type           String   @default("listings") @db.VarChar(765)
   date           DateTime @default(now()) @db.Timestamp(0)
-  description    String?  @db.Text
+  description    String?
   amount         Decimal  @db.Decimal(10, 2)
-  comments       String?  @db.Text
+  comments       String?
   refund         Boolean  @default(false)
 
   @@index([invoice_id], map: "find_transactions_invoice_id")
@@ -3391,7 +3391,7 @@ model find_user_credits_transactions {
   credit_id  Int
   points     Decimal                             @db.Decimal(10, 2)
   type       find_user_credits_transactions_type
-  comment    String                              @db.Text
+  comment    String
   date       DateTime                            @default(now()) @db.Timestamp(0)
 }
 
@@ -3439,10 +3439,10 @@ model find_users {
   password_hash                         String                 @default("") @db.VarChar(10)
   cookie_salt                           String                 @default("") @db.VarChar(32)
   user_email                            String                 @default("") @db.VarChar(255)
-  logged_last                           DateTime               @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
+  logged_last                           DateTime               @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
   logged_ip                             String                 @default("") @db.VarChar(15)
   logged_host                           String                 @default("") @db.VarChar(255)
-  created                               DateTime               @default(dbgenerated("'1970-01-01 00:00:00'::timestamp")) @db.Timestamp(0)
+  created                               DateTime               @default(dbgenerated("'1970-01-01 00:00:00'::timestamp without time zone")) @db.Timestamp(0)
   date_updated                          DateTime?              @db.Timestamp(0)
   timezone                              String                 @default("") @db.VarChar(50)
   password_verify                       String                 @default("") @db.VarChar(255)
@@ -3470,7 +3470,7 @@ model find_users {
   experiance                            String?                @db.VarChar(255)
   current_event_id                      Int?                   @default(0)
   default_nomination_category_id        Int?
-  user_comment                          String?                @db.Text
+  user_comment                          String?
   signature                             String                 @default("") @db.VarChar(255)
   out_disable                           Int                    @default(0)
   terms_accepted                        Int                    @default(0)
@@ -3509,7 +3509,7 @@ model find_users {
   under_zonal_franchise                 Int?                   @default(0)
   under_master_franchise                Int?                   @default(0)
   under_ambassador_id                   Int?
-  under_preffered_partner               String?                @db.Text
+  under_preffered_partner               String?
   under_premium_business_partner        Int?                   @default(0)
   under_marketing_partner               Int?                   @default(0)
   under_advertising_partner             Int?                   @default(0)
@@ -3538,7 +3538,7 @@ model find_users {
   zonal_franchise_commission_rate_id    Decimal?               @db.Decimal(10, 2)
   master_franchise_commission_rate_id   Decimal?               @db.Decimal(10, 2)
   profession_type                       String?                @db.VarChar(255)
-  profile_description                   String?                @db.Text
+  profile_description                   String?
   user_role                             String?                @db.VarChar(255)
   default_nomination_text               String?                @db.VarChar(255)
   flag_src                              Boolean?               @default(false)
@@ -3546,7 +3546,7 @@ model find_users {
   last_activity_time                    DateTime?              @db.Timestamp(0)
   is_connect_allowed                    Int?                   @default(0)
   is_schedule_stats                     Boolean?               @default(false)
-  disc_profile                          String?                @db.Text
+  disc_profile                          String?
   created_on                            DateTime?              @default(now()) @db.Timestamp(0)
   updated_on                            DateTime?              @db.Timestamp(0)
   registered_event_id                   Int?
@@ -3593,7 +3593,7 @@ model find_users {
   @@index([import_id], map: "find_users_import_id")
   @@index([location_id], map: "find_users_location_id")
   @@index([logged_ip], map: "find_users_logged_ip")
-  @@index([login], map: "find_users_login_idx")
+  @@index([login])
   @@index([user_first_name, user_last_name], map: "find_users_name")
   @@index([user_phone], map: "find_users_phone")
   @@index([user_email], map: "find_users_user_email")
@@ -3607,7 +3607,7 @@ model independent_mst {
   mstr_nm                       String                 @db.VarChar(400)
   mstr_icon                     String?                @db.VarChar(255)
   icon_class                    String?                @db.VarChar(255)
-  mstr_desc                     String?                @db.Text
+  mstr_desc                     String?
   link_btn_text                 String?                @db.VarChar(255)
   mstr_icon_name                String?                @db.VarChar(255)
   typ_id                        Int
@@ -3662,13 +3662,205 @@ model sponsorship_benefits {
   description           String                             @default("") @db.VarChar(255)
   mstr_id               Int?                               @default(0)
   benefit_type          sponsorship_benefits_benefit_type?
-  benefit_value         Float?                             @db.DoublePrecision
+  benefit_value         Float?
   status                sponsorship_benefits_status        @default(enabled)
   sequence              Int?
   created_by_admin_flag Int?                               @default(1)
   created_by            Int?
   created_at            DateTime?                          @db.Timestamp(0)
   updated_at            DateTime?                          @db.Timestamp(0)
+}
+
+model find_users_groups {
+  id            Int     @id @default(autoincrement())
+  name          String  @db.VarChar(150)
+  description   String?
+  administrator Int
+  advertiser    Int
+  user          Int
+
+  @@map("find_users_groups")
+}
+
+model find_users_groups_lookup {
+  user_id  Int
+  group_id Int
+
+  @@id([user_id, group_id])
+  @@index([group_id], map: "find_users_groups_lookup_group_id")
+  @@index([user_id], map: "find_users_groups_lookup_user_id")
+  @@map("find_users_groups_lookup")
+}
+
+model find_users_permissions {
+  id String @id @db.VarChar(150)
+
+  @@map("find_users_permissions")
+}
+
+model find_users_groups_permissions_lookup {
+  group_id      Int
+  permission_id String @db.VarChar(150)
+
+  @@id([group_id, permission_id])
+  @@map("find_users_groups_permissions_lookup")
+}
+
+model find_settings {
+  varname               String                              @db.VarChar(300)
+  grouptitle            String                              @db.VarChar(150)
+  value                 String?
+  optioncode            String?
+  optioncode_type       find_settings_optioncode_type
+  optioncode_parse_type find_settings_optioncode_parse_type
+  validationcode        String?
+  DOMAIN                Int?                                @default(1)
+
+  @@index([DOMAIN], map: "find_settings_IDX_SETTINGS_DOMAIN")
+  @@index([grouptitle], map: "find_settings_idx_find_settings_grouptitle")
+  @@index([varname, DOMAIN], map: "find_settings_idx_find_settings_varname_domain")
+  @@ignore
+}
+
+/// The legacy admin CP's own sidebar: role/permission-gated links. Reused to drive this
+/// CP's sidebar dynamically instead of a hardcoded nav array.
+model find_dashboard_menu {
+  id               Int      @id @default(autoincrement())
+  title            String   @db.VarChar(255)
+  icon             String   @db.VarChar(255)
+  page_name        String   @db.VarChar(255)
+  color            String   @db.VarChar(255)
+  link             String   @db.VarChar(255)
+  visible          Boolean
+  url_type         String?  @default("UTM") @db.VarChar(255)
+  orderby          Int      @default(0)
+  advertiser       Boolean
+  seller           Boolean
+  franchise        Boolean
+  admin            Boolean? @default(true)
+  domain           String?
+  hide_domain      String?
+  check_permission Int?     @default(0)
+  permission       String?  @db.VarChar(255)
+  menu_group       String?  @db.VarChar(25)
+  target           String?  @db.VarChar(255)
+  affiliate        Int?     @default(0)
+  zonal            Int?     @default(0)
+  regional         Int?     @default(0)
+
+  @@map("find_dashboard_menu")
+}
+
+/// Backs the "Member Menu Manager" module (separate from find_menu_links, which backs the
+/// general site Menu Manager and was already in use elsewhere in this app).
+model find_event_menus {
+  id             Int     @id @default(autoincrement())
+  menu_type      String? @db.VarChar(255)
+  title          String? @db.VarChar(255)
+  color          String? @default("primary") @db.VarChar(255)
+  sequence       Int?
+  event_category String  @db.VarChar(255)
+  icon           String  @db.VarChar(255)
+  icon_mstr_cd   String? @db.VarChar(255)
+  page_name      String  @db.VarChar(255)
+  link           String  @db.VarChar(255)
+  is_modal       Int?    @default(0)
+  modal_name     String? @db.VarChar(50)
+  visitor        Boolean
+  organiser      Boolean
+  exhibitor      Boolean
+  sponsor        Boolean
+  speaker        Boolean
+  partner        Int
+  marketer       Int
+  visible        Boolean
+  attribute      String? @db.VarChar(255)
+  menu_group     String? @db.VarChar(255)
+
+  @@map("find_event_menus")
+}
+
+model cp_password_resets {
+  id           Int       @id @default(autoincrement())
+  find_user_id Int
+  /// SHA-256 hash of the token — the raw token only ever exists in the emailed link.
+  token_hash   String    @unique @db.VarChar(64)
+  expires_at   DateTime
+  used_at      DateTime?
+  created_at   DateTime  @default(now())
+
+  @@index([find_user_id])
+  @@map("cp_password_resets")
+}
+
+model cp_audit_logs {
+  id            Int      @id @default(autoincrement())
+  /// References find_users.id informally (no formal Prisma relation — same convention
+  /// as every other user_id-style column against the huge find_users model in this schema).
+  admin_user_id Int?
+  /// login | logout | create | update | delete | ...
+  action        String   @db.VarChar(50)
+  /// e.g. "settings.general", "admin_users" — the module a change belongs to.
+  module        String   @db.VarChar(100)
+  entity_type   String?  @db.VarChar(100)
+  entity_id     String?  @db.VarChar(100)
+  before_json   String?
+  after_json    String?
+  ip_address    String?  @db.VarChar(64)
+  user_agent    String?  @db.VarChar(255)
+  created_at    DateTime @default(now())
+
+  @@index([module])
+  @@index([admin_user_id])
+  @@map("cp_audit_logs")
+}
+
+model find_email_templates {
+  id                String    @id @db.VarChar(765)
+  type              String    @db.VarChar(165)
+  recipients        String?
+  recipients_bcc    String?
+  from_address      String?   @db.VarChar(150)
+  from_name         String?   @db.VarChar(150)
+  reply_name        String?   @db.VarChar(150)
+  reply_address     String?   @db.VarChar(150)
+  disable           Int
+  moderate          Int
+  attachments       String?
+  custom            Int
+  process_name      String?
+  action_btn_name   String?   @db.VarChar(255)
+  priority_order    Int?
+  date              DateTime  @default(now()) @db.Timestamp(0)
+  is_non_franchise  Boolean   @default(false)
+  is_admin          Boolean?  @default(true)
+  event_category_id Int?
+  created_by        Int?
+  created_on        DateTime? @default(now()) @db.Timestamp(0)
+  updated_by        Int?
+  updated_on        DateTime? @db.Timestamp(0)
+  /// NEW — not part of the original legacy table. Nullable so existing rows need no backfill.
+  subject           String?   @db.VarChar(500)
+  /// NEW — not part of the original legacy table. Nullable so existing rows need no backfill.
+  body_html         String?
+
+  @@index([type], map: "find_email_templates_type")
+}
+
+model find_event_registration_fields {
+  id             Int     @id @default(autoincrement())
+  event_id       Int     @default(0)
+  field_name     String  @default("") @db.VarChar(150)
+  field_variable String  @default("") @db.VarChar(100)
+  field_type     String  @default("text") @db.VarChar(30)
+  is_active      Int     @default(0) @db.SmallInt
+  is_required    Int     @default(0) @db.SmallInt
+  login          Int     @default(0) @db.SmallInt
+  is_custom      Int     @default(0) @db.SmallInt
+  is_default     Int     @default(0) @db.SmallInt
+  options        String?
+
+  @@index([event_id])
 }
 
 enum sponsorship_benefits_benefit_type {
@@ -3857,99 +4049,6 @@ enum find_events_award_defalt_application_page {
   EMPTY_ENUM_VALUE @map("")
 }
 
-
-// =====================================================================================
-// ADMIN CONTROL PANEL (CP) — /src/app/cp
-// -------------------------------------------------------------------------------------
-// REVISED after checking the live `connectlocal_website` database against the legacy
-// admin CP's own PHP source (cp/admin_index.php, admin_permissions.php, admin_users.php,
-// admin_users_groups.php). Ground truth found there: the legacy admin panel does NOT
-// have its own identity system — it authenticates against the SAME `find_users` table
-// the member portal already uses, and authorizes via a "groups" system:
-//   - find_users_groups                    — a group IS a role (Super Admin, Admin, ...)
-//   - find_users_groups_lookup             — which user(s) belong to which group(s)
-//   - find_users_permissions               — catalog of permission slugs (e.g.
-//                                             "admin_users_edit", "admin_users_groups_view")
-//   - find_users_groups_permissions_lookup — which permissions a group grants
-//   - find_settings                        — DOMAIN-scoped key/value settings store,
-//                                             grouped by `grouptitle` (General/Company/
-//                                             Branding/SEO/Social/...) — this *is* the
-//                                             legacy Project Settings backing store.
-//   - find_dashboard_menu                  — the legacy admin CP's own sidebar links,
-//                                             role/permission gated — reused to drive
-//                                             this CP's sidebar instead of hardcoding it.
-//   - find_event_menus                     — backs the Member Menu Manager module.
-//   - find_menu_links (already present above) — backs the general site Menu Manager.
-//
-// So Phase 1 below reuses all of the above instead of the parallel cp_roles/
-// cp_permissions/cp_role_permissions/cp_admin_users/cp_settings_* tables originally
-// drafted here. Just as importantly: CP admin login reuses find_users.pass/
-// password_salt/password_hash directly, via the exact same hashPassword/verifyPassword
-// already implemented at src/lib/auth/password.ts (mirrors
-// class_authentication.php::verifyPassword() — per-user salt, algorithm named in
-// password_hash: md5/sha1/sha256/sha2) and already used to authenticate members in
-// verifyMemberCredentials() (src/lib/services/member.ts). An admin and a member log in
-// through identical verification code against the same column — there is no separate CP
-// credential table.
-//
-// Only ONE genuinely new table remains, for the one thing with no legacy or
-// member-portal equivalent (grepped for a reset-token table/flow — none exists):
-//   - cp_password_resets — forgot-password tokens for CP login.
-//   - cp_audit_logs       — structured audit trail; nothing in the legacy schema plays
-//     this role (its "logs" tables are all feature-specific, e.g. find_email_queue).
-// =====================================================================================
-
-model find_users_groups {
-  id            Int     @id @default(autoincrement())
-  name          String  @db.VarChar(150)
-  description   String? @db.Text
-  administrator Int
-  advertiser    Int
-  user          Int
-
-  @@map("find_users_groups")
-}
-
-model find_users_groups_lookup {
-  user_id  Int
-  group_id Int
-
-  @@id([user_id, group_id])
-  @@index([group_id], map: "find_users_groups_lookup_group_id")
-  @@index([user_id], map: "find_users_groups_lookup_user_id")
-  @@map("find_users_groups_lookup")
-}
-
-model find_users_permissions {
-  id String @id @db.VarChar(150)
-
-  @@map("find_users_permissions")
-}
-
-model find_users_groups_permissions_lookup {
-  group_id      Int
-  permission_id String @db.VarChar(150)
-
-  @@id([group_id, permission_id])
-  @@map("find_users_groups_permissions_lookup")
-}
-
-model find_settings {
-  varname               String                              @db.VarChar(300)
-  grouptitle            String                              @db.VarChar(150)
-  value                 String?                             @db.Text
-  optioncode            String?                             @db.Text
-  optioncode_type       find_settings_optioncode_type
-  optioncode_parse_type find_settings_optioncode_parse_type
-  validationcode        String?                             @db.Text
-  DOMAIN                Int?                                @default(1)
-
-  @@index([DOMAIN], map: "find_settings_IDX_SETTINGS_DOMAIN")
-  @@index([grouptitle], map: "find_settings_idx_find_settings_grouptitle")
-  @@index([varname, DOMAIN], map: "find_settings_idx_find_settings_varname_domain")
-  @@ignore
-}
-
 enum find_settings_optioncode_type {
   text
   textarea
@@ -3966,129 +4065,4 @@ enum find_settings_optioncode_parse_type {
   static
   eval_options
   eval
-}
-
-/// The legacy admin CP's own sidebar: role/permission-gated links. Reused to drive this
-/// CP's sidebar dynamically instead of a hardcoded nav array.
-model find_dashboard_menu {
-  id               Int      @id @default(autoincrement())
-  title            String   @db.VarChar(255)
-  icon             String   @db.VarChar(255)
-  page_name        String   @db.VarChar(255)
-  color            String   @db.VarChar(255)
-  link             String   @db.VarChar(255)
-  visible          Boolean
-  url_type         String?  @default("UTM") @db.VarChar(255)
-  orderby          Int      @default(0)
-  advertiser       Boolean
-  seller           Boolean
-  franchise        Boolean
-  admin            Boolean? @default(true)
-  domain           String?  @db.Text
-  hide_domain      String?  @db.Text
-  check_permission Int?     @default(0)
-  permission       String?  @db.VarChar(255)
-  menu_group       String?  @db.VarChar(25)
-  target           String?  @db.VarChar(255)
-  affiliate        Int?     @default(0)
-  zonal            Int?     @default(0)
-  regional         Int?     @default(0)
-
-  @@map("find_dashboard_menu")
-}
-
-/// Backs the "Member Menu Manager" module (separate from find_menu_links, which backs the
-/// general site Menu Manager and was already in use elsewhere in this app).
-model find_event_menus {
-  id             Int     @id @default(autoincrement())
-  menu_type      String? @db.VarChar(255)
-  title          String? @db.VarChar(255)
-  color          String? @default("primary") @db.VarChar(255)
-  sequence       Int?
-  event_category String  @db.VarChar(255)
-  icon           String  @db.VarChar(255)
-  icon_mstr_cd   String? @db.VarChar(255)
-  page_name      String  @db.VarChar(255)
-  link           String  @db.VarChar(255)
-  is_modal       Int?    @default(0)
-  modal_name     String? @db.VarChar(50)
-  visitor        Boolean
-  organiser      Boolean
-  exhibitor      Boolean
-  sponsor        Boolean
-  speaker        Boolean
-  partner        Int
-  marketer       Int
-  visible        Boolean
-  attribute      String? @db.VarChar(255)
-  menu_group     String? @db.VarChar(255)
-
-  @@map("find_event_menus")
-}
-
-model cp_password_resets {
-  id           Int       @id @default(autoincrement())
-  find_user_id Int
-  /// SHA-256 hash of the token — the raw token only ever exists in the emailed link.
-  token_hash   String    @unique @db.VarChar(64)
-  expires_at   DateTime
-  used_at      DateTime?
-  created_at   DateTime  @default(now())
-
-  @@index([find_user_id])
-  @@map("cp_password_resets")
-}
-
-model cp_audit_logs {
-  id            Int      @id @default(autoincrement())
-  /// References find_users.id informally (no formal Prisma relation — same convention
-  /// as every other user_id-style column against the huge find_users model in this schema).
-  admin_user_id Int?
-  /// login | logout | create | update | delete | ...
-  action        String   @db.VarChar(50)
-  /// e.g. "settings.general", "admin_users" — the module a change belongs to.
-  module        String   @db.VarChar(100)
-  entity_type   String?  @db.VarChar(100)
-  entity_id     String?  @db.VarChar(100)
-  before_json   String?  @db.Text
-  after_json    String?  @db.Text
-  ip_address    String?  @db.VarChar(64)
-  user_agent    String?  @db.VarChar(255)
-  created_at    DateTime @default(now())
-
-  @@index([module])
-  @@index([admin_user_id])
-  @@map("cp_audit_logs")
-}
-
-model find_email_templates {
-  id                String    @id @db.VarChar(765)
-  type              String    @db.VarChar(165)
-  recipients        String?   @db.Text
-  recipients_bcc    String?   @db.Text
-  from_address      String?   @db.VarChar(150)
-  from_name         String?   @db.VarChar(150)
-  reply_name        String?   @db.VarChar(150)
-  reply_address     String?   @db.VarChar(150)
-  disable           Int
-  moderate          Int
-  attachments       String?   @db.Text
-  custom            Int
-  process_name      String?   @db.Text
-  action_btn_name   String?   @db.VarChar(255)
-  priority_order    Int?
-  date              DateTime  @default(now()) @db.Timestamp(0)
-  is_non_franchise  Boolean   @default(false)
-  is_admin          Boolean?  @default(true)
-  event_category_id Int?
-  created_by        Int?
-  created_on        DateTime? @default(now()) @db.Timestamp(0)
-  updated_by        Int?
-  updated_on        DateTime? @db.Timestamp(0)
-  /// NEW — not part of the original legacy table. Nullable so existing rows need no backfill.
-  subject           String?   @db.VarChar(500)
-  /// NEW — not part of the original legacy table. Nullable so existing rows need no backfill.
-  body_html         String?   @db.Text
-
-  @@index([type], map: "find_email_templates_type")
 }

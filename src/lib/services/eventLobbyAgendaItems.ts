@@ -9,6 +9,17 @@ export interface AgendaTrackRow {
   description: string;
   agendaType: string | null;
   status: string;
+  agendaHallType: string | null;
+  sessionMst: string | null;
+  bufferTimeMst: string | null;
+  defaultSessionTime: string | null;
+  eventLayoutId: number | null;
+  /** Resolved name of event_layout_id, from the parent lobby or one of its children. */
+  layoutTitle: string | null;
+  timezone: string | null;
+  path: string | null;
+  /** How many find_event_lobby_agenda_items rows hang off this agenda. */
+  sessionCount: number;
 }
 
 const TRACK_SELECT = {
@@ -17,41 +28,194 @@ const TRACK_SELECT = {
   description: true,
   agenda_type: true,
   status: true,
+  agenda_hall_type: true,
+  session_mst: true,
+  buffer_time_mst: true,
+  default_session_time: true,
+  event_layout_id: true,
+  timezone: true,
+  path: true,
 } as const;
 
-function toTrackRow(row: any): AgendaTrackRow {
+function toTrackRow(
+  row: any,
+  extras: { layoutTitle?: string | null; sessionCount?: number } = {}
+): AgendaTrackRow {
   return {
     id: row.id,
     title: row.title ?? "",
     description: row.description ?? "",
     agendaType: row.agenda_type,
     status: row.status ?? "active",
+    agendaHallType: row.agenda_hall_type ?? null,
+    sessionMst: row.session_mst ?? null,
+    bufferTimeMst: row.buffer_time_mst ?? null,
+    defaultSessionTime: row.default_session_time ?? null,
+    eventLayoutId: row.event_layout_id ?? null,
+    layoutTitle: extras.layoutTitle ?? null,
+    timezone: row.timezone ?? null,
+    path: row.path ?? null,
+    sessionCount: extras.sessionCount ?? 0,
   };
 }
 
-/** Mirrors the track/hall picker in members/event_lobby_agenda_items.php — the tracks
- * belonging to this event's primary lobby layout. */
-export async function getAgendaTracks(context: EventMemberContext, eventLayoutId: number): Promise<AgendaTrackRow[]> {
+/**
+ * The track/hall picker in the schedule builder.
+ *
+ * `eventLayoutId` is OPTIONAL, and omitting it is the normal case. The legacy list query is
+ * simply `select * from find_event_lobby_agenda where event_id = ?` — no layout filter — and the
+ * Add form's Layout dropdown offers the parent lobby AND every child layout, so agendas
+ * routinely carry a child's id. Filtering on the parent lobby id alone therefore hid every
+ * agenda attached to a child layout, which is why this page could come up empty on an event
+ * that plainly had halls configured.
+ */
+export async function getAgendaTracks(
+  context: EventMemberContext,
+  eventLayoutId?: number
+): Promise<AgendaTrackRow[]> {
   if (context.role !== "organiser") return [];
   const rows = await prisma.find_event_lobby_agenda.findMany({
-    where: { event_id: context.eventId, event_layout_id: eventLayoutId },
+    where: {
+      event_id: context.eventId,
+      ...(eventLayoutId ? { event_layout_id: eventLayoutId } : {}),
+    },
     orderBy: { title: "asc" },
     select: TRACK_SELECT,
   });
-  return rows.map(toTrackRow);
+  return rows.map((row: any) => toTrackRow(row));
 }
 
-export async function createAgendaTrack(context: EventMemberContext, eventLayoutId: number, input: EventLobbyAgendaTrackInput) {
+/**
+ * The Lobby Agenda list view — every agenda on the event, in insertion order, enriched with the
+ * session count and the layout name so the table can show what each row is attached to.
+ * Equivalent to the legacy `$_GET['data'] == 'getData'` JSON feed.
+ */
+export async function getEventAgendas(context: EventMemberContext): Promise<AgendaTrackRow[]> {
+  if (context.role !== "organiser") return [];
+
+  const rows = await prisma.find_event_lobby_agenda.findMany({
+    where: { event_id: context.eventId },
+    orderBy: { id: "asc" },
+    select: TRACK_SELECT,
+  });
+  if (rows.length === 0) return [];
+
+  const [counts, layouts] = await Promise.all([
+    prisma.find_event_lobby_agenda_items.groupBy({
+      by: ["agenda_id"],
+      where: { event_id: context.eventId, agenda_id: { in: rows.map((r: any) => r.id) } },
+      _count: { _all: true },
+    }),
+    getAgendaLayoutOptions(context),
+  ]);
+
+  const countByAgenda = new Map<number, number>(
+    counts.map((c: any) => [c.agenda_id, c._count?._all ?? 0])
+  );
+  const layoutTitleById = new Map<number, string>(layouts.map((l) => [l.id, l.title]));
+
+  return rows.map((row: any) =>
+    toTrackRow(row, {
+      sessionCount: countByAgenda.get(row.id) ?? 0,
+      layoutTitle: row.event_layout_id ? layoutTitleById.get(row.event_layout_id) ?? null : null,
+    })
+  );
+}
+
+export interface AgendaLayoutOption {
+  id: number;
+  title: string;
+  isChild: boolean;
+}
+
+/**
+ * Options for the agenda form's Layout dropdown: the parent lobby first, then its children —
+ * the same set the legacy form built from find_event_lobby_layout_manager +
+ * find_event_lobby_child_layout_manager.
+ */
+export async function getAgendaLayoutOptions(context: EventMemberContext): Promise<AgendaLayoutOption[]> {
+  if (context.role !== "organiser") return [];
+
+  const [parents, children] = await Promise.all([
+    prisma.find_event_lobby_layout_manager.findMany({
+      where: { event_id: context.eventId },
+      orderBy: { id: "asc" },
+      select: { id: true, title: true },
+    }),
+    prisma.find_event_lobby_child_layout_manager.findMany({
+      where: { event_id: context.eventId },
+      orderBy: [{ sequence: "asc" }, { id: "asc" }],
+      select: { id: true, title: true },
+    }),
+  ]);
+
+  return [
+    ...parents.map((p: any) => ({ id: p.id, title: p.title ?? `Lobby #${p.id}`, isChild: false })),
+    ...children.map((c: any) => ({ id: c.id, title: c.title ?? `Child #${c.id}`, isChild: true })),
+  ];
+}
+
+/**
+ * `fallbackLayoutId` is used only when the caller did not pick a layout — event_layout_id is
+ * NOT NULL, and the quick-add flow in the schedule builder posts a title and nothing else.
+ */
+export async function createAgendaTrack(
+  context: EventMemberContext,
+  input: EventLobbyAgendaTrackInput,
+  fallbackLayoutId: number
+) {
   if (context.role !== "organiser") return null;
   return prisma.find_event_lobby_agenda.create({
     data: {
       event_id: context.eventId,
-      event_layout_id: eventLayoutId,
+      event_layout_id: input.event_layout_id ?? fallbackLayoutId,
       user_id: context.userId,
       title: input.title,
       description: input.description || "",
       agenda_type: input.agenda_type || null,
+      session_mst: input.session_mst || null,
+      buffer_time_mst: input.buffer_time_mst || null,
+      agenda_hall_type: input.agenda_hall_type || null,
+      timezone: input.timezone || null,
       status: input.status,
+      updated_on: new Date(),
+    },
+    select: { id: true },
+  });
+}
+
+/**
+ * "Duplicate" in the list's Manage column. Copies the agenda row only — NOT its sessions, which
+ * carry dates and time-slot assignments that would collide with the original's. The new row
+ * records where it came from in `copied_agenda_id` and comes back as Pending, so a half-built
+ * copy cannot appear live in the lobby before someone has looked at it.
+ */
+export async function duplicateAgendaTrack(context: EventMemberContext, id: number) {
+  if (context.role !== "organiser") return null;
+
+  const source = await prisma.find_event_lobby_agenda.findFirst({
+    where: { id, event_id: context.eventId },
+  });
+  if (!source) return null;
+
+  return prisma.find_event_lobby_agenda.create({
+    data: {
+      event_id: context.eventId,
+      event_layout_id: source.event_layout_id,
+      user_id: context.userId,
+      listing_id: source.listing_id,
+      title: `${source.title} (Copy)`.slice(0, 255),
+      description: source.description ?? "",
+      agenda_type: source.agenda_type,
+      zoom_link: source.zoom_link,
+      session_mst: source.session_mst,
+      buffer_time_mst: source.buffer_time_mst,
+      agenda_hall_type: source.agenda_hall_type,
+      default_session_time: source.default_session_time,
+      path: source.path,
+      timezone: source.timezone,
+      status: "pending",
+      copied_agenda_id: source.id,
       updated_on: new Date(),
     },
     select: { id: true },
@@ -66,6 +230,13 @@ export async function updateAgendaTrack(context: EventMemberContext, id: number,
       title: input.title,
       description: input.description || "",
       agenda_type: input.agenda_type || null,
+      session_mst: input.session_mst || null,
+      buffer_time_mst: input.buffer_time_mst || null,
+      agenda_hall_type: input.agenda_hall_type || null,
+      timezone: input.timezone || null,
+      // Only move the agenda to a different layout when one was actually chosen — the quick-add
+      // form in the schedule builder does not include the field, and event_layout_id is NOT NULL.
+      ...(input.event_layout_id ? { event_layout_id: input.event_layout_id } : {}),
       status: input.status,
       updated_on: new Date(),
     },
@@ -152,11 +323,14 @@ function toItemRow(row: any, agendaTitleById: Map<number, string>): AgendaItemRo
 
 /** Mirrors members/event_lobby_agenda_items.php's list — every scheduled session across this
  * lobby's tracks, for this organiser's event. */
-export async function getAgendaItems(context: EventMemberContext, eventLayoutId: number): Promise<AgendaItemRow[]> {
+export async function getAgendaItems(context: EventMemberContext, eventLayoutId?: number): Promise<AgendaItemRow[]> {
   if (context.role !== "organiser") return [];
 
   const tracks = await prisma.find_event_lobby_agenda.findMany({
-    where: { event_id: context.eventId, event_layout_id: eventLayoutId },
+    where: {
+      event_id: context.eventId,
+      ...(eventLayoutId ? { event_layout_id: eventLayoutId } : {}),
+    },
     select: { id: true, title: true },
   });
   if (tracks.length === 0) return [];

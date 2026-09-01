@@ -17,8 +17,6 @@ import type { RegistrationFieldRow } from "@/lib/services/eventRegistrationField
  *
  * Behaviour kept from the original:
  *  - three switches per row: Include / Required / Validate on Login
- *  - switches for NON-custom (built-in) fields are locked, exactly as the PHP
- *    rendered them `disabled` when `!$record['is_custom']`
  *  - only custom fields show the delete action
  *  - select / checkbox / radio types get a repeatable option editor
  *
@@ -28,6 +26,13 @@ import type { RegistrationFieldRow } from "@/lib/services/eventRegistrationField
  *    `.change_required`, so that switch silently did nothing.
  *  - switches save optimistically and roll back visibly on failure, instead of
  *    the original's `success: console.log(response)` with no error path at all.
+ *  - built-in (non-custom) rows are no longer rendered with DISABLED switches.
+ *    Every row seeded for a new event is non-custom, so locking them left the
+ *    screen completely inert on a fresh event — and it contradicted this
+ *    component's own edit dialog, which has always let the same three flags be
+ *    changed on any row via the pencil. A switch you cannot move next to a
+ *    pencil that moves it is not a safety rail, just a dead end. Built-ins keep
+ *    their lock badge and still cannot be deleted.
  */
 
 interface Props {
@@ -299,7 +304,10 @@ export function RegistrationFieldsManager({ eventId, fields }: Props) {
                 <p className="flex items-center gap-2 truncate text-sm font-bold text-white">
                   {row.fieldName}
                   {!row.isCustom && (
-                    <span title="Built-in field" className="text-zinc-500">
+                    <span
+                      title="Built-in field — configurable, but cannot be renamed away or deleted."
+                      className="text-zinc-500"
+                    >
                       <Lock className="h-3 w-3" />
                     </span>
                   )}
@@ -314,7 +322,6 @@ export function RegistrationFieldsManager({ eventId, fields }: Props) {
                 <span className="text-[10px] font-bold uppercase text-zinc-500 md:hidden">Include</span>
                 <ToggleSwitch
                   checked={row.isActive}
-                  disabled={!row.isCustom}
                   label={`Include ${row.fieldName}`}
                   onChange={(v) => toggleFlag(row, "is_active", v)}
                 />
@@ -324,7 +331,6 @@ export function RegistrationFieldsManager({ eventId, fields }: Props) {
                 <span className="text-[10px] font-bold uppercase text-zinc-500 md:hidden">Required</span>
                 <ToggleSwitch
                   checked={row.isRequired}
-                  disabled={!row.isCustom}
                   label={`Require ${row.fieldName}`}
                   onChange={(v) => toggleFlag(row, "is_required", v)}
                 />
@@ -336,7 +342,6 @@ export function RegistrationFieldsManager({ eventId, fields }: Props) {
                 </span>
                 <ToggleSwitch
                   checked={row.login}
-                  disabled={!row.isCustom}
                   label={`Validate ${row.fieldName} on login`}
                   onChange={(v) => toggleFlag(row, "login", v)}
                 />

@@ -5,17 +5,20 @@ import { authOptions } from "@/lib/auth/options";
 import { getDomain } from "@/lib/services/domain";
 import { getEventMemberContext } from "@/lib/services/eventAccess";
 import { getPrimaryLobby } from "@/lib/services/eventLobby";
+import { getMasterOptions } from "@/lib/services/eventServices";
 import {
-  getAgendaTracks,
+  getEventAgendas,
+  getAgendaLayoutOptions,
   getAgendaItems,
   getAgendaAssignableSpeakers,
 } from "@/lib/services/eventLobbyAgendaItems";
+import { AgendaTrackTable } from "@/components/dashboard/AgendaTrackTable";
 import { AgendaItemManager } from "@/components/dashboard/AgendaItemManager";
 import { LobbySubNav } from "@/components/dashboard/LobbySubNav";
-import { Home, ChevronRight, CalendarDays } from "lucide-react";
+import { Home, ChevronRight, CalendarDays, ListChecks } from "lucide-react";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Event Agenda | Event Management" };
+export const metadata = { title: "Lobby Agenda | Event Management" };
 
 function Breadcrumb({ eventId }: { eventId?: number }) {
   return (
@@ -29,7 +32,7 @@ function Breadcrumb({ eventId }: { eventId?: number }) {
         My Account
       </Link>
       <ChevronRight className="h-3 w-3 text-zinc-600" />
-      <span className="text-brand-pink font-bold">Event Agenda</span>
+      <span className="text-brand-pink font-bold">Lobby Agenda</span>
       {eventId ? <span className="text-zinc-500"> (Event #{eventId})</span> : null}
     </nav>
   );
@@ -58,59 +61,115 @@ export default async function EventLobbyAgendaItemsPage({
     return (
       <div className="section-transition space-y-6">
         <Breadcrumb eventId={eventId} />
-        <h1 className="text-3xl font-black uppercase text-white">Event Agenda</h1>
+        <h1 className="text-3xl font-black uppercase text-white">Lobby Agenda</h1>
         <div className="glass-panel rounded-2xl p-8 text-center border-dashed border-white/10">
           <p className="text-zinc-400 font-medium italic">
-            The event schedule is only available to the event organiser.
+            The lobby agenda is only available to the event organiser.
           </p>
         </div>
       </div>
     );
   }
 
-  const lobby = await getPrimaryLobby(context);
+  /*
+   * The agenda list is event-scoped, exactly like the legacy
+   * `select * from find_event_lobby_agenda where event_id = ?`. It deliberately does NOT depend
+   * on a parent lobby existing, and is not filtered by layout — agendas are routinely attached
+   * to a CHILD layout, and filtering on the parent's id hid them.
+   *
+   * The session schedule below still needs the parent lobby, because a new session's
+   * layout_type_setup_id is taken from it.
+   */
+  const [agendas, layouts, lobby, sessionMasters, hallTypeMasters] = await Promise.all([
+    getEventAgendas(context),
+    getAgendaLayoutOptions(context),
+    getPrimaryLobby(context),
+    getMasterOptions("TST"),
+    getMasterOptions("AGTYPE"),
+  ]);
 
-  const [tracks, items, speakers] = lobby
-    ? await Promise.all([
-        getAgendaTracks(context, lobby.id),
-        getAgendaItems(context, lobby.id),
-        getAgendaAssignableSpeakers(context),
-      ])
-    : [[], [], []];
+  const [items, speakers] = await Promise.all([
+    getAgendaItems(context),
+    getAgendaAssignableSpeakers(context),
+  ]);
 
   return (
     <div className="section-transition space-y-6 animate-fade-in">
       <Breadcrumb eventId={eventId} />
       <LobbySubNav eventId={eventId} active="agenda" />
 
+      {/* ------------------------------ Agenda list ------------------------------ */}
+      <div className="glass-panel rounded-2xl p-6 md:p-8 shadow-2xl border border-white/10 text-white">
+        <div className="border-b border-white/10 pb-5 flex items-center gap-3">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-pink">
+            <ListChecks className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black uppercase tracking-tight text-white">Lobby Agenda</h1>
+            <p className="mt-1 text-xs font-medium text-zinc-400">
+              The halls and tracks visitors can enter in Event #{eventId} — Keynote Forums, Seminar Halls, Workshops.
+              Sessions are scheduled underneath each one.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <AgendaTrackTable
+            agendas={agendas}
+            layouts={layouts}
+            sessionMasters={sessionMasters}
+            hallTypeMasters={hallTypeMasters}
+          />
+        </div>
+
+        {layouts.length === 0 && (
+          <p className="mt-5 rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-xs font-medium text-amber-300">
+            No lobby layout is configured for this event yet, so a new agenda has nothing to attach to.{" "}
+            <Link
+              href={`/members/event_lobby_layout_manager?event_id=${eventId}`}
+              className="font-bold underline underline-offset-2 hover:text-amber-200"
+            >
+              Configure the parent lobby
+            </Link>{" "}
+            first.
+          </p>
+        )}
+      </div>
+
+      {/* ---------------------------- Session schedule ---------------------------- */}
       <div className="glass-panel rounded-2xl p-6 md:p-8 shadow-2xl border border-white/10 text-white">
         <div className="border-b border-white/10 pb-5 flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-pink">
             <CalendarDays className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-black uppercase tracking-tight text-white">Event Agenda & Schedule</h1>
+            <h2 className="text-2xl font-black uppercase tracking-tight text-white">Sessions & Schedule</h2>
             <p className="mt-1 text-xs font-medium text-zinc-400">
-              Build the day-by-day schedule for your event: session tracks, timings, speakers and streaming links for Event #{eventId}.
+              Day-by-day timings, speakers and streaming links for the agendas above.
             </p>
           </div>
         </div>
 
         <div className="mt-6">
-          {!lobby ? (
-            <div className="glass-panel rounded-2xl p-8 text-center border border-white/10 text-zinc-300">
+          {agendas.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-8 text-center text-sm text-zinc-400">
+              Add an agenda above, then schedule its sessions here.
+            </div>
+          ) : !lobby ? (
+            <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-8 text-center text-zinc-300">
               <p className="mb-4 text-sm font-medium">
-                Set up the parent lobby first on the Configure Lobby page, then come back here to build the schedule.
+                Set up the parent lobby on the Configure Lobby page before scheduling sessions — a session records the
+                lobby layout it belongs to.
               </p>
               <Link
                 href={`/members/event_lobby_layout_manager?event_id=${eventId}`}
-                className="btn-sophisticated inline-flex items-center gap-2 rounded-xl px-6 py-2.5 text-xs font-extrabold uppercase tracking-wider text-white transition-all"
+                className="btn-brand-gradient inline-flex items-center gap-2 rounded-xl px-6 py-2.5 text-xs font-extrabold uppercase tracking-wider text-white transition-all"
               >
                 Configure Parent Lobby
               </Link>
             </div>
           ) : (
-            <AgendaItemManager tracks={tracks} items={items} speakers={speakers} />
+            <AgendaItemManager tracks={agendas} items={items} speakers={speakers} />
           )}
         </div>
       </div>

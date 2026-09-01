@@ -13,7 +13,10 @@
     "images:verify": "tsx scripts/download-external-images.ts verify",
     "db:ping": "tsx scripts/db-ping.ts",
     "db:registration-fields": "tsx scripts/create-registration-fields-table.ts",
-    "db:event-configurations": "tsx scripts/create-event-configurations-table.ts"
+    "db:event-configurations": "tsx scripts/create-event-configurations-table.ts",
+    "members:routes": "tsx scripts/generate-member-routes.ts",
+    "members:check-links": "tsx scripts/check-member-links.ts",
+    "db:lobby-templates": "tsx scripts/seed-lobby-templates.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

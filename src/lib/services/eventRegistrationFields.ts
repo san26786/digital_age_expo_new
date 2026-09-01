@@ -83,17 +83,16 @@ async function selectForEvent(eventId: number): Promise<any[]> {
  *
  * Mirrors the PHP: when an event has no rows yet, copy the template set held
  * against `event_id = 0 AND is_default = 1`. `is_custom` is deliberately NOT
- * copied, so seeded rows start as non-custom (locked switches) exactly as
- * before.
+ * copied, so seeded rows stay marked built-in — which is what protects them
+ * from deletion. It no longer disables their switches; see the note in
+ * components/dashboard/RegistrationFieldsManager.
  *
  * ONE DELIBERATE DIVERGENCE: the legacy INSERT..SELECT column list was
  *   (event_id, field_name, field_type, field_variable, is_active, is_required)
  * — it omitted `login`, so every seeded row got login = 0 regardless of the
  * template. On the live site Password is configured with "Validate on Login"
- * ON, and that setting was silently dropped for each new event. Because
- * built-in rows render with LOCKED switches, an organiser then had no way to
- * turn it back on from the UI — the value was unreachable. `login` is carried
- * through here so the seeded set actually matches the template.
+ * ON, and that setting was silently dropped for each new event. `login` is
+ * carried through here so the seeded set actually matches the template.
  */
 export async function listRegistrationFields(
   context: EventMemberContext,

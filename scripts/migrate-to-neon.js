@@ -92,6 +92,27 @@ const ADMIN_GROUP_IDS = [1, 2, 3, 6, 8];
 /** Pure log/history tables with no public or CP read path — never worth their size. */
 const SKIP_TABLES = new Set(["find_search_log"]);
 
+/**
+ * Tables that HAVE an event_id column but are NOT event-scoped data — platform-wide catalogues
+ * every tenant reads. They must be copied whole; scoping them by event_id silently empties them.
+ *
+ * find_event_lobby_templates is the case that proved this. It is the shared library of lobby
+ * layouts (Auditorium Template 1, Exhibition Hall Template 1 (22 Stands), the stand templates),
+ * and members/event_lobby_templates.php lists it with a bare `select * from
+ * find_event_lobby_templates` — no event filter at all. Its event_id merely records whichever
+ * event happened to create a row, and is NULL on the seeded catalogue. Because the generic rule
+ * below saw the column and applied `event_id IN (1474, 852)` — which is false for NULL as well
+ * as for any other event — not one of the twelve templates came across, and the Templates page
+ * came up empty against a database that looked like it had migrated fine.
+ *
+ * find_event_template_color_options has no scope column at all, so it already copies whole; it
+ * is listed here for the reader, since it is meaningless without its parents.
+ */
+const GLOBAL_TABLES = new Set([
+  "find_event_lobby_templates",
+  "find_event_template_color_options",
+]);
+
 /** Copy an unscopeable table whole only if it is at most this many MB in MySQL. */
 const COPY_WHOLE_MAX_MB = 10;
 
@@ -179,6 +200,9 @@ function daeFilterFor(table, facts) {
     find_users_groups_lookup: "user_id IN (SELECT id FROM _dae_uids)",
   };
   if (EXPLICIT[table]) return EXPLICIT[table];
+
+  // Checked BEFORE the scope-column rules: having an event_id does not make a table event data.
+  if (GLOBAL_TABLES.has(table)) return null;
 
   // Scope columns, most selective first: an event is a subset of a listing is a subset of a domain.
   if (f.cols.has("event_id")) return `event_id IN (${ev})`;

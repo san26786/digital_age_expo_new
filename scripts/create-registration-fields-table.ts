@@ -96,7 +96,9 @@ const DEFAULT_FIELDS: {
   { field_name: "Business",   field_variable: "business",   field_type: "text",     is_active: 1, is_required: 1, login: 0 },
   { field_name: "First Name", field_variable: "first_name", field_type: "text",     is_active: 1, is_required: 1, login: 0 },
   { field_name: "Last Name",  field_variable: "last_name",  field_type: "text",     is_active: 1, is_required: 1, login: 0 },
-  { field_name: "Email",      field_variable: "email",      field_type: "text",     is_active: 1, is_required: 1, login: 0 },
+  // Email + Password are the login credential pair — both carry login = 1, matching the live
+  // site's configuration for this table.
+  { field_name: "Email",      field_variable: "email",      field_type: "text",     is_active: 1, is_required: 1, login: 1 },
   { field_name: "Password",   field_variable: "password",   field_type: "password", is_active: 1, is_required: 1, login: 1 },
   { field_name: "Mobile",     field_variable: "mobile",     field_type: "text",     is_active: 1, is_required: 1, login: 0 },
   { field_name: "Work Phone", field_variable: "work_phone", field_type: "text",     is_active: 1, is_required: 0, login: 0 },

@@ -3,7 +3,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/options";
 import { getDomain } from "@/lib/services/domain";
 import { getEventMemberContext, roleLabel } from "@/lib/services/eventAccess";
-import { getLiveMemberMenu } from "@/lib/services/memberMenu";
 import EventAdminNavbar from "@/components/EventAdminNavbar";
 import { DEFAULT_EVENT_ID } from "@/lib/site-config";
 
@@ -24,10 +23,6 @@ export default async function MembersEventLayout({ children }: { children: React
     eventId,
     userId,
   };
-
-  // find_event_menus rows scoped to this member's real role (see getLiveMemberMenu's doc
-  // comment for the "no roles checked = show to everyone" fallback rule this relies on).
-  const memberMenuTabs = await getLiveMemberMenu(context.role);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-12 min-h-screen text-white section-transition">
@@ -51,7 +46,7 @@ export default async function MembersEventLayout({ children }: { children: React
       </div>
 
       <div className="glass-panel rounded-2xl p-4 sm:p-6 shadow-2xl mb-8 border border-white/10">
-        <EventAdminNavbar eventId={eventId} tabs={memberMenuTabs} />
+        <EventAdminNavbar eventId={eventId} />
       </div>
 
       <div className="mt-8 animate-slide-up">{children}</div>

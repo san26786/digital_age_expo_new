@@ -34,7 +34,6 @@ import { authOptions } from "@/lib/auth/options";
 import { getDomain } from "@/lib/services/domain";
 import { getEventMemberContext, roleLabel } from "@/lib/services/eventAccess";
 import { getEventSummaryData } from "@/lib/services/eventSummary";
-import { getLiveMemberMenu } from "@/lib/services/memberMenu";
 import EventAdminNavbar from "@/components/EventAdminNavbar";
 import { DEFAULT_EVENT_ID } from "@/lib/site-config";
 
@@ -92,10 +91,6 @@ export default async function UserEventSummaryPage({
   const summary = await getEventSummaryData(context, eventId);
   const { event, stats, todoList } = summary;
 
-  // find_event_menus rows scoped to this member's real role — see getLiveMemberMenu's doc
-  // comment for the "no roles checked = show to everyone" fallback rule this relies on.
-  const memberMenuTabs = await getLiveMemberMenu(context.role);
-
   const filteredMenus = ACTION_MENUS.filter(
     (m) => !m.roles || m.roles.includes(context.role)
   );
@@ -129,7 +124,7 @@ export default async function UserEventSummaryPage({
       </div>
 
       <div className="glass-panel rounded-2xl p-6 shadow-2xl mb-10">
-        <EventAdminNavbar eventId={eventId} tabs={memberMenuTabs} />
+        <EventAdminNavbar eventId={eventId} />
       </div>
 
       {/* Main Two-Column Layout */}
