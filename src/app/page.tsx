@@ -32,6 +32,7 @@ export default async function HomePage() {
     phrases,
     exhibitors,
     scheduleDays,
+    counters,
     dbOutage,
   } = await getHomePageData(domain);
 
@@ -87,6 +88,7 @@ export default async function HomePage() {
           2. EVENT STATISTICS
       ========================================= */}
       <DataCounters
+        counts={counters}
         visitors={phrases.counter_visitors}
         exhibitors={phrases.counter_exhibitors}
         speakers={phrases.counter_speakers}

@@ -1,15 +1,36 @@
 interface Props {
+  /** Live row counts for this event. */
+  counts?: { visitors: number; exhibitors: number; speakers: number; workshops: number };
+  /** find_language_phrases overrides (counter_visitors, ...). Used only where a count is 0. */
   visitors: string;
   exhibitors: string;
   speakers: string;
   workshops: string;
 }
 
+/**
+ * What each tile shows, in priority order:
+ *
+ *   1. the live count, whenever there is one — this is the whole point of the band, and it is the
+ *      only value that stays true without someone remembering to edit it;
+ *   2. the organiser's configured phrase, when the count is 0 — a brand-new event legitimately has
+ *      no exhibitors or tickets yet, and "0 Exhibitors" on the homepage is worse than the target
+ *      figure the organiser typed in;
+ *   3. the original static default, if neither exists.
+ *
+ * Counts are rendered exactly, locale-grouped ("25,000"), with no invented "+" — the old strings
+ * carried one because they were aspirational; a real number should not pretend to be a floor.
+ */
+function tileValue(count: number | undefined, phrase: string, fallback: string): string {
+  if (typeof count === "number" && count > 0) return count.toLocaleString("en-GB");
+  return phrase || fallback;
+}
+
 const ITEMS = (p: Props) => [
-  { label: "Visitors", value: p.visitors || "25000+" },
-  { label: "Exhibitors", value: p.exhibitors || "1000+" },
-  { label: "Speakers", value: p.speakers || "100+" },
-  { label: "Workshops & Masterclass", value: p.workshops || "50+" },
+  { label: "Visitors", value: tileValue(p.counts?.visitors, p.visitors, "25000+") },
+  { label: "Exhibitors", value: tileValue(p.counts?.exhibitors, p.exhibitors, "1000+") },
+  { label: "Speakers", value: tileValue(p.counts?.speakers, p.speakers, "100+") },
+  { label: "Workshops & Masterclass", value: tileValue(p.counts?.workshops, p.workshops, "50+") },
 ];
 
 export function DataCounters(props: Props) {

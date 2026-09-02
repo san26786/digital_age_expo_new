@@ -102,6 +102,46 @@ export async function getOpportunityContent(listingId: number) {
  * explanation for the page to show the visitor. Ordinary query bugs are NOT swallowed — they
  * still throw, so real regressions stay visible.
  */
+export interface HomeCounters {
+  visitors: number;
+  exhibitors: number;
+  speakers: number;
+  workshops: number;
+}
+
+const EMPTY_COUNTERS: HomeCounters = { visitors: 0, exhibitors: 0, speakers: 0, workshops: 0 };
+
+/**
+ * Live figures for the homepage stat band.
+ *
+ * These were previously read only from `find_language_phrases` (counter_visitors, ...), i.e. a
+ * number an organiser had typed in once and which then drifted from reality — the band advertised
+ * "1000+ exhibitors" for an event with 232. Counting the rows means the band is right the day an
+ * exhibitor is approved or a session is added, with no one to remember to update it.
+ *
+ * What each one counts, and why:
+ *  - visitors   — rows in find_event_ticket_purchased for the event: one per ticket claimed, which
+ *                 is the closest thing the schema has to "people coming".
+ *  - exhibitors — approved stands only (`status: "active"`), matching what /exhibitors lists, so
+ *                 the two pages cannot disagree.
+ *  - speakers   — approved speakers only, same reasoning.
+ *  - workshops  — agenda items, i.e. programmed sessions.
+ *
+ * Counts, not findMany().length: the row bodies are never used, and the exhibitor table is large.
+ */
+export async function getHomeCounters(eventId: number): Promise<HomeCounters> {
+  if (!eventId) return EMPTY_COUNTERS;
+
+  const [visitors, exhibitors, speakers, workshops] = await Promise.all([
+    prisma.find_event_ticket_purchased.count({ where: { event_id: eventId } }),
+    prisma.find_event_exhibitor.count({ where: { event_id: eventId, status: "active" } }),
+    prisma.find_speakers.count({ where: { event_id: eventId, status: "active" } }),
+    prisma.find_event_lobby_agenda_items.count({ where: { event_id: eventId } }),
+  ]);
+
+  return { visitors, exhibitors, speakers, workshops };
+}
+
 export async function getHomePageData(domain: SiteDomain) {
   const eventId = domain.event_id;
   const listingId = domain.linked_profile_listing_id;
@@ -110,7 +150,18 @@ export async function getHomePageData(domain: SiteDomain) {
   const collector = createOutageCollector();
   const guard = collector.guard;
 
-  const [event, eventDates, speakers, sponsors, charityPartners, opportunityContent, phrases, exhibitors, scheduleDays] =
+  const [
+    event,
+    eventDates,
+    speakers,
+    sponsors,
+    charityPartners,
+    opportunityContent,
+    phrases,
+    exhibitors,
+    scheduleDays,
+    counters,
+  ] =
     await Promise.all([
       eventId ? guard(() => getEventById(eventId), null) : null,
       eventId ? guard(() => getEventDateRange(eventId), null) : null,
@@ -138,6 +189,7 @@ export async function getHomePageData(domain: SiteDomain) {
       ),
       eventId ? guard(() => getEventExhibitors(eventId), [] as any[]) : [],
       eventId ? guard(() => getEventSchedule(eventId), [] as any[]) : [],
+      eventId ? guard(() => getHomeCounters(eventId), EMPTY_COUNTERS) : EMPTY_COUNTERS,
     ]);
 
   return {
@@ -150,6 +202,8 @@ export async function getHomePageData(domain: SiteDomain) {
     phrases,
     exhibitors,
     scheduleDays,
+    /** Live row counts behind the homepage stat band. */
+    counters,
     /** Non-null when at least one query was rejected by the database itself. */
     dbOutage: collector.current as DatabaseOutage | null,
   };
