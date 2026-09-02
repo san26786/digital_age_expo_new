@@ -4,6 +4,7 @@ import { Store } from "lucide-react";
 import { authOptions } from "@/lib/auth/options";
 import { getDomain } from "@/lib/services/domain";
 import { getEventMemberContext } from "@/lib/services/eventAccess";
+import { MembersPageShell } from "@/components/ui/MembersPageShell";
 import { StandAssetsManager } from "@/components/dashboard/StandAssetsManager";
 
 export const metadata = { title: "Manage Stand Assets" };
@@ -35,24 +36,20 @@ export default async function ManageStandAssetsPage({ searchParams }: PageProps)
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-purple to-brand-pink shadow-lg shadow-brand-pink/20">
-          <Store className="h-6 w-6 text-white" />
-        </div>
-        <div>
-          <h1 className="text-2xl font-black uppercase tracking-tight text-white">Manage Stand Assets</h1>
-          <p className="mt-1 text-sm font-medium text-zinc-400">
-            Manage your virtual exhibition stand, update creatives, and upload brochures for this event.
-          </p>
-        </div>
-      </div>
-
+    <MembersPageShell
+      title="Manage Stand Assets"
+      description="Place your artwork, videos and brochures on the stand, then publish it to the virtual event."
+      icon={Store}
+      eventId={eventId}
+      pill="Stand Designer"
+      pillIcon={Store}
+      bare
+    >
       <StandAssetsManager
         initialEventId={eventId}
         userRole={context.role}
         initialSelectedExId={exId}
       />
-    </div>
+    </MembersPageShell>
   );
 }

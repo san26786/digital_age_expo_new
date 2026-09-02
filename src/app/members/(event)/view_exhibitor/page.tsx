@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/options";
 import { getDomain } from "@/lib/services/domain";
@@ -7,13 +6,27 @@ import { getExhibitorsAdmin, getExhibitorsAdminStats } from "@/lib/services/even
 import { ExhibitorsAdminManager } from "@/components/dashboard/ExhibitorsAdminManager";
 import { MembersBreadcrumb, MembersPageHeader } from "@/components/ui/MembersPageShell";
 import { Store } from "lucide-react";
+import { optionalNumericParam } from "@/lib/searchParams";
 
 export const metadata = { title: "View Exhibitor" };
 
-export default async function ViewExhibitorPage() {
+interface PageProps {
+  /**
+   * `ex_id` (or the legacy `id`) opens the Edit Trade Stand modal straight onto that exhibitor —
+   * the target of the stand designer's "Exhibitor Full Details" link, matching the legacy
+   * `view_exhibitor?action=edit&from_view_booth=1&id=<ex_id>&event_id=<event_id>` URL.
+   */
+  searchParams?: Promise<{ ex_id?: string; id?: string; event_id?: string }>;
+}
+
+export default async function ViewExhibitorPage({ searchParams }: PageProps) {
   const session = (await getServerSession(authOptions)) ?? {
     user: { id: "1", name: "Demo User", email: "demo@example.com" },
   };
+
+  const resolvedParams = searchParams ? await searchParams : {};
+  const requestedExhibitorId =
+    optionalNumericParam(resolvedParams.ex_id) ?? optionalNumericParam(resolvedParams.id) ?? undefined;
 
   const domain = await getDomain();
   const eventId = domain?.event_id ?? 1;
@@ -55,7 +68,11 @@ export default async function ViewExhibitorPage() {
       </div>
 
       <div>
-        <ExhibitorsAdminManager initialExhibitors={exhibitors} initialStats={initialStats} />
+        <ExhibitorsAdminManager
+          initialExhibitors={exhibitors}
+          initialStats={initialStats}
+          initialExhibitorId={requestedExhibitorId}
+        />
       </div>
     </div>
   );

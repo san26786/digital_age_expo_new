@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { assetUrl } from "@/lib/assets";
+import { exhibitorLogoUrl } from "@/lib/assets";
+import { ExhibitorLogo } from "@/components/exhibitors/ExhibitorLogo";
 import { Pagination } from "@/components/ui/Pagination";
 
 interface Exhibitor {
@@ -46,9 +47,7 @@ export function ExhibitorsGrid({
         {exhibitors.length > 0 ? (
           <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {exhibitors.map((exhibitor) => {
-              const logo =
-                assetUrl(exhibitor.logo ? `/files/exhibitor_profile_images/${exhibitor.logo}` : null) ??
-                assetUrl(exhibitor.listingId ? `/files/logo/${exhibitor.listingId}.${exhibitor.logoExtension}` : null);
+              const logo = exhibitorLogoUrl(exhibitor.logo, exhibitor.listingId, exhibitor.logoExtension);
               const nameNode = (
                 <h5 className="font-black uppercase tracking-tight text-white group-hover:text-brand-pink transition-colors">{exhibitor.business}</h5>
               );
@@ -56,14 +55,7 @@ export function ExhibitorsGrid({
               return (
                 <div key={exhibitor.id} className="glass-panel group flex flex-col items-center justify-between rounded-3xl p-8 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
                   <div className="flex h-32 w-full items-center justify-center rounded-2xl bg-white/5 p-4 border border-white/10 shadow-inner mb-6">
-                    {logo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={logo} alt={exhibitor.business} className="max-h-full max-w-full object-contain" />
-                    ) : (
-                      <span className="text-2xl font-black text-white/30 uppercase tracking-tighter">
-                        {exhibitor.business.slice(0, 2)}
-                      </span>
-                    )}
+                    <ExhibitorLogo src={logo} business={exhibitor.business} />
                   </div>
                   <div className="space-y-2">
                     {exhibitor.website ? (

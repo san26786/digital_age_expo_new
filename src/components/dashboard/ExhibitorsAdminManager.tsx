@@ -102,6 +102,8 @@ interface FormDefaults extends Partial<EventExhibitorAdminInput> {
 interface ExhibitorOption {
   id: number;
   label: string;
+  /** Present on booth options: the booth is already allocated, so it is not offered. */
+  disabled?: boolean;
 }
 
 interface ExhibitorFormOptions {
@@ -175,7 +177,9 @@ function OptionSelect({
         {placeholder}
       </option>
       {options.map((o) => (
-        <option key={o.id} value={o.id} className="bg-zinc-900">
+        // `disabled` keeps an already-allocated booth visible in its numbered position instead of
+        // being dropped from the list, which is what made 1..22 look like it had gaps.
+        <option key={o.id} value={o.id} disabled={o.disabled} className="bg-zinc-900">
           {o.label}
         </option>
       ))}
@@ -381,6 +385,31 @@ function ExhibitorFormModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [zoneId]);
 
+  /**
+   * Auto-allocate the booth. The organiser picks a zone; the next free booth in that zone is
+   * assigned for them, so there is no 22-item list to scroll and no way to land on a number that
+   * is already gone.
+   *
+   * Only fires when the currently-held booth is not one of THIS zone's booths — editing an
+   * exhibitor must never shuffle them off the booth they already stand on (their own booth comes
+   * back from the API as free, via `exclude`).
+   */
+  useEffect(() => {
+    if (!zoneId || spotsLoading || spots.length === 0) return;
+    if (spots.some((s) => String(s.id) === spotId)) return;
+
+    const nextFree = spots.find((s) => !s.disabled);
+    setValue("spot_id", nextFree ? String(nextFree.id) : "");
+    setValue("stand_number", nextFree ? nextFree.label : "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [zoneId, spots, spotsLoading]);
+
+  /** Booths in this zone nobody holds — drives the "x of 22 free" readout. */
+  const freeBoothCount = spots.filter((s) => !s.disabled).length;
+  /** The booth number to display. Falls back to the saved stand_number while the zone loads. */
+  const assignedBoothLabel =
+    spots.find((s) => String(s.id) === spotId)?.label ?? String(watch("stand_number") ?? "");
+
   // Stand layout -> colours from that layout's parent template.
   useEffect(() => {
     let cancelled = false;
@@ -413,12 +442,6 @@ function ExhibitorFormModal({
     // this exhibitor to a booth that is not in the zone the record now claims.
     setValue("spot_id", "");
     setValue("stand_number", "");
-  }
-
-  function handleSpotChange(next: string) {
-    setValue("spot_id", next);
-    const chosen = spots.find((s) => String(s.id) === next);
-    setValue("stand_number", chosen ? chosen.label : "");
   }
 
   function handleLayoutChange(next: string) {
@@ -692,22 +715,31 @@ function ExhibitorFormModal({
                   </div>
                   <div className="space-y-2">
                     <FieldLabel>Virtual Booth Number</FieldLabel>
-                    <OptionSelect
-                      value={spotId}
-                      options={spots}
-                      disabled={!zoneId || spotsLoading}
+                    {/* Assigned, not chosen — the value is whatever the next free booth in the
+                        selected zone is. `spot_id` rides along in a hidden input so the form still
+                        submits exactly the field the server expects. */}
+                    <input type="hidden" {...register("spot_id")} />
+                    <input
+                      readOnly
+                      value={
+                        spotsLoading
+                          ? "Assigning…"
+                          : assignedBoothLabel || ""
+                      }
+                      className={`${FIELD_CLASS} cursor-not-allowed opacity-70`}
                       placeholder={
                         !zoneId
                           ? "Choose a zone first"
-                          : spotsLoading
-                            ? "Loading booths…"
-                            : spots.length === 0
-                              ? "No free booths in this zone"
-                              : "— Select a free booth —"
+                          : spots.length === 0
+                            ? "No booths in this zone"
+                            : "Zone is fully booked"
                       }
-                      onChange={handleSpotChange}
                     />
-                    <p className="text-[10px] font-semibold text-zinc-600">Only booths nobody else holds are listed.</p>
+                    <p className="text-[10px] font-semibold text-zinc-600">
+                      {zoneId && !spotsLoading && spots.length > 0
+                        ? `Assigned automatically — ${freeBoothCount} of ${spots.length} booths free in this zone.`
+                        : "Assigned automatically from the selected zone."}
+                    </p>
                   </div>
                   <div className="space-y-2">
                     <FieldLabel>Stand Number</FieldLabel>
@@ -1347,9 +1379,17 @@ function ImportExhibitorsModal({ onClose, onImported }: { onClose: () => void; o
 export function ExhibitorsAdminManager({
   initialExhibitors,
   initialStats,
+  initialExhibitorId,
 }: {
   initialExhibitors: ExhibitorAdminRow[];
   initialStats: ExhibitorStats;
+  /**
+   * Deep-link target: when /members/view_exhibitor is opened with `?ex_id=<id>` (the way the
+   * stand designer's "Exhibitor Full Details" link arrives, mirroring the legacy
+   * `view_exhibitor?action=edit&id=<ex_id>` URL), the Edit Trade Stand modal opens straight onto
+   * that exhibitor instead of leaving the organiser to find the row in the table.
+   */
+  initialExhibitorId?: number;
 }) {
   const [rows, setRows] = useState<ExhibitorAdminRow[]>(initialExhibitors);
   const [stats, setStats] = useState<ExhibitorStats>(initialStats);
@@ -1367,6 +1407,18 @@ export function ExhibitorsAdminManager({
   const [notice, setNotice] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+
+  // Open the deep-linked exhibitor once, on first render. Guarded by a ref rather than by
+  // `modalExhibitor` so closing the modal does not immediately reopen it, and so a later refresh
+  // of `rows` cannot pop it back up while the organiser is working elsewhere on the page.
+  const deepLinkHandled = useRef(false);
+  useEffect(() => {
+    if (deepLinkHandled.current || !initialExhibitorId) return;
+    const target = rows.find((r) => r.id === initialExhibitorId);
+    if (!target) return;
+    deepLinkHandled.current = true;
+    setModalExhibitor(target);
+  }, [initialExhibitorId, rows]);
 
   async function refreshData() {
     try {

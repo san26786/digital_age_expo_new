@@ -36,6 +36,7 @@ import { getEventMemberContext, roleLabel } from "@/lib/services/eventAccess";
 import { getEventSummaryData } from "@/lib/services/eventSummary";
 import EventAdminNavbar from "@/components/EventAdminNavbar";
 import { DEFAULT_EVENT_ID } from "@/lib/site-config";
+import { getEventById } from "@/lib/services/events";
 
 export const metadata = { title: "Event Summary" };
 
@@ -81,6 +82,9 @@ export default async function UserEventSummaryPage({
 
   const domain = await getDomain();
   const eventId = queryEventId || domain?.event_id || DEFAULT_EVENT_ID;
+  // Same reason as (event)/layout.tsx — lets the navbar link "View My Booth" straight to the
+  // public lobby instead of the members-side redirect page.
+  const navEvent = await getEventById(eventId);
 
   const context = (await getEventMemberContext(eventId, userId)) ?? {
     role: "organiser",
@@ -124,7 +128,7 @@ export default async function UserEventSummaryPage({
       </div>
 
       <div className="glass-panel rounded-2xl p-6 shadow-2xl mb-10">
-        <EventAdminNavbar eventId={eventId} />
+        <EventAdminNavbar eventId={eventId} eventSlug={navEvent?.friendly_url} />
       </div>
 
       {/* Main Two-Column Layout */}

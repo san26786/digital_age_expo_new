@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth/options";
 import { getDomain } from "@/lib/services/domain";
 import { getEventMemberContext, roleLabel } from "@/lib/services/eventAccess";
 import EventAdminNavbar from "@/components/EventAdminNavbar";
+import { getEventById } from "@/lib/services/events";
 import { DEFAULT_EVENT_ID } from "@/lib/site-config";
 
 /**
@@ -23,6 +24,10 @@ export default async function MembersEventLayout({ children }: { children: React
     eventId,
     userId,
   };
+
+  // Needed only so the navbar's "View My Booth" can link straight to /virtual-event/<slug>
+  // rather than bouncing through a members page that would stop non-organisers at its guard.
+  const event = await getEventById(eventId);
 
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-12 min-h-screen text-white section-transition">
@@ -46,7 +51,7 @@ export default async function MembersEventLayout({ children }: { children: React
       </div>
 
       <div className="glass-panel rounded-2xl p-4 sm:p-6 shadow-2xl mb-8 border border-white/10">
-        <EventAdminNavbar eventId={eventId} />
+        <EventAdminNavbar eventId={eventId} eventSlug={event?.friendly_url} />
       </div>
 
       <div className="mt-8 animate-slide-up">{children}</div>

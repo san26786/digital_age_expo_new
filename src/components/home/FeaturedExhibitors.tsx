@@ -2,7 +2,8 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { assetUrl } from "@/lib/assets";
+import { exhibitorLogoUrl } from "@/lib/assets";
+import { ExhibitorLogo } from "@/components/exhibitors/ExhibitorLogo";
 import { ChevronRight } from 'lucide-react';
 
 interface Exhibitor {
@@ -48,9 +49,7 @@ export function FeaturedExhibitors({ exhibitors }: Props) {
       {featured.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {featured.map((exh) => {
-            const logo =
-              assetUrl(exh.logo ? `/files/exhibitor_profile_images/${exh.logo}` : null) ??
-              assetUrl(exh.listingId ? `/files/logo/${exh.listingId}.${exh.logoExtension}` : null);
+            const logo = exhibitorLogoUrl(exh.logo, exh.listingId, exh.logoExtension);
 
             return (
               <div 
@@ -60,10 +59,12 @@ export function FeaturedExhibitors({ exhibitors }: Props) {
               >
                 <div className="flex justify-between items-start">
                   <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/10 bg-surface-2 flex items-center justify-center p-1.5 text-xs font-bold text-slate-400 shrink-0">
-                    {logo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={logo} alt={exh.business} className="w-full h-full object-contain" />
-                    ) : exh.business.slice(0, 2).toUpperCase()}
+                    <ExhibitorLogo
+                      src={logo}
+                      business={exh.business}
+                      className="h-full w-full object-contain"
+                      fallbackClassName="text-xs font-bold uppercase text-slate-400"
+                    />
                   </div>
                   {exh.standNumber && (
                     <span className="bg-brand-pink/10 border border-brand-pink/20 text-brand-pink text-[10px] font-bold font-mono px-3 py-1 rounded-full uppercase">

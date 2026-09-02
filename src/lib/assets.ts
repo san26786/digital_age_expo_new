@@ -53,6 +53,46 @@ export function assetUrlOrPlaceholder(path: string | null | undefined): string {
 }
 
 /**
+ * The logo shown for one exhibitor in the public directory (`/exhibitors`, the home page's
+ * featured strip, the lobby's exhibitor list).
+ *
+ * `find_event_exhibitor.logo` holds one of two shapes and they must NOT be treated alike:
+ *
+ *   1. a bare legacy filename ("186kloud.png") uploaded on the old PHP site, which lived in
+ *      `files/exhibitor_profile_images/` and is mirrored locally by asset-map; and
+ *   2. an absolute app path ("/files/exhibitor/logo/2140.png") written by this app's own
+ *      /api/members/exhibitors-admin/upload route.
+ *
+ * Prefixing shape 2 with the legacy folder produced
+ * `/files/exhibitor_profile_images//files/exhibitor/logo/2140.png`, which is why an exhibitor
+ * whose logo rendered fine inside the Edit Trade Stand modal showed a broken image on
+ * /exhibitors. Anything already absolute (or a full URL) is therefore passed straight to
+ * assetUrl(), which leaves local paths alone.
+ *
+ * Falls back to the linked directory listing's logo (`files/logo/<listing id>.<ext>`) exactly as
+ * every call site did before, and returns undefined when there is nothing to show so the caller
+ * can render its initials avatar.
+ */
+export function exhibitorLogoUrl(
+  logo: string | null | undefined,
+  listingId?: number | string | null,
+  logoExtension?: string | null,
+): string | undefined {
+  const raw = (logo ?? "").toString().trim();
+  if (raw !== "") {
+    const direct =
+      raw.startsWith("/") || /^(https?:)?\/\//i.test(raw) || /^(data|blob):/i.test(raw)
+        ? assetUrl(raw)
+        : assetUrl(`/files/exhibitor_profile_images/${raw}`);
+    if (direct) return direct;
+  }
+  if (listingId && logoExtension) {
+    return assetUrl(`/files/logo/${listingId}.${logoExtension}`);
+  }
+  return undefined;
+}
+
+/**
  * Exhibitor stand assets (banner creatives, gallery uploads, brochures).
  *
  * Assets uploaded through `/api/members/stand-assets` are written to this app's

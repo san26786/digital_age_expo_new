@@ -734,6 +734,11 @@ export async function importExhibitors(
 export interface ExhibitorOption {
   id: number;
   label: string;
+  /**
+   * Rendered but not choosable. Used by the Virtual Booth Number list so every booth 1..22 stays
+   * visible in its zone — hiding the allocated ones made the numbering look like it skipped.
+   */
+  disabled?: boolean;
 }
 
 export interface ExhibitorFormOptions {
@@ -864,11 +869,130 @@ export async function getExhibitorFormOptions(
   };
 }
 
+/** Every exhibition zone holds exactly this many virtual booths. */
+export const BOOTHS_PER_ZONE = 22;
+
+/** A booth row as the allocation form needs it. */
+interface ZoneBooth {
+  id: number;
+  stand_no: number | null;
+  title: string | null;
+}
+
 /**
- * "Virtual Booth Number" options for one Exhibition Zone: every exhibitor spot in that zone that
- * no OTHER exhibitor at this event already holds (view_exhibitor.php:940's commented-out query is
- * the same set). `excludeExhibitorId` keeps the exhibitor's own current booth in the list while
- * editing, so opening the form does not make their allocation disappear.
+ * Brings one zone's booth rows into the shape the allocation form assumes: at most
+ * {@link BOOTHS_PER_ZONE} `find_event_lobby_spots` rows of `spot_type = "exhibitor"`.
+ *
+ * WHAT IT DOES NOT DO: renumber. `stand_no` carries the real booth identity an exhibitor is known
+ * by on the floor and in print (31040, 31041, ...), so it is never rewritten to a 1..22 ordinal.
+ * The per-zone "22 booths" rule is about HOW MANY booths a zone offers, not about what they are
+ * called.
+ *
+ * Three passes, all scoped to one event:
+ *   1. REPAIR — for a booth an exhibitor currently holds, that exhibitor's own `stand_number` is
+ *      the authoritative booth id. Where the spot row disagrees, the exhibitor wins and the spot
+ *      is corrected. This is also what restores a zone whose stand_no values were previously
+ *      flattened to 1..22.
+ *   2. TRIM — a zone holding more than 22 booths gives up the surplus, but only rows nobody holds
+ *      and nobody has captioned. A surplus booth an exhibitor is standing on is left alone and
+ *      still offered, because deleting it would strand that allocation.
+ *   3. TOP UP — a short zone gains booths until it has 22. New numbers continue the zone's own
+ *      series (its highest existing stand_no + 1), so a zone running 31040..31048 gains 31049
+ *      next, not 10. New rows deliberately leave `event_layout_id` null and the coordinates unset:
+ *      getLobbyHotspots() selects on `event_layout_id`, so a booth created here is an allocation
+ *      slot only and never paints a stray dot on the lobby artwork.
+ *
+ * Runs on read because the form is the only place booths are consumed and it is organiser-only;
+ * there is no migration step in this project to hang it off. Once a zone is settled it writes
+ * nothing.
+ */
+async function resolveZoneBooths(
+  context: EventMemberContext,
+  zoneId: number,
+  takenSpotIds: Set<number>
+): Promise<ZoneBooth[]> {
+  let booths: ZoneBooth[] = await prisma.find_event_lobby_spots.findMany({
+    where: {
+      event_id: context.eventId,
+      event_layout_child_id: zoneId,
+      spot_type: "exhibitor",
+    },
+    orderBy: [{ stand_no: "asc" }, { id: "asc" }],
+    select: { id: true, stand_no: true, title: true },
+  });
+
+  // ---- 1. Repair from the exhibitor that holds the booth.
+  if (booths.length > 0) {
+    const holders = await prisma.find_event_exhibitor.findMany({
+      where: {
+        event_id: context.eventId,
+        spot_id: { in: booths.map((b) => b.id) },
+      },
+      select: { spot_id: true, stand_number: true },
+    });
+
+    for (const holder of holders) {
+      const standNo = Number(String(holder.stand_number ?? "").trim());
+      if (!holder.spot_id || !Number.isInteger(standNo) || standNo <= 0) continue;
+      const booth = booths.find((b) => b.id === holder.spot_id);
+      if (!booth || booth.stand_no === standNo) continue;
+
+      await prisma.find_event_lobby_spots.updateMany({
+        where: { id: booth.id, event_id: context.eventId },
+        data: { stand_no: standNo, updated_on: new Date() },
+      });
+      booth.stand_no = standNo;
+    }
+    booths.sort((a, b) => (a.stand_no ?? 0) - (b.stand_no ?? 0) || a.id - b.id);
+  }
+
+  // ---- 2. Trim the surplus.
+  if (booths.length > BOOTHS_PER_ZONE) {
+    const removable = booths
+      .slice(BOOTHS_PER_ZONE)
+      .filter((b) => !takenSpotIds.has(b.id) && !(b.title ?? "").trim())
+      .map((b) => b.id);
+    if (removable.length > 0) {
+      await prisma.find_event_lobby_spots.deleteMany({
+        where: { id: { in: removable }, event_id: context.eventId },
+      });
+      const removed = new Set(removable);
+      booths = booths.filter((b) => !removed.has(b.id));
+    }
+  }
+
+  // ---- 3. Top up to 22, continuing this zone's own numbering.
+  // Sequential rather than Promise.all so two booths can never claim the same number if the
+  // organiser reopens the form while this is still running.
+  let nextNumber = booths.reduce((max, b) => Math.max(max, b.stand_no ?? 0), 0) + 1;
+  while (booths.length < BOOTHS_PER_ZONE) {
+    const created = await prisma.find_event_lobby_spots.create({
+      data: {
+        event_id: context.eventId,
+        event_layout_child_id: zoneId,
+        spot_type: "exhibitor",
+        stand_no: nextNumber,
+        title: "",
+        user_id: context.userId,
+        updated_on: new Date(),
+      },
+      select: { id: true, stand_no: true, title: true },
+    });
+    booths.push(created);
+    nextNumber += 1;
+  }
+
+  return booths;
+}
+
+/**
+ * The booths of one Exhibition Zone — all {@link BOOTHS_PER_ZONE} of them, in booth-number order.
+ *
+ * Allocated booths are returned `disabled` rather than dropped, so the caller can tell "already
+ * taken" apart from "does not exist" and can hand out the next genuinely free one.
+ *
+ * `excludeExhibitorId` is the exhibitor being edited, so their own booth counts as free and the
+ * form does not move them off it just by being opened.
  */
 export async function getExhibitorZoneSpots(
   context: EventMemberContext,
@@ -885,24 +1009,30 @@ export async function getExhibitorZoneSpots(
     },
     select: { spot_id: true },
   });
-  const takenIds = taken
-    .map((t: { spot_id: number | null }) => t.spot_id)
-    .filter((id: number | null): id is number => typeof id === "number" && id > 0);
+  const takenIds = new Set<number>(
+    taken
+      .map((t: { spot_id: number | null }) => t.spot_id)
+      .filter((id: number | null): id is number => typeof id === "number" && id > 0)
+  );
 
-  const spots = await prisma.find_event_lobby_spots.findMany({
-    where: {
-      event_id: context.eventId,
-      event_layout_child_id: zoneId,
-      spot_type: "exhibitor",
-      ...(takenIds.length > 0 ? { id: { notIn: takenIds } } : {}),
-    },
-    orderBy: [{ stand_no: "asc" }, { id: "asc" }],
-    select: { id: true, stand_no: true, title: true },
-  });
+  // resolveZoneBooths() repairs, trims and tops up — i.e. it WRITES. If any of that fails (the
+  // database is unreachable, a create is rejected) the organiser should still get the booths that
+  // already exist rather than a 500 that empties the whole allocation panel.
+  let booths: ZoneBooth[];
+  try {
+    booths = await resolveZoneBooths(context, zoneId, takenIds);
+  } catch {
+    booths = await prisma.find_event_lobby_spots.findMany({
+      where: { event_id: context.eventId, event_layout_child_id: zoneId, spot_type: "exhibitor" },
+      orderBy: [{ stand_no: "asc" }, { id: "asc" }],
+      select: { id: true, stand_no: true, title: true },
+    });
+  }
 
-  return spots.map((s: { id: number; stand_no: number | null; title: string | null }) => ({
-    id: s.id,
-    label: s.stand_no !== null && s.stand_no !== undefined ? String(s.stand_no) : (s.title || `Spot #${s.id}`),
+  return booths.map((b) => ({
+    id: b.id,
+    label: b.stand_no !== null && b.stand_no !== undefined ? String(b.stand_no) : b.title || `Spot #${b.id}`,
+    disabled: takenIds.has(b.id),
   }));
 }
 

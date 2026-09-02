@@ -73,6 +73,11 @@ const UNAVAILABLE_PRISMA_CODES = new Set([
   "P1017", // server has closed the connection
   "P2024", // timed out fetching a connection from the pool
   "P2028", // transaction API error
+  // Prisma Postgres / Accelerate proxy codes. The proxy sits between the client and the actual
+  // Postgres instance, so when the instance is asleep, over quota or unreachable the client never
+  // sees a SQLSTATE at all — only the proxy's own failure.
+  "P5000", // (Accelerate) generic request error
+  "P5010", // (Accelerate) cannot fetch data from service  <- "Failed to connect to upstream database"
   "P5011", // (Accelerate) too many requests
 ]);
 
@@ -90,7 +95,10 @@ const UNAVAILABLE_DRIVER_CODES = new Set([
 
 const QUOTA_MESSAGE = /(exceeded[^.]*\bquota\b|\bquota\b[^.]*exceeded|upgrade your plan|exceeded[^.]*\blimit(s)?\b|plan limit)/i;
 const UNREACHABLE_MESSAGE =
-  /(can'?t reach database server|could not connect|connection (refused|terminated|reset|closed)|timeout (expired|exceeded)|timed out fetching a connection|getaddrinfo|server has closed the connection)/i;
+  // `failed to connect to upstream database` is Prisma Postgres's wording when its proxy cannot
+  // reach the instance behind it — the message carries no SQLSTATE, so without this pattern the
+  // whole outage was classified as an ordinary bug and thrown at the visitor as a stack trace.
+  /(can'?t reach database server|could not connect|failed to connect|upstream database|connection (refused|terminated|reset|closed)|timeout (expired|exceeded)|timed out fetching a connection|getaddrinfo|server has closed the connection)/i;
 
 interface ErrorFacts {
   codes: string[];

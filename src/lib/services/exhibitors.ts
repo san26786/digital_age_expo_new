@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { CONTENT_BLOCK_SELECT } from "@/lib/services/contentBlocks";
 import { CACHE_TAGS, cachedRead } from "@/lib/cache";
-import { assetUrl } from "@/lib/assets";
+import { exhibitorLogoUrl } from "@/lib/assets";
 export type find_event_exhibitor_status = "active" | "inactive" | "pending" | "cancelled" | string;
 
 const EXHIBITOR_SELECT = {
@@ -316,8 +316,11 @@ async function read_getEventExhibitorDirectory(eventId: number): Promise<Exhibit
       : Promise.resolve([] as any[]),
   ]);
 
-  const listingById = new Map(listings.map((l: any) => [l.id, l]));
-  const zoneById = new Map(zones.map((z: any) => [z.id, z]));
+  // Explicit generics: `listings`/`zones` come from a ternary whose other branch is `[] as any[]`,
+  // so the inferred entry tuple collapsed the value side to `{}` and every `listing?.title` /
+  // `listing.logo_extension` read below was a type error.
+  const listingById = new Map<number, any>(listings.map((l: any) => [l.id, l]));
+  const zoneById = new Map<number, any>(zones.map((z: any) => [z.id, z]));
 
   return rows.map((row: any): ExhibitorDirectoryEntry => {
     const listing = row.listing_id ? listingById.get(row.listing_id) : undefined;
@@ -332,9 +335,7 @@ async function read_getEventExhibitorDirectory(eventId: number): Promise<Exhibit
       zoneName: zone?.title ?? null,
       standNumber: row.stand_number,
       about,
-      logoUrl:
-        assetUrl(row.logo ? `/files/exhibitor_profile_images/${row.logo}` : null) ??
-        assetUrl(listing?.id ? `/files/logo/${listing.id}.${listing.logo_extension}` : null),
+      logoUrl: exhibitorLogoUrl(row.logo, listing?.id, listing?.logo_extension) ?? undefined,
       friendlyUrl: row.friendly_url,
     };
   });

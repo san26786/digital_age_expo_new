@@ -26,7 +26,9 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col font-sans main-glow-bg text-white">
         <AuthProvider>
-          <Header />
+          <ChromeGate>
+            <Header />
+          </ChromeGate>
           <main className="flex-1">{children}</main>
           <ChromeGate>
             <Footer />

@@ -43,11 +43,10 @@ export function StandCanvas({
   /**
    * Artwork for the FIXED template slots (src/lib/standTemplateSlots.ts).
    *
-   * Kept separate from `spots` because those slot coordinates were measured off the pixels of
-   * DEFAULT_STAND_TEMPLATE specifically, so they are only correct while that image is the one
-   * actually rendering. This component is the only place that knows which background won —
-   * including after a custom one 404s and `imageFailed` flips — so the decision lives here
-   * rather than in the caller.
+   * Kept separate from `spots` because these six boxes are a fixed, template-independent set —
+   * header banner, two hanging banners, two pull-up banners, tabletop — rather than rows out of
+   * find_event_lobby_spots. Their percentage coordinates line up with the seeded stand templates
+   * as well as DEFAULT_STAND_TEMPLATE, so they are drawn on whichever background wins.
    */
   templateSpots?: SpotAsset[];
   /** Fill the size of its parent edge-to-edge instead of rendering as a rounded, bordered card —
@@ -60,8 +59,6 @@ export function StandCanvas({
   // Fall back to the generic booth frame the moment the exhibitor's own template is missing or
   // fails to load, so the canvas never renders blank.
   const effectiveStandImage = standImageUrl && !imageFailed ? standImageUrl : DEFAULT_STAND_TEMPLATE;
-  // Template-slot coordinates only line up with the default frame — see the templateSpots prop.
-  const showTemplateSlots = effectiveStandImage === DEFAULT_STAND_TEMPLATE;
 
   return (
     <div
@@ -128,8 +125,10 @@ export function StandCanvas({
         </div>
       )}
 
-      {showTemplateSlots &&
-        templateSpots.map((spot) => (
+      {/* Template-slot coordinates line up with the seeded stand templates as well as the default
+          frame, and the editor offers those six slots on EVERY background — gating them on the
+          fallback made artwork an exhibitor had just uploaded invisible to visitors. */}
+      {templateSpots.map((spot) => (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             key={`tpl-${spot.id}`}

@@ -103,7 +103,7 @@ const BASE = "/members";
  * segment and renders a generic module full of MOCK records, so a typo here would not 404. It
  * would quietly show a member a page of fake data.
  */
-function buildTabs(eventId: number | string): Tab[] {
+function buildTabs(eventId: number | string, eventSlug?: string | null): Tab[] {
   const q = `event_id=${eventId}`;
 
   return [
@@ -464,7 +464,21 @@ function buildTabs(eventId: number | string): Tab[] {
         },
         {
           title: "View My Booth",
-          href: `${BASE}/event_lobby_layout_manager?action=view_my_booth&${q}`,
+          /*
+           * Straight to the public lobby — no members-side hop.
+           *
+           * This used to point at event_lobby_layout_manager?action=view_my_booth, which is a
+           * normal page that only redirects AFTER it renders its organiser guard. Anyone who is
+           * not an organiser (i.e. the exhibitors this link is for) hit that guard and stopped on
+           * /members/event_lobby_layout_manager instead of ever reaching the redirect.
+           *
+           * The slug comes from the parent, which is a server component and can read it; the
+           * old URL stays as the fallback for the one caller that doesn't pass it, so nothing
+           * breaks if it's missing.
+           */
+          href: eventSlug
+            ? `/virtual-event/${eventSlug}`
+            : `${BASE}/event_lobby_layout_manager?action=view_my_booth&${q}`,
           icon: Target,
         },
         {
@@ -602,6 +616,12 @@ interface EventAdminNavbarProps {
   eventId?: number | string;
 
   /**
+   * The event's friendly_url. When supplied, "View My Booth" links directly to
+   * /virtual-event/<slug> instead of bouncing through the members-side redirect page.
+   */
+  eventSlug?: string | null;
+
+  /**
    * Optional tab to open initially.
    */
   defaultTab?: string;
@@ -616,10 +636,11 @@ interface EventAdminNavbarProps {
 
 export default function EventAdminNavbar({
   eventId = DEFAULT_EVENT_ID,
+  eventSlug,
   defaultTab,
   onOpenModal,
 }: EventAdminNavbarProps) {
-  const tabs = buildTabs(eventId);
+  const tabs = buildTabs(eventId, eventSlug);
   const pathname = usePathname();
 
   /**

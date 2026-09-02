@@ -65,14 +65,19 @@ export const PLACEHOLDER_IMAGE = "/images/image-placeholder.png";
  *   - src/app/api/cp/settings/upload      -> public/files/settings/
  *   - src/app/api/members/news-feed/upload -> public/files/feeds/
  *   - src/app/api/members/leadership-board/upload -> public/files/feeds/
- * Those must pass through untouched.
+ *   - src/app/api/members/exhibitors-admin/upload -> public/files/exhibitor/{profile,logo,stand_logo}/
+ * Those must pass through untouched. Without `/files/exhibitor/` here, an image an
+ * organiser had just uploaded through the Edit Trade Stand modal was rewritten to
+ * `/images/external/exhibitor/...` — a mirror path that has no file behind it — so the
+ * public exhibitor directory showed a broken image for exactly the exhibitors that DID
+ * have a logo.
  *
  * Only *bare root-relative* values reach this check. Legacy rows store feed
  * images as ABSOLUTE urls (news_feed.php saved `BASE_URL.'/files/feeds/…'`),
  * which are handled by the absolute-url branch above and still map to the
  * mirror — so listing `/files/feeds/` here does not break legacy assets.
  */
-const LOCAL_FILE_PREFIXES = ["/files/settings/", "/files/feeds/"];
+const LOCAL_FILE_PREFIXES = ["/files/settings/", "/files/feeds/", "/files/exhibitor/"];
 
 /** Anything already living under one of these is a real file in `public/`. */
 const LOCAL_ROOT_PREFIXES = ["/images/", "/_next/", "/assets/", "/fonts/", "/videos/"];

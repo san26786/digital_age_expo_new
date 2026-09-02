@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { STAND_TEMPLATE_SLOT_KEYS } from "@/lib/standTemplateSlots";
 
 export interface ResolvedStandSpot {
   id: number;
@@ -139,7 +140,11 @@ export async function resolveExhibitorStand(exhibitor: any, eventId: number): Pr
   let templateSlots: { key: string; url: string }[] = [];
   try {
     const slotAssets = await prisma.find_event_lobby_layout_type_assets.findMany({
-      where: { exhibition_stand_id: exhibitor.id, event_id: eventId, asset_type: "template_slot" },
+      // Matched on `title`, the slot key — exactly what the editor's GET
+      // (/api/members/stand-assets) matches on. Filtering on `asset_type: "template_slot"` here
+      // instead meant a slot row created before that column was being set was invisible to
+      // visitors while still showing in the designer, so the two views disagreed.
+      where: { exhibition_stand_id: exhibitor.id, event_id: eventId, title: { in: STAND_TEMPLATE_SLOT_KEYS } },
       select: { id: true, title: true },
     });
     if (slotAssets.length) {
@@ -160,6 +165,25 @@ export async function resolveExhibitorStand(exhibitor: any, eventId: number): Pr
   }
 
   return { zoneName, standImage, spots, templateSlots };
+}
+
+/**
+ * Booth lookup by exhibitor id, scoped to the event.
+ *
+ * The legacy booth URL is `/virtual-event/<event slug>?mybooth=1&ex_id=<id>` — it addresses the
+ * exhibitor by id, not by slug. That matters: `find_event_exhibitor.friendly_url` is empty on most
+ * migrated rows, so the slug-based lookup below can only reach a minority of stands, which is why
+ * the lobby's exhibitor list showed "Booth Coming Soon" for almost everyone.
+ */
+export async function getExhibitorStandById(exhibitorId: number, eventId: number) {
+  if (!exhibitorId || !eventId) return null;
+  const exhibitor = await prisma.find_event_exhibitor.findFirst({
+    where: { id: exhibitorId, event_id: eventId },
+  });
+  if (!exhibitor) return null;
+
+  const resolved = await resolveExhibitorStand(exhibitor, eventId);
+  return { exhibitor, ...resolved };
 }
 
 /** Public lookup for the read-only /virtual-directory/[slug] booth viewer. */

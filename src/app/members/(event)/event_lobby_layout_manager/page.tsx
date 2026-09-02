@@ -9,7 +9,6 @@ import { authOptions } from "@/lib/auth/options";
 import { getDomain } from "@/lib/services/domain";
 import { getEventMemberContext } from "@/lib/services/eventAccess";
 import { getEventById } from "@/lib/services/events";
-import { findExhibitorForUser, findExhibitorForListing, findExhibitorById } from "@/lib/services/eventStand";
 import { getLobbies, getPrimaryLobby, type LobbyRow } from "@/lib/services/eventLobby";
 import { getAuditoriumChildLobby } from "@/lib/services/eventLobbyChild";
 import { LobbyManager } from "@/components/dashboard/LobbyManager";
@@ -82,7 +81,7 @@ export default async function EventLobbyLayoutManagerPage({
     );
   }
 
-  const { action, id: lobbyIdParam, ex_id: exIdParam } = resolvedParams;
+  const { action, id: lobbyIdParam } = resolvedParams;
 
   if (action === "change_auditiorium_link") {
     const lobby = await getPrimaryLobby(context);
@@ -102,29 +101,27 @@ export default async function EventLobbyLayoutManagerPage({
   }
 
   if (action === "view_my_booth") {
-    const userId = Number(session.user.id);
-    // Mirrors the legacy branch: an explicit ex_id wins outright; otherwise resolve the
-    // signed-in user's own find_event_exhibitor row for this event.
-    let exhibitor = exIdParam ? await findExhibitorById(Number(exIdParam)) : await findExhibitorForUser(eventId, userId);
-
-    // The synthetic demo organiser (-30, see verifyMemberCredentials) has no real find_users row,
-    // so it can never match a real find_event_exhibitor.user_id. Fall back to this site's own
-    // listing's exhibitor row so the demo login can still demonstrate the real redirect.
-    if (!exhibitor && userId < 0 && domain?.linked_profile_listing_id) {
-      exhibitor = await findExhibitorForListing(eventId, domain.linked_profile_listing_id);
-    }
-
-    // Native booth view (/virtual-directory/[slug]) instead of bouncing out to the legacy
-    // lobby.php floor — this only needs the exhibitor's own friendly_url, not the event's.
-    if (exhibitor?.friendly_url) {
-      redirect(`/virtual-directory/${exhibitor.friendly_url}`);
+    /*
+     * Straight to the public lobby that already exists in this app:
+     *   /virtual-event/<event friendly_url>
+     *
+     * This previously resolved the member's find_event_exhibitor row and redirected to
+     * /virtual-directory/<exhibitor friendly_url>, which is a different route keyed on a
+     * different table — and on the many migrated exhibitor rows whose friendly_url is empty it
+     * fell through to a "your booth has no public link yet" notice instead of going anywhere.
+     * The event's own slug is the one the live site uses and the one the lobby route reads, so
+     * this now behaves exactly like the "view_lobby" branch below.
+     */
+    const event = await getEventById(eventId);
+    if (event?.friendly_url) {
+      redirect(`/virtual-event/${event.friendly_url}`);
     }
 
     return (
       <NoticeCard title="View My Booth" eventId={eventId}>
-        {exhibitor
-          ? "Your exhibitor booth doesn't have its public link (friendly_url) set up yet. Use Configure Lobby below, or contact support to have your booth's public URL configured."
-          : "No exhibitor booth is linked to your account for this event yet. Register as an exhibitor, or use Configure Lobby below to set up the event's booths."}
+        This event doesn&apos;t have its public link (friendly_url) set up yet, so the virtual
+        event page can&apos;t be opened. Use Configure Lobby below, or contact support to have the
+        event&apos;s public URL configured.
       </NoticeCard>
     );
   }

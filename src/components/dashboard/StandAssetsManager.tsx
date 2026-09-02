@@ -7,7 +7,6 @@ import { exhibitorAssetUrl, standTemplateUrl } from "@/lib/assets";
 import { STAND_TEMPLATE_SLOTS } from "@/lib/standTemplateSlots";
 import {
   Store,
-  ExternalLink,
   UploadCloud,
   X,
   FileText,
@@ -15,10 +14,8 @@ import {
   Check,
   AlertTriangle,
   FileDown,
-  Sparkles,
   Link2,
   FolderOpen,
-  ArrowRight,
   Eye,
   Pencil,
   ChevronRight,
@@ -28,13 +25,70 @@ import {
   Share2,
   UserPlus,
   Venus,
+  Image as ImageIcon,
+  Video,
+  CircleDot,
+  Info,
 } from "lucide-react";
 
 import { ModalPortal } from "@/components/ui/ModalPortal";
+import {
+  PANEL,
+  PANEL_FLUSH,
+  PANEL_TOOLBAR,
+  BTN_PRIMARY,
+  BTN_SECONDARY,
+  BTN_ICON,
+  BTN_ICON_DANGER,
+  INPUT_FIELD,
+  INPUT_SEARCH,
+  INPUT_SEARCH_ICON,
+  FORM_LABEL,
+  FORM_HINT,
+  BADGE_SUCCESS,
+  BADGE_WARN,
+  BADGE_NEUTRAL,
+  MODAL_OVERLAY,
+  MODAL_PANEL_WIDE,
+  MODAL_HEADER,
+  MODAL_HEADER_ICON,
+  MODAL_TITLE,
+  MODAL_SUBTITLE,
+  MODAL_CLOSE,
+  MODAL_FOOTER,
+  ALERT_ERROR,
+  ALERT_SUCCESS,
+  TABLE,
+  TABLE_HEAD_ROW,
+  TABLE_TH,
+  TABLE_BODY,
+  TABLE_ROW,
+  TABLE_CELL,
+  TABLE_EMPTY,
+} from "@/components/ui/membersTheme";
+
 /** Generic booth frame shown whenever an exhibitor hasn't uploaded their own stand background —
  * mirrors the fallback used on the public /virtual-directory/[slug] viewer so the editor canvas
  * never renders blank while an organiser is setting a stand up for the first time. */
 const DEFAULT_STAND_TEMPLATE = "/images/stand_img.png";
+
+/**
+ * Legacy manage_stand_assets.tpl painted a YouTube/Vimeo poster frame into a video hotspot rather
+ * than a placeholder box (`https://img.youtube.com/vi/<id>/0.jpg`). Reproduced here for YouTube,
+ * which needs no network call. Vimeo's legacy path hit the oEmbed API server-side, so a video
+ * badge stands in for it instead of introducing a client-side fetch.
+ */
+function youtubePosterUrl(link?: string | null): string | undefined {
+  if (!link) return undefined;
+  const raw = String(link).trim();
+  if (!/youtu\.?be/i.test(raw)) return undefined;
+  const id = raw
+    .replace(/[?#].*$/, "")
+    .split("/")
+    .filter(Boolean)
+    .pop();
+  return id ? `https://img.youtube.com/vi/${id}/0.jpg` : undefined;
+}
 
 interface Exhibitor {
   id: number;
@@ -94,7 +148,7 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
   const [selectedExId, setSelectedExId] = useState<number | null>(
     initialSelectedExId ? Number(initialSelectedExId) : null
   );
-  
+
   // Loaded stand asset details
   const [exhibitor, setExhibitor] = useState<any | null>(null);
   const [lobbyChild, setLobbyChild] = useState<LobbyChild | null>(null);
@@ -106,6 +160,25 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
   const [templateAssets, setTemplateAssets] = useState<Record<string, { id: number; imageUrl: string | null }>>({});
   const [uploadingSlot, setUploadingSlot] = useState<string | null>(null);
   const templateSlotInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  /**
+   * Object URLs for slot images the organiser has just chosen, shown before the upload finishes so
+   * the artwork lands on the stand the instant the file is picked. Replaced by the real URL from
+   * the server response, or dropped if the upload fails. Kept in a ref alongside the state so the
+   * unmount cleanup can revoke them without re-running on every render.
+   */
+  const [slotPreviews, setSlotPreviews] = useState<Record<string, string>>({});
+  const slotPreviewsRef = useRef<Record<string, string>>({});
+
+  useEffect(() => {
+    slotPreviewsRef.current = slotPreviews;
+  }, [slotPreviews]);
+
+  useEffect(
+    () => () => {
+      Object.values(slotPreviewsRef.current).forEach((url) => URL.revokeObjectURL(url));
+    },
+    []
+  );
 
   // UI state
   const [loading, setLoading] = useState(true);
@@ -138,9 +211,17 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
   const [brochureTitle, setBrochureTitle] = useState("");
   const [brochureFiles, setBrochureFiles] = useState<FileList | null>(null);
 
-  // Fetch stand assets data based on selectedExId
-  async function loadData() {
-    setLoading(true);
+  /**
+   * Fetch stand assets data based on selectedExId.
+   *
+   * `background: true` refreshes the data WITHOUT tearing the canvas down behind the full-panel
+   * "Loading stand layout…" spinner. Every mutation used to call this bare, so uploading a banner
+   * blanked the whole designer for the length of a round trip and the new artwork appeared to take
+   * seconds to arrive. The blocking spinner is now only for the first load and for switching
+   * exhibitor, where there genuinely is nothing to show yet.
+   */
+  async function loadData(options?: { background?: boolean }) {
+    if (!options?.background) setLoading(true);
     setErrorMessage(null);
     try {
       const url = `/api/members/stand-assets?event_id=${eventId}${
@@ -273,7 +354,7 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
       setSuccessMessage(`Asset "${activeSpot.title || "Spot"}" updated successfully.`);
       setSelectedFiles(null);
       setActiveSpot(null);
-      loadData();
+      loadData({ background: true });
     } catch (err: any) {
       setErrorMessage(
         isAxiosError(err) && err.response?.data?.error
@@ -295,7 +376,7 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
         `/api/members/stand-assets?action=remove_gallery_item&ex_id=${selectedExId}&asset_id=${assetId}&gallery_id=${galleryId}`
       );
       setSuccessMessage("Upload removed successfully.");
-      loadData();
+      loadData({ background: true });
       if (activeSpot) {
         setActiveSpot((prev) => {
           if (!prev) return null;
@@ -336,8 +417,7 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
       setSuccessMessage("Brochure uploaded successfully!");
       setBrochureTitle("");
       setBrochureFiles(null);
-      setIsBrochureModalOpen(false);
-      loadData();
+      loadData({ background: true });
     } catch (err: any) {
       setErrorMessage("Failed to upload brochure document.");
     } finally {
@@ -355,7 +435,7 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
         `/api/members/stand-assets?action=delete_brochure&ex_id=${selectedExId}&id=${brochureId}`
       );
       setSuccessMessage("Brochure deleted successfully.");
-      loadData();
+      loadData({ background: true });
     } catch (err) {
       setErrorMessage("Could not delete the brochure.");
     }
@@ -375,7 +455,7 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
       setSuccessMessage(
         publish ? "Your exhibition stand is now active/published!" : "Your exhibition stand is unpublished."
       );
-      loadData();
+      loadData({ background: true });
     } catch (err) {
       setErrorMessage("Could not update stand publishing status.");
     }
@@ -391,6 +471,15 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
       return;
     }
 
+    // Paint it immediately from the local file. The upload still has to happen, but the organiser
+    // sees the banner on the stand straight away instead of watching a spinner.
+    const previewUrl = URL.createObjectURL(file);
+    setSlotPreviews((prev) => {
+      const stale = prev[slotKey];
+      if (stale) URL.revokeObjectURL(stale);
+      return { ...prev, [slotKey]: previewUrl };
+    });
+
     setUploadingSlot(slotKey);
     setErrorMessage(null);
     setSuccessMessage(null);
@@ -403,12 +492,39 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
     formData.append("files", file);
 
     try {
-      await axios.post("/api/members/stand-assets", formData, {
+      const res = await axios.post("/api/members/stand-assets", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+
+      // The route answers with the stored filename and asset id, which is everything this slot
+      // needs — so there is no refetch at all on the happy path, and nothing to wait for.
+      const { assetId, imageUrl } = res.data ?? {};
+      if (imageUrl) {
+        setTemplateAssets((prev) => ({
+          ...prev,
+          [slotKey]: { id: Number(assetId) || prev[slotKey]?.id || 0, imageUrl: String(imageUrl) },
+        }));
+        setSlotPreviews((prev) => {
+          const done = prev[slotKey];
+          if (done) URL.revokeObjectURL(done);
+          const next = { ...prev };
+          delete next[slotKey];
+          return next;
+        });
+      } else {
+        // Older/unexpected response shape — fall back to a silent refresh rather than guessing.
+        loadData({ background: true });
+      }
       setSuccessMessage("Banner image updated.");
-      loadData();
     } catch (err: any) {
+      // Drop the optimistic preview so the stand never shows artwork that was not saved.
+      setSlotPreviews((prev) => {
+        const failed = prev[slotKey];
+        if (failed) URL.revokeObjectURL(failed);
+        const next = { ...prev };
+        delete next[slotKey];
+        return next;
+      });
       setErrorMessage(
         isAxiosError(err) && err.response?.data?.error
           ? String(err.response.data.error)
@@ -454,6 +570,12 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
     });
   }, [spots]);
 
+  /** How many of the six editable slots already carry artwork — the "x of 6 placed" readout. */
+  const filledSlotCount = useMemo(
+    () => STAND_TEMPLATE_SLOTS.filter((slot) => templateAssets[slot.key]?.imageUrl).length,
+    [templateAssets]
+  );
+
   // Determine background stand image url path
   const resolvedStandImage = useMemo(() => {
     if (!standImage) return "";
@@ -461,608 +583,814 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
     return standTemplateUrl(standImage) ?? "";
   }, [standImage]);
 
+  const isPublished = exhibitor?.status === "active";
+
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-2xl border border-white/10 bg-widget-surface p-12 text-zinc-500">
-        <div className="animate-spin rounded-full h-8 w-8 border-4 border-sky-500 border-t-transparent mb-3" />
-        <p className="text-sm font-medium">Loading layout template spots...</p>
+      <div className={`${PANEL} flex flex-col items-center justify-center py-16 text-zinc-400`}>
+        <div className="mb-4 h-9 w-9 animate-spin rounded-full border-4 border-brand-pink border-t-transparent" />
+        <p className="text-xs font-bold uppercase tracking-wider">Loading stand layout…</p>
       </div>
     );
   }
 
   if (!loading && exhibitors.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/15 bg-widget-surface p-16 text-center">
-        <Store className="h-12 w-12 text-zinc-400" />
-        <p className="text-base font-bold text-zinc-700">No exhibitors found for this event.</p>
-        <p className="max-w-md text-sm text-zinc-500">
-          This event (#{eventId}) has no <code className="rounded bg-black/5 px-1 py-0.5">find_event_exhibitor</code> rows
-          in the connected database yet, so there's no stand to configure. Register an exhibitor for this event first,
-          or double-check the database connection.
+      <div className={`${PANEL} flex flex-col items-center justify-center gap-3 py-16 text-center`}>
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-zinc-400">
+          <Store className="h-7 w-7" />
+        </div>
+        <p className="text-base font-black uppercase tracking-tight text-white">No exhibitors for this event</p>
+        <p className="max-w-md text-xs font-medium text-zinc-400">
+          Event #{eventId} has no{" "}
+          <code className="rounded bg-white/10 px-1 py-0.5 text-[11px] text-fuchsia-300">find_event_exhibitor</code>{" "}
+          rows yet, so there is no stand to configure. Register an exhibitor for this event first.
         </p>
       </div>
     );
   }
 
-  return (
-    <div
-      className="relative w-screen h-[70vh] min-h-[560px] max-h-[860px] bg-widget-surface flex flex-col font-sans shadow-2xl"
-      style={{ marginLeft: "calc(50% - 50vw)", marginRight: "calc(50% - 50vw)" }}
-    >
+  /* ------------------------------------------------------------------ sidebar */
+  /** Right-hand action rail — the same six links the legacy `.right-view-booth` column carried,
+   *  restyled onto the Members glass surface and laid out in-flow instead of `position: fixed`. */
+  const sidebarLink =
+    "flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-bold uppercase tracking-wider text-zinc-200 transition hover:border-brand-pink/50 hover:bg-white/10 hover:text-white";
 
-      {/* Top Left Exhibitor Selector */}
-      <div className="absolute top-4 left-4 z-50">
-        {userRole === "organiser" || exhibitors.length > 1 ? (
-          <div className="relative" ref={switcherRef}>
-            <button
-              type="button"
-              onClick={() => setSwitcherOpen((v) => !v)}
-              className="flex items-center gap-2 bg-white text-sky-900 border border-sky-600 rounded px-4 py-2 text-sm font-bold uppercase tracking-wide shadow focus:outline-none min-w-[240px] max-w-[360px]"
-            >
+  return (
+    <div className="space-y-6">
+      {/* ------------------------------------------------------------- alerts */}
+      {errorMessage && (
+        <div className={`${ALERT_ERROR} flex items-center gap-2`}>
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          <span className="flex-1">{errorMessage}</span>
+          <button type="button" onClick={() => setErrorMessage(null)} aria-label="Dismiss">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+      {successMessage && (
+        <div className={`${ALERT_SUCCESS} flex items-center gap-2`}>
+          <Check className="h-4 w-4 shrink-0" />
+          <span className="flex-1">{successMessage}</span>
+          <button type="button" onClick={() => setSuccessMessage(null)} aria-label="Dismiss">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
+      {/* ------------------------------------------------------------ toolbar */}
+      <div className={PANEL_TOOLBAR}>
+        <div className="w-full lg:max-w-md">
+          <span className={FORM_LABEL}>Exhibitor stand</span>
+          {userRole === "organiser" || exhibitors.length > 1 ? (
+            <div className="relative" ref={switcherRef}>
+              <button
+                type="button"
+                onClick={() => setSwitcherOpen((v) => !v)}
+                className="flex w-full items-center gap-2 rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-xs font-bold text-white transition hover:border-brand-pink/50"
+              >
+                <Store className="h-4 w-4 shrink-0 text-brand-pink" />
+                <span className="truncate text-left">
+                  {selectedExhibitorOption
+                    ? `${selectedExhibitorOption.business || "Unnamed Business"} (${
+                        selectedExhibitorOption.name || "Exhibitor"
+                      })`
+                    : "Select exhibitor"}
+                </span>
+                <ChevronDown
+                  className={`ml-auto h-4 w-4 shrink-0 text-zinc-400 transition-transform ${
+                    switcherOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {switcherOpen && (
+                <div className="absolute left-0 top-full z-50 mt-2 w-full overflow-hidden rounded-xl border border-white/10 bg-[#140f22] shadow-2xl">
+                  <div className="relative border-b border-white/10 p-3">
+                    <Search className={INPUT_SEARCH_ICON} />
+                    <input
+                      autoFocus
+                      value={switcherQuery}
+                      onChange={(e) => setSwitcherQuery(e.target.value)}
+                      placeholder="Search exhibitors…"
+                      className={INPUT_SEARCH}
+                    />
+                  </div>
+                  <div className="max-h-72 overflow-y-auto overscroll-contain">
+                    {filteredExhibitors.length === 0 ? (
+                      <p className="px-4 py-8 text-center text-xs font-medium text-zinc-500">
+                        No exhibitors match.
+                      </p>
+                    ) : (
+                      filteredExhibitors.map((ex) => {
+                        const isSelected = ex.id === selectedExId;
+                        const isInactive = ex.status && ex.status !== "active";
+                        return (
+                          <button
+                            key={ex.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedExId(ex.id);
+                              setSwitcherOpen(false);
+                              setSwitcherQuery("");
+                            }}
+                            className={`flex w-full items-center gap-2 border-l-4 px-4 py-2.5 text-left text-xs transition ${
+                              isSelected
+                                ? "border-brand-pink bg-brand-pink/10 font-black text-white"
+                                : "border-transparent font-semibold hover:bg-white/5"
+                            } ${isInactive ? "text-zinc-500" : "text-zinc-200"}`}
+                          >
+                            <span className="truncate">
+                              {ex.business || "Unnamed Business"} ({ex.name || "Exhibitor"})
+                            </span>
+                            {isInactive && <span className={`${BADGE_NEUTRAL} ml-auto shrink-0`}>Pending</span>}
+                          </button>
+                        );
+                      })
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-xs font-bold text-white">
+              <Store className="h-4 w-4 shrink-0 text-brand-pink" />
               <span className="truncate">
                 {selectedExhibitorOption
-                  ? `${selectedExhibitorOption.business || "Unnamed Business"} (${selectedExhibitorOption.name || "Exhibitor"})`
-                  : "Select exhibitor"}
+                  ? `${selectedExhibitorOption.business || "Unnamed Business"} (${
+                      selectedExhibitorOption.name || "Exhibitor"
+                    })`
+                  : "My Stand"}
               </span>
-              <ChevronDown className={`h-4 w-4 ml-auto shrink-0 text-sky-700 transition-transform ${switcherOpen ? "rotate-180" : ""}`} />
-            </button>
+            </div>
+          )}
+        </div>
 
-            {switcherOpen && (
-              <div className="absolute left-0 top-full mt-1 w-[340px] max-w-[80vw] bg-white border border-gray-200 rounded shadow-2xl overflow-hidden">
-                <div className="flex items-center gap-2 border-b border-gray-100 px-3 py-2">
-                  <Search className="h-4 w-4 text-gray-400 shrink-0" />
-                  <input
-                    autoFocus
-                    value={switcherQuery}
-                    onChange={(e) => setSwitcherQuery(e.target.value)}
-                    placeholder="Search exhibitors..."
-                    className="w-full text-sm text-gray-800 outline-none"
-                  />
-                </div>
-                <div className="max-h-80 overflow-y-auto">
-                  {filteredExhibitors.length === 0 ? (
-                    <p className="px-4 py-6 text-center text-xs text-gray-400 font-medium">No exhibitors match.</p>
-                  ) : (
-                    filteredExhibitors.map((ex) => {
-                      const isSelected = ex.id === selectedExId;
-                      const isInactive = ex.status && ex.status !== "active";
-                      return (
-                        <button
-                          key={ex.id}
-                          type="button"
-                          onClick={() => {
-                            setSelectedExId(ex.id);
-                            setSwitcherOpen(false);
-                            setSwitcherQuery("");
-                          }}
-                          className={`w-full text-left px-4 py-2 text-sm border-l-4 transition ${
-                            isSelected
-                              ? "border-sky-500 bg-sky-50 text-sky-800 font-bold"
-                              : "border-transparent hover:bg-gray-50"
-                          } ${isInactive ? "text-gray-400" : "text-gray-800"}`}
-                        >
-                          {ex.business || "Unnamed Business"} ({ex.name || "Exhibitor"})
-                        </button>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="bg-white text-sky-900 border border-sky-600 rounded px-4 py-2 text-sm font-bold uppercase tracking-wide shadow">
-            {selectedExhibitorOption
-              ? `${selectedExhibitorOption.business || "Unnamed Business"} (${selectedExhibitorOption.name || "Exhibitor"})`
-              : "My Stand"}
-          </div>
-        )}
+        <div className="flex flex-wrap items-center gap-3">
+          <span className={isPublished ? BADGE_SUCCESS : BADGE_WARN}>
+            {isPublished ? "Published" : "Unpublished"}
+          </span>
+          <button type="button" onClick={() => setIsBrochureModalOpen(true)} className={BTN_SECONDARY}>
+            <FolderOpen className="h-4 w-4" /> Brochures ({brochures.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => handleToggleStatus(!isPublished)}
+            className={BTN_PRIMARY}
+            disabled={!selectedExId}
+          >
+            <UploadCloud className="h-4 w-4" /> {isPublished ? "Unpublish Stand" : "Publish Stand"}
+          </button>
+        </div>
       </div>
 
-      {/* Main Canvas Area */}
-      <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
-        <div className="relative w-full h-full max-w-full" style={{ aspectRatio: "16/9" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={resolvedStandImage && !standImageFailed ? resolvedStandImage : DEFAULT_STAND_TEMPLATE}
-            alt="Stand Background Template"
-            className="absolute inset-0 w-full h-full object-cover"
-            onError={() => setStandImageFailed(true)}
-          />
+      {/* ------------------------------------------------- canvas + action rail */}
+      <div className={`grid grid-cols-1 gap-6 ${menuVisible ? "xl:grid-cols-[minmax(0,1fr)_19rem]" : ""}`}>
+        {/* ---------------------------------------------------------- canvas */}
+        <div className={PANEL_FLUSH}>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-6 py-4">
+            <div>
+              <h2 className="text-sm font-black uppercase tracking-wider text-white">Stand Designer</h2>
+              <p className="mt-0.5 text-[11px] font-medium text-zinc-400">
+                Six upload areas: header banner, two hanging banners, two pull-up banners and the
+                tabletop panel. Hover one and click the upload icon to add or change its artwork.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={BADGE_NEUTRAL}>
+                {filledSlotCount} / {STAND_TEMPLATE_SLOTS.length} placed
+              </span>
+              {!menuVisible && (
+                <button
+                  type="button"
+                  onClick={() => setMenuVisible(true)}
+                  className={BTN_ICON}
+                  title="Show menu"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          </div>
 
-          {/* Fixed template-slot browse/upload points — only meaningful while the generic fallback
-              background is what's actually showing (no real seeded stand template for this
-              exhibitor yet). Positions are hand-measured against stand_img.png; see
-              STAND_TEMPLATE_SLOTS. */}
-          {(!resolvedStandImage || standImageFailed) &&
-            STAND_TEMPLATE_SLOTS.map((slot) => {
-              const uploaded = templateAssets[slot.key];
-              const slotImageUrl = uploaded?.imageUrl ? exhibitorAssetUrl(uploaded.imageUrl) : undefined;
-              const isUploading = uploadingSlot === slot.key;
+          <div className="relative w-full overflow-hidden bg-black/60" style={{ aspectRatio: "16/9" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={resolvedStandImage && !standImageFailed ? resolvedStandImage : DEFAULT_STAND_TEMPLATE}
+              alt="Stand Background Template"
+              className="absolute inset-0 h-full w-full object-cover"
+              onError={() => setStandImageFailed(true)}
+            />
+
+            {/* The SIX browse/upload areas — the only editable points on the stand: header banner,
+                the two hanging top banners, the two pull-up banners, and the tabletop panel.
+                Positions come from STAND_TEMPLATE_SLOTS, whose percentage boxes line up with the
+                seeded stand templates as well as the generic fallback, so they are drawn on every
+                background rather than only on stand_img.png. */}
+            {STAND_TEMPLATE_SLOTS.map((slot) => {
+                const uploaded = templateAssets[slot.key];
+                // The local preview wins while an upload is in flight; after it lands the two are
+                // the same picture anyway, so the swap is invisible.
+                const slotImageUrl =
+                  slotPreviews[slot.key] ||
+                  (uploaded?.imageUrl ? exhibitorAssetUrl(uploaded.imageUrl) : undefined);
+                const isUploading = uploadingSlot === slot.key;
+
+                return (
+                  <div
+                    key={slot.key}
+                    className="group absolute rounded-sm border-2 border-dashed border-brand-pink/50 bg-brand-pink/5 transition hover:border-brand-pink hover:bg-brand-pink/15"
+                    style={{
+                      left: `${slot.left}%`,
+                      top: `${slot.top}%`,
+                      width: `${slot.width}%`,
+                      height: `${slot.height}%`,
+                    }}
+                    title={`${slot.label} — ${slot.helpText}`}
+                  >
+                    {slotImageUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={slotImageUrl}
+                        alt={slot.label}
+                        className="absolute inset-0 h-full w-full object-cover"
+                        onError={(e) => {
+                          (e.target as HTMLElement).style.display = "none";
+                        }}
+                      />
+                    )}
+
+                    {!slotImageUrl && (
+                      <span className="pointer-events-none absolute inset-0 flex items-center justify-center px-1 text-center text-[9px] font-black uppercase leading-tight tracking-wider text-white/70 opacity-0 transition group-hover:opacity-100">
+                        {slot.label}
+                      </span>
+                    )}
+
+                    <input
+                      ref={(el) => {
+                        templateSlotInputRefs.current[slot.key] = el;
+                      }}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        e.target.value = "";
+                        handleUploadTemplateSlot(slot.key, file);
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => templateSlotInputRefs.current[slot.key]?.click()}
+                      disabled={isUploading || !selectedExId}
+                      className="absolute -right-3 -top-3 z-20 flex h-7 w-7 items-center justify-center rounded-lg border border-white/20 bg-[#140f22] text-zinc-300 opacity-0 shadow-lg transition hover:border-brand-pink hover:text-brand-pink group-hover:opacity-100 disabled:opacity-40"
+                      title={`Browse & upload — ${slot.label} (${slot.helpText})`}
+                    >
+                      {isUploading ? (
+                        <span className="block h-3.5 w-3.5 animate-spin rounded-full border-2 border-brand-pink border-t-transparent" />
+                      ) : (
+                        <UploadCloud className="h-3.5 w-3.5" />
+                      )}
+                    </button>
+                </div>
+              );
+            })}
+
+            {/* Existing hotspot artwork, READ-ONLY.
+                These are the DB-driven find_event_lobby_spots overlays. They still paint whatever
+                the exhibitor has already saved (a top banner, a video poster) so nothing that is
+                live on the public booth disappears from the editor — but they no longer carry a
+                dashed box or a pencil. Editing happens only at the six named slots above; drawing
+                an upload target on all thirteen hotspots, icon tiles and screens included, is what
+                made the canvas unreadable. */}
+            {parsedSpots.map((spot) => {
+              const { x, y, width, height } = spot.coordinates;
+              const hasUpload = spot.gallery && spot.gallery.length > 0;
+              const isBrochure =
+                spot.spot_type === "layout" || spot.title?.toLowerCase().includes("brochure");
+              const assetType = (spot.asset?.asset_type || "").toLowerCase();
+              const isVideo = assetType === "video";
+              const poster = isVideo
+                ? youtubePosterUrl(spot.asset?.external_link || spot.asset?.asset_url)
+                : undefined;
+
+              // Nothing to paint — an empty hotspot is now invisible rather than a marker.
+              if (!(hasUpload && !isBrochure) && !poster) return null;
 
               return (
                 <div
-                  key={slot.key}
-                  className="absolute flex items-center justify-center border-2 border-dashed border-sky-400/60 bg-black/5 transition hover:border-sky-500 hover:bg-black/10 group"
+                  key={spot.id}
+                  className="pointer-events-none absolute"
                   style={{
-                    left: `${slot.left}%`,
-                    top: `${slot.top}%`,
-                    width: `${slot.width}%`,
-                    height: `${slot.height}%`,
+                    left: `${x}%`,
+                    top: `${y}%`,
+                    width: `${width ? width + "%" : "auto"}`,
+                    height: `${height ? height + "%" : "auto"}`,
+                    minWidth: width ? "auto" : "100px",
+                    minHeight: height ? "auto" : "40px",
                   }}
-                  title={`${slot.label} — ${slot.helpText}`}
+                  title={spot.title || undefined}
                 >
-                  {slotImageUrl && (
+                  {hasUpload && !isBrochure && (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
-                      src={slotImageUrl}
-                      alt={slot.label}
-                      className="absolute inset-0 h-full w-full object-cover"
+                      src={exhibitorAssetUrl(spot.gallery[0].asset_url)}
+                      className="absolute inset-0 h-full w-full object-contain"
+                      alt={spot.title || "Asset"}
                       onError={(e) => {
                         (e.target as HTMLElement).style.display = "none";
                       }}
                     />
                   )}
 
-                  <input
-                    ref={(el) => {
-                      templateSlotInputRefs.current[slot.key] = el;
-                    }}
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      e.target.value = "";
-                      handleUploadTemplateSlot(slot.key, file);
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => templateSlotInputRefs.current[slot.key]?.click()}
-                    disabled={isUploading || !selectedExId}
-                    className="absolute -top-3 -right-3 z-20 rounded border border-gray-300 bg-white p-1.5 text-gray-500 opacity-0 shadow-md transition hover:bg-sky-50 hover:text-sky-600 group-hover:opacity-100 disabled:opacity-50"
-                    title={`Browse & upload — ${slot.label} (${slot.helpText})`}
-                  >
-                    {isUploading ? (
-                      <span className="block h-4 w-4 animate-spin rounded-full border-2 border-sky-500 border-t-transparent" />
-                    ) : (
-                      <UploadCloud className="w-4 h-4" />
-                    )}
-                  </button>
+                  {/* Legacy parity: a video hotspot renders its YouTube poster frame. */}
+                  {poster && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={poster}
+                      alt={spot.title || "Video"}
+                      className="absolute inset-0 h-full w-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = "none";
+                      }}
+                    />
+                  )}
                 </div>
               );
             })}
-
-          {/* Overlaid Spots */}
-          {parsedSpots.map((spot) => {
-            const { x, y, width, height } = spot.coordinates;
-            const hasUpload = spot.gallery && spot.gallery.length > 0;
-            const isBrochure = spot.spot_type === 'layout' || spot.title?.toLowerCase().includes("brochure");
-
-            return (
-              <div
-                key={spot.id}
-                className="absolute flex items-center justify-center border-2 border-dashed border-sky-400/50 hover:border-sky-500 bg-black/5 hover:bg-black/10 transition group"
-                style={{
-                  left: `${x}%`,
-                  top: `${y}%`,
-                  width: `${width ? width + '%' : 'auto'}`,
-                  height: `${height ? height + '%' : 'auto'}`,
-                  minWidth: width ? 'auto' : '100px',
-                  minHeight: height ? 'auto' : '40px',
-                }}
-              >
-                {/* Spot Asset Display */}
-                {hasUpload && !isBrochure && (
-                  <img
-                    src={exhibitorAssetUrl(spot.gallery[0].asset_url)}
-                    className="absolute inset-0 w-full h-full object-contain"
-                    alt={spot.title || "Asset"}
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = "none";
-                    }}
-                  />
-                )}
-                {spot.asset?.asset_type === "VIDEO" && spot.asset?.external_link && (
-                  <div className="absolute inset-0 bg-black/80 flex items-center justify-center text-white">
-                    <span className="text-xs">Video Spot</span>
-                  </div>
-                )}
-
-                {/* Edit Pencil Icon (Top Right) */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (isBrochure) {
-                       setIsBrochureModalOpen(true);
-                    } else {
-                       setActiveSpot(spot);
-                       setEditLink(spot.asset?.asset_url || "");
-                    }
-                  }}
-                  className="absolute -top-3 -right-3 bg-white border border-gray-300 rounded shadow-md p-1.5 text-gray-500 hover:text-sky-600 hover:bg-sky-50 transition z-20 opacity-0 group-hover:opacity-100"
-                  title={`Edit ${spot.title}`}
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Right Sidebar Menu — bounded to this stand canvas section only (an absolute, non-scrolling
-          spacer spanning the canvas's full height) with a sticky inner panel, so the menu tracks
-          the page as you scroll through the canvas but scrolls away normally above/below it —
-          it never floats above the site header or lingers once you've scrolled past the stand. */}
-      {menuVisible && (
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-40 w-64">
-          <div className="pointer-events-auto sticky top-24 flex max-h-[calc(100vh-7rem)] w-64 flex-col justify-start gap-4 overflow-y-auto pr-4 pt-4">
-          {/* Top Info Box */}
-          <div className="bg-widget-primary text-white p-3 rounded shadow-md border-b-4 border-sky-700">
-            <h4 className="text-[13px] font-bold tracking-wide">
-              {zoneName || "Marketing Zone 1"}
-              <br />
-              Stand no. - {exhibitor?.stand_number || "0"}
-            </h4>
-            <button
-              onClick={() => setMenuVisible(false)}
-              className="mt-2 text-xs font-semibold text-white/90 hover:text-white flex items-center gap-1"
-            >
-              <ChevronRight className="w-4 h-4" /> Hide Menu
-            </button>
           </div>
 
-          {/* Action Buttons */}
-          <button
-            type="button"
-            onClick={() => setShowBoothPreview(true)}
-            className="flex items-center gap-3 bg-widget-primary hover:bg-widget-primary-hover text-white p-3 rounded shadow-md text-[13px] font-bold border-b-4 border-sky-700 transition"
-          >
-            <Eye className="w-5 h-5 opacity-90" /> View My Booth
-          </button>
-
-          <a
-            href={`/members/view_exhibitor_information${selectedExId ? `?ex_id=${selectedExId}` : ""}`}
-            className="flex items-center gap-3 bg-widget-primary hover:bg-widget-primary-hover text-white p-3 rounded shadow-md text-[13px] font-bold border-b-4 border-sky-700 transition"
-          >
-            <Venus className="w-5 h-5 opacity-90" /> Exhibitor Full Details
-          </a>
-
-          <a
-            href={`/dashboard/my-event/team-members${eventId ? `?event_id=${eventId}` : ""}`}
-            className="flex items-center gap-3 bg-widget-primary hover:bg-widget-primary-hover text-white p-3 rounded shadow-md text-[13px] font-bold border-b-4 border-sky-700 transition"
-          >
-            <UserPlus className="w-5 h-5 opacity-90" /> Manage My Team
-          </a>
-
-          <div className="relative" ref={shareMenuRef}>
-            <button
-              type="button"
-              onClick={() => setShareMenuOpen((v) => !v)}
-              className="w-full flex text-left items-center gap-3 bg-widget-primary hover:bg-widget-primary-hover text-white p-3 rounded shadow-md text-[13px] font-bold border-b-4 border-sky-700 transition"
-            >
-              <Share2 className="w-5 h-5 opacity-90" /> Share My Booth via Social Media
-            </button>
-            {shareMenuOpen && (
-              <div className="absolute right-0 top-full mt-1 w-full bg-white rounded shadow-2xl overflow-hidden z-50">
-                {socialShareLinks.map((s) => (
-                  <a
-                    key={s.label}
-                    href={s.href}
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={() => setShareMenuOpen(false)}
-                    className="block px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-sky-50 hover:text-sky-700 transition"
-                  >
-                    {s.label}
-                  </a>
-                ))}
-              </div>
+          {/* Legend — names the six areas so the dashed boxes need no tooltip hunt. */}
+          <div className="flex flex-wrap items-center gap-4 border-t border-white/10 px-6 py-3 text-[11px] font-semibold text-zinc-400">
+            <span className="flex items-center gap-1.5">
+              <span className="h-3 w-3 rounded-sm border-2 border-dashed border-brand-pink/60" /> Upload area
+            </span>
+            <span className="flex items-center gap-1.5">
+              <ImageIcon className="h-3.5 w-3.5 text-brand-pink" /> Header, hanging (x2), pull-up (x2), tabletop
+            </span>
+            {lobbyChild?.title && (
+              <span className="ml-auto flex items-center gap-1.5">
+                <Info className="h-3.5 w-3.5" /> Template: {lobbyChild.title}
+              </span>
             )}
           </div>
-
-          <button
-            type="button"
-            onClick={handleCopyBoothLink}
-            className={`flex items-center gap-3 text-white p-3 rounded shadow-md text-[13px] font-bold border-b-4 transition ${
-              shareCopied ? "bg-emerald-600 border-emerald-800" : "bg-widget-primary hover:bg-widget-primary-hover border-sky-700"
-            }`}
-          >
-            {shareCopied ? <Check className="w-5 h-5 opacity-90" /> : <Link2 className="w-5 h-5 opacity-90" />}
-            {shareCopied ? "Link Copied!" : "Share My Booth Link"}
-          </button>
-
-          <button
-            onClick={() => handleToggleStatus(exhibitor?.status !== "active")}
-            className={`flex items-center gap-3 text-white p-3 rounded shadow-md text-[13px] font-bold border-b-4 transition ${
-              exhibitor?.status === "active" 
-                ? "bg-widget-warning hover:bg-widget-warning-hover border-widget-warning-border" 
-                : "bg-emerald-600 hover:bg-emerald-700 border-emerald-800"
-            }`}
-          >
-            <UploadCloud className="w-5 h-5 opacity-90" />
-            {exhibitor?.status === "active" ? "Unpublish Stand" : "Publish Stand"}
-          </button>
-          </div>
         </div>
-      )}
 
-      {/* Show Menu Button — same bounded-sticky treatment as the menu itself */}
-      {!menuVisible && (
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-40 w-10">
-          <button
-            onClick={() => setMenuVisible(true)}
-            className="pointer-events-auto sticky top-24 bg-widget-primary hover:bg-widget-primary-hover text-white p-2 rounded-l shadow-md transition"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-        </div>
-      )}
+        {/* ------------------------------------------------------ action rail */}
+        {menuVisible && (
+          <aside className="space-y-3">
+            <div className="glass-panel rounded-2xl border border-white/10 p-5 shadow-2xl">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-wider text-fuchsia-300">Zone</p>
+                  <p className="mt-1 text-sm font-black uppercase tracking-tight text-white">
+                    {zoneName || "Not assigned"}
+                  </p>
+                  <p className="mt-2 text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+                    Stand no. — {exhibitor?.stand_number || "0"}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setMenuVisible(false)}
+                  className={BTN_ICON}
+                  title="Hide menu"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
 
-      {/* Error / Success Toasts Overlay */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-2">
-        {errorMessage && (
-          <div className="flex items-center gap-2 bg-rose-600 text-white px-4 py-3 rounded shadow-lg text-sm font-bold">
-            <AlertTriangle className="w-5 h-5" /> {errorMessage}
-            <button onClick={() => setErrorMessage(null)} className="ml-2"><X className="w-4 h-4"/></button>
-          </div>
-        )}
-        {successMessage && (
-          <div className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-3 rounded shadow-lg text-sm font-bold">
-            <Check className="w-5 h-5" /> {successMessage}
-            <button onClick={() => setSuccessMessage(null)} className="ml-2"><X className="w-4 h-4"/></button>
-          </div>
+            <button type="button" onClick={() => setShowBoothPreview(true)} className={`${sidebarLink} w-full`}>
+              <Eye className="h-4 w-4 shrink-0 text-brand-pink" /> View My Booth
+            </button>
+
+            {/* Legacy parity: `view_exhibitor?action=edit&from_view_booth=1&id=<ex_id>&event_id=<id>`.
+                The Next page reads `ex_id` and opens the Edit Trade Stand modal on that row. */}
+            <a
+              href={`/members/view_exhibitor?event_id=${eventId}${selectedExId ? `&ex_id=${selectedExId}` : ""}`}
+              className={sidebarLink}
+            >
+              <Venus className="h-4 w-4 shrink-0 text-brand-pink" /> Exhibitor Full Details
+            </a>
+
+            <a
+              href={`/dashboard/my-event/team-members${eventId ? `?event_id=${eventId}` : ""}`}
+              className={sidebarLink}
+            >
+              <UserPlus className="h-4 w-4 shrink-0 text-brand-pink" /> Manage My Team
+            </a>
+
+            <div className="relative" ref={shareMenuRef}>
+              <button
+                type="button"
+                onClick={() => setShareMenuOpen((v) => !v)}
+                className={`${sidebarLink} w-full text-left`}
+              >
+                <Share2 className="h-4 w-4 shrink-0 text-brand-pink" /> Share via Social Media
+              </button>
+              {shareMenuOpen && (
+                <div className="absolute right-0 top-full z-50 mt-1 w-full overflow-hidden rounded-xl border border-white/10 bg-[#140f22] shadow-2xl">
+                  {socialShareLinks.map((s) => (
+                    <a
+                      key={s.label}
+                      href={s.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={() => setShareMenuOpen(false)}
+                      className="block px-4 py-2.5 text-xs font-bold text-zinc-200 transition hover:bg-white/5 hover:text-brand-pink"
+                    >
+                      {s.label}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={handleCopyBoothLink}
+              className={
+                shareCopied
+                  ? "flex w-full items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/20 px-4 py-3 text-xs font-bold uppercase tracking-wider text-emerald-300 transition"
+                  : `${sidebarLink} w-full`
+              }
+            >
+              {shareCopied ? (
+                <Check className="h-4 w-4 shrink-0" />
+              ) : (
+                <Link2 className="h-4 w-4 shrink-0 text-brand-pink" />
+              )}
+              {shareCopied ? "Link Copied!" : "Share My Booth Link"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => handleToggleStatus(!isPublished)}
+              className={
+                isPublished
+                  ? "flex w-full items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/20 px-4 py-3 text-xs font-bold uppercase tracking-wider text-amber-300 transition hover:bg-amber-500 hover:text-white"
+                  : "flex w-full items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/20 px-4 py-3 text-xs font-bold uppercase tracking-wider text-emerald-300 transition hover:bg-emerald-500 hover:text-white"
+              }
+            >
+              <UploadCloud className="h-4 w-4 shrink-0" />
+              {isPublished ? "Unpublish Stand" : "Publish Stand"}
+            </button>
+
+            {/* Brochures at a glance — the legacy sidebar had no counterpart, but the brochure
+                modal is otherwise the only place these are visible. */}
+            <div className="glass-panel rounded-2xl border border-white/10 p-5 shadow-2xl">
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] font-black uppercase tracking-wider text-fuchsia-300">Brochures</p>
+                <button
+                  type="button"
+                  onClick={() => setIsBrochureModalOpen(true)}
+                  className="text-[10px] font-black uppercase tracking-wider text-brand-pink hover:underline"
+                >
+                  Manage
+                </button>
+              </div>
+              {brochures.length === 0 ? (
+                <p className="mt-3 text-[11px] font-medium text-zinc-500">No documents uploaded yet.</p>
+              ) : (
+                <ul className="mt-3 space-y-2">
+                  {brochures.slice(0, 4).map((bro) => (
+                    <li key={bro.id} className="flex items-center gap-2 text-[11px] font-semibold text-zinc-300">
+                      <FileText className="h-3.5 w-3.5 shrink-0 text-brand-pink" />
+                      <span className="truncate">{bro.title}</span>
+                    </li>
+                  ))}
+                  {brochures.length > 4 && (
+                    <li className="text-[11px] font-medium text-zinc-500">
+                      +{brochures.length - 4} more
+                    </li>
+                  )}
+                </ul>
+              )}
+            </div>
+          </aside>
         )}
       </div>
 
-      {/* Asset Editor Modal */}
+      {/* -------------------------------------------------- Asset Editor Modal */}
       {activeSpot && (
         <ModalPortal>
-      <div className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto overscroll-contain bg-black/60 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-full">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
-              <div>
-                <h3 className="text-lg font-black text-gray-800">Edit Asset</h3>
-                <p className="text-xs text-gray-500 font-medium">Spot: {activeSpot.title}</p>
-              </div>
-              <button onClick={() => setActiveSpot(null)} className="text-gray-400 hover:bg-gray-200 p-2 rounded-full transition">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="p-6 overflow-y-auto">
-               <form onSubmit={handleSaveAsset} className="space-y-5">
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">
-                      Link / URL
-                    </label>
-                    <input
-                      type="url"
-                      value={editLink}
-                      onChange={(e) => setEditLink(e.target.value)}
-                      placeholder="https://..."
-                      className="w-full rounded border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 outline-none transition"
-                    />
-                    {activeSpot.help_text && (
-                      <p className="text-xs text-gray-500 mt-1">{activeSpot.help_text}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">
-                      Upload File
-                    </label>
-                    <input
-                      type="file"
-                      onChange={(e) => setSelectedFiles(e.target.files)}
-                      className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 cursor-pointer"
-                    />
-                  </div>
-
-                  {activeSpot.gallery && activeSpot.gallery.length > 0 && (
-                    <div className="pt-2">
-                      <label className="block text-xs font-bold uppercase text-gray-500 mb-2">Current Files</label>
-                      <div className="grid grid-cols-3 gap-3">
-                        {activeSpot.gallery.map((g) => (
-                          <div key={g.id} className="relative group rounded border border-gray-200 overflow-hidden bg-gray-50 aspect-square flex items-center justify-center">
-                            <img
-                              src={exhibitorAssetUrl(g.asset_url)}
-                              alt="Upload preview"
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                (e.target as HTMLElement).style.display = "none";
-                              }}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveGalleryItem(activeSpot.asset!.id, g.id)}
-                              className="absolute top-1 right-1 p-1 bg-red-600 text-white hover:bg-red-500 rounded shadow-md opacity-0 group-hover:opacity-100 transition"
-                              title="Delete File"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
-                    <button
-                      type="button"
-                      onClick={() => setActiveSpot(null)}
-                      className="flex-1 rounded py-2.5 text-sm font-semibold text-gray-600 border border-gray-300 hover:bg-gray-50 transition"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={saving}
-                      className="flex-1 rounded bg-widget-primary py-2.5 text-sm font-bold text-white hover:bg-widget-primary-hover transition disabled:opacity-50"
-                    >
-                      {saving ? "Saving..." : "Save Asset"}
-                    </button>
-                  </div>
-               </form>
-            </div>
-          </div>
-        </div>
-    </ModalPortal>
-      )}
-
-      {/* Brochure Manager Modal */}
-      {isBrochureModalOpen && (
-        <ModalPortal>
-      <div className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto overscroll-contain bg-black/60 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-full">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
-              <div className="flex items-center gap-2 text-sky-600">
-                <FolderOpen className="w-5 h-5" />
-                <h3 className="text-lg font-black text-gray-800">Manage Brochures</h3>
-              </div>
-              <button onClick={() => setIsBrochureModalOpen(false)} className="text-gray-400 hover:bg-gray-200 p-2 rounded-full transition">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50">
-              {/* Add New Brochure */}
-              <div className="bg-white p-5 rounded border border-gray-200 shadow-sm h-fit">
-                <h4 className="text-sm font-bold text-gray-800 border-b border-gray-100 pb-2 mb-4">Upload Document</h4>
-                <form onSubmit={handleAddBrochure} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-600 mb-1">Title</label>
-                    <input
-                      type="text"
-                      required
-                      value={brochureTitle}
-                      onChange={(e) => setBrochureTitle(e.target.value)}
-                      placeholder="Catalogue 2026"
-                      className="w-full rounded border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-sky-500"
-                    />
+          <div className={MODAL_OVERLAY}>
+            <div className={`${MODAL_PANEL_WIDE} max-h-[90vh] overflow-y-auto`}>
+              <div className={MODAL_HEADER}>
+                <div className="flex items-center gap-3">
+                  <div className={MODAL_HEADER_ICON}>
+                    <ImageIcon className="h-5 w-5 text-white" />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-600 mb-1">File</label>
-                    <input
-                      type="file"
-                      required
-                      onChange={(e) => setBrochureFiles(e.target.files)}
-                      className="w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100 cursor-pointer"
-                    />
+                    <h3 className={MODAL_TITLE}>Select Asset Block</h3>
+                    <p className={MODAL_SUBTITLE}>{activeSpot.title || "Stand panel"}</p>
                   </div>
-                  <button
-                    type="submit"
-                    disabled={saving}
-                    className="w-full flex items-center justify-center gap-2 rounded bg-emerald-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-emerald-500 disabled:opacity-50"
-                  >
-                    <UploadCloud className="h-4 w-4" /> {saving ? "Uploading..." : "Add Brochure"}
-                  </button>
-                </form>
+                </div>
+                <button type="button" onClick={() => setActiveSpot(null)} className={MODAL_CLOSE} aria-label="Close">
+                  <X className="h-4 w-4" />
+                </button>
               </div>
 
-              {/* List Brochures */}
-              <div className="bg-white p-5 rounded border border-gray-200 shadow-sm h-fit max-h-[400px] flex flex-col">
-                <h4 className="text-sm font-bold text-gray-800 border-b border-gray-100 pb-2 mb-4">Current Brochures</h4>
-                <div className="overflow-y-auto pr-2 space-y-2 flex-1">
-                  {brochures.length === 0 ? (
-                    <div className="text-center py-6 text-gray-400 border-2 border-dashed border-gray-200 rounded">
-                      <FileText className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-                      <p className="text-xs font-medium">No brochures uploaded.</p>
-                    </div>
-                  ) : (
-                    brochures.map((bro) => (
-                      <div key={bro.id} className="flex items-center justify-between p-3 border border-gray-100 rounded hover:bg-gray-50 transition group">
-                        <div className="flex items-center gap-3 overflow-hidden">
-                          <div className="bg-sky-100 text-sky-600 p-2 rounded shrink-0">
-                            <FileText className="w-4 h-4" />
-                          </div>
-                          <div className="truncate">
-                            <p className="text-sm font-bold text-gray-800 truncate">{bro.title}</p>
-                            <p className="text-[10px] text-gray-400 truncate">{bro.asset_attachment}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition shrink-0">
-                          {bro.asset_attachment && (
-                            <a href={exhibitorAssetUrl(bro.asset_attachment)} target="_blank" rel="noreferrer" className="p-1.5 text-gray-500 hover:text-sky-600 hover:bg-sky-50 rounded" title="Download">
-                              <FileDown className="w-4 h-4" />
-                            </a>
-                          )}
-                          <button onClick={() => handleDeleteBrochure(bro.id)} className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded" title="Delete">
-                            <Trash2 className="w-4 h-4" />
+              {activeSpot.help_text && (
+                <div className="flex items-start gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-[11px] font-bold text-zinc-300">
+                  <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-pink" />
+                  <span>{activeSpot.help_text}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleSaveAsset} className="space-y-5">
+                <div>
+                  <label className={FORM_LABEL}>Asset Link</label>
+                  <input
+                    type="url"
+                    value={editLink}
+                    onChange={(e) => setEditLink(e.target.value)}
+                    placeholder="https://youtube.com/… , https://vimeo.com/… or any URL"
+                    className={INPUT_FIELD}
+                  />
+                  <p className={FORM_HINT}>
+                    YouTube and Vimeo links are converted to an embed automatically.
+                  </p>
+                </div>
+
+                <div>
+                  <label className={FORM_LABEL}>Upload File(s)</label>
+                  <input
+                    type="file"
+                    multiple
+                    onChange={(e) => setSelectedFiles(e.target.files)}
+                    className="w-full cursor-pointer rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-xs text-zinc-300 file:mr-4 file:rounded-lg file:border-0 file:bg-brand-pink/20 file:px-4 file:py-2 file:text-xs file:font-black file:uppercase file:tracking-wider file:text-fuchsia-200 hover:file:bg-brand-pink/30"
+                  />
+                </div>
+
+                {activeSpot.gallery && activeSpot.gallery.length > 0 && (
+                  <div>
+                    <label className={FORM_LABEL}>Current files</label>
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                      {activeSpot.gallery.map((g) => (
+                        <div
+                          key={g.id}
+                          className="group relative flex aspect-square items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/40"
+                        >
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={exhibitorAssetUrl(g.asset_url)}
+                            alt="Upload preview"
+                            className="h-full w-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLElement).style.display = "none";
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveGalleryItem(activeSpot.asset!.id, g.id)}
+                            className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-lg bg-rose-500/90 text-white opacity-0 shadow-lg transition hover:bg-rose-500 group-hover:opacity-100"
+                            title="Delete file"
+                          >
+                            <X className="h-3 w-3" />
                           </button>
                         </div>
-                      </div>
-                    ))
-                  )}
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className={MODAL_FOOTER}>
+                  <button type="button" onClick={() => setActiveSpot(null)} className={BTN_SECONDARY}>
+                    Close
+                  </button>
+                  <button type="submit" disabled={saving} className={`${BTN_PRIMARY} disabled:opacity-50`}>
+                    <Check className="h-4 w-4" /> {saving ? "Saving…" : "Submit"}
+                  </button>
                 </div>
+              </form>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
+      {/* ----------------------------------------------- Brochure Manager Modal */}
+      {isBrochureModalOpen && (
+        <ModalPortal>
+          <div className={MODAL_OVERLAY}>
+            <div className={`${MODAL_PANEL_WIDE} max-h-[90vh] overflow-y-auto`}>
+              <div className={MODAL_HEADER}>
+                <div className="flex items-center gap-3">
+                  <div className={MODAL_HEADER_ICON}>
+                    <FolderOpen className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className={MODAL_TITLE}>Upload Brochure(s)</h3>
+                    <p className={MODAL_SUBTITLE}>Documents visitors can download from your stand.</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsBrochureModalOpen(false)}
+                  className={MODAL_CLOSE}
+                  aria-label="Close"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <form onSubmit={handleAddBrochure} className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+                <div>
+                  <label className={FORM_LABEL}>Title</label>
+                  <input
+                    type="text"
+                    required
+                    value={brochureTitle}
+                    onChange={(e) => setBrochureTitle(e.target.value)}
+                    placeholder="Catalogue 2026"
+                    className={INPUT_FIELD}
+                  />
+                </div>
+                <div>
+                  <label className={FORM_LABEL}>File</label>
+                  <input
+                    type="file"
+                    required
+                    onChange={(e) => setBrochureFiles(e.target.files)}
+                    className="w-full cursor-pointer rounded-xl border border-white/10 bg-black/50 px-4 py-[0.6rem] text-xs text-zinc-300 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-pink/20 file:px-3 file:py-1.5 file:text-[11px] file:font-black file:uppercase file:tracking-wider file:text-fuchsia-200 hover:file:bg-brand-pink/30"
+                  />
+                </div>
+                <button type="submit" disabled={saving} className={`${BTN_PRIMARY} justify-center disabled:opacity-50`}>
+                  <UploadCloud className="h-4 w-4" /> {saving ? "Uploading…" : "Add"}
+                </button>
+              </form>
+
+              {/* Legacy `ex-list-view` brochure table, restyled onto the Members table tokens. */}
+              <div className={`${PANEL_FLUSH} overflow-x-auto`}>
+                <table className={TABLE}>
+                  <thead>
+                    <tr className={TABLE_HEAD_ROW}>
+                      <th className={TABLE_TH}>Title</th>
+                      <th className={TABLE_TH}>File</th>
+                      <th className={`${TABLE_TH} text-right`}>Manage</th>
+                    </tr>
+                  </thead>
+                  <tbody className={TABLE_BODY}>
+                    {brochures.length === 0 ? (
+                      <tr>
+                        <td colSpan={3} className={TABLE_EMPTY}>
+                          No brochures uploaded yet.
+                        </td>
+                      </tr>
+                    ) : (
+                      brochures.map((bro) => (
+                        <tr key={bro.id} className={TABLE_ROW}>
+                          <td className={`${TABLE_CELL} font-bold text-white`}>
+                            <span className="flex items-center gap-2">
+                              <FileText className="h-4 w-4 shrink-0 text-brand-pink" />
+                              {bro.title}
+                            </span>
+                          </td>
+                          <td className={`${TABLE_CELL} max-w-[16rem] truncate text-zinc-400`}>
+                            {bro.asset_attachment}
+                          </td>
+                          <td className={TABLE_CELL}>
+                            <div className="flex items-center justify-end gap-2">
+                              {bro.asset_attachment && (
+                                <a
+                                  href={exhibitorAssetUrl(bro.asset_attachment)}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className={BTN_ICON}
+                                  title="Download"
+                                >
+                                  <FileDown className="h-4 w-4" />
+                                </a>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteBrochure(bro.id)}
+                                className={BTN_ICON_DANGER}
+                                title="Delete"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className={MODAL_FOOTER}>
+                <button type="button" onClick={() => setIsBrochureModalOpen(false)} className={BTN_SECONDARY}>
+                  Close
+                </button>
               </div>
             </div>
           </div>
-        </div>
-    </ModalPortal>
+        </ModalPortal>
       )}
 
-      {/* Booth Preview Modal (read-only, no edit pencils) */}
+      {/* ------------------- Booth Preview Modal (read-only, no edit pencils) */}
       {showBoothPreview && (
         <ModalPortal>
-      <div className="fixed inset-0 z-[100] grid place-items-center overflow-y-auto overscroll-contain bg-black/70 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-full">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50">
-              <div>
-                <h3 className="text-lg font-black text-gray-800">{exhibitor?.business || "My Booth"}</h3>
-                <p className="text-xs text-gray-500 font-medium">This is what visitors see on your stand.</p>
+          <div className={MODAL_OVERLAY}>
+            <div className={`${MODAL_PANEL_WIDE} max-h-[90vh] overflow-y-auto`}>
+              <div className={MODAL_HEADER}>
+                <div className="flex items-center gap-3">
+                  <div className={MODAL_HEADER_ICON}>
+                    <Eye className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className={MODAL_TITLE}>{exhibitor?.business || "My Booth"}</h3>
+                    <p className={MODAL_SUBTITLE}>This is what visitors see on your stand.</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowBoothPreview(false)}
+                  className={MODAL_CLOSE}
+                  aria-label="Close"
+                >
+                  <X className="h-4 w-4" />
+                </button>
               </div>
-              <button onClick={() => setShowBoothPreview(false)} className="text-gray-400 hover:bg-gray-200 p-2 rounded-full transition">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="relative w-full bg-zinc-200" style={{ aspectRatio: "16/9" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={resolvedStandImage && !standImageFailed ? resolvedStandImage : DEFAULT_STAND_TEMPLATE}
-                alt="Stand preview"
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              {parsedSpots.map((spot) => {
-                const { x, y, width, height } = spot.coordinates;
-                const hasUpload = spot.gallery && spot.gallery.length > 0;
-                if (!hasUpload) return null;
-                return (
-                  <img
-                    key={spot.id}
-                    src={exhibitorAssetUrl(spot.gallery[0].asset_url)}
-                    alt={spot.title || "Asset"}
-                    className="absolute object-contain"
-                    style={{
-                      left: `${x}%`,
-                      top: `${y}%`,
-                      width: `${width ? width + "%" : "auto"}`,
-                      height: `${height ? height + "%" : "auto"}`,
-                    }}
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = "none";
-                    }}
-                  />
-                );
-              })}
-            </div>
-            <div className="flex items-center justify-between gap-3 p-4 border-t border-gray-100 bg-gray-50">
-              <p className="text-xs text-gray-500 truncate">{boothUrl}</p>
-              <button
-                type="button"
-                onClick={() => setShowBoothPreview(false)}
-                className="shrink-0 rounded bg-widget-primary px-4 py-2 text-sm font-bold text-white hover:bg-widget-primary-hover transition"
+
+              <div
+                className="relative w-full overflow-hidden rounded-2xl border border-white/10 bg-black/60"
+                style={{ aspectRatio: "16/9" }}
               >
-                Close Preview
-              </button>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={resolvedStandImage && !standImageFailed ? resolvedStandImage : DEFAULT_STAND_TEMPLATE}
+                  alt="Stand preview"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                {parsedSpots.map((spot) => {
+                  const { x, y, width, height } = spot.coordinates;
+                  const hasUpload = spot.gallery && spot.gallery.length > 0;
+                  if (!hasUpload) return null;
+                  return (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      key={spot.id}
+                      src={exhibitorAssetUrl(spot.gallery[0].asset_url)}
+                      alt={spot.title || "Asset"}
+                      className="absolute object-contain"
+                      style={{
+                        left: `${x}%`,
+                        top: `${y}%`,
+                        width: `${width ? width + "%" : "auto"}`,
+                        height: `${height ? height + "%" : "auto"}`,
+                      }}
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = "none";
+                      }}
+                    />
+                  );
+                })}
+
+                {/* The six uploaded slot images — header banner, the two hanging banners, the two
+                    pull-ups and the tabletop. The preview used to draw only the DB hotspots above,
+                    so a stand whose artwork lives in the slots looked empty here even though the
+                    designer (and the public booth) showed it. Drawn last, and in the same
+                    STAND_TEMPLATE_SLOTS coordinates the designer uses, so the two views match. */}
+                {STAND_TEMPLATE_SLOTS.map((slot) => {
+                  const uploaded = templateAssets[slot.key];
+                  const src =
+                    slotPreviews[slot.key] ||
+                    (uploaded?.imageUrl ? exhibitorAssetUrl(uploaded.imageUrl) : undefined);
+                  if (!src) return null;
+                  return (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      key={`tpl-${slot.key}`}
+                      src={src}
+                      alt={slot.label}
+                      className="absolute object-contain"
+                      style={{
+                        left: `${slot.left}%`,
+                        top: `${slot.top}%`,
+                        width: `${slot.width}%`,
+                        height: `${slot.height}%`,
+                      }}
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = "none";
+                      }}
+                    />
+                  );
+                })}
+              </div>
+
+              <div className={`${MODAL_FOOTER} items-center justify-between`}>
+                <p className="truncate text-[11px] font-medium text-zinc-500">{boothUrl}</p>
+                <button type="button" onClick={() => setShowBoothPreview(false)} className={BTN_SECONDARY}>
+                  Close Preview
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-    </ModalPortal>
+        </ModalPortal>
       )}
-
     </div>
   );
 }
