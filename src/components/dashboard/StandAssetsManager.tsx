@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import axios, { isAxiosError } from "axios";
 import { exhibitorAssetUrl, standTemplateUrl } from "@/lib/assets";
-import { STAND_TEMPLATE_SLOTS } from "@/lib/standTemplateSlots";
+import { slotsForStandLayout, type StandTemplateSlot } from "@/lib/standTemplateSlots";
 import {
   Store,
+  ExternalLink,
   UploadCloud,
   X,
   FileText,
@@ -139,10 +140,16 @@ interface Props {
   initialEventId: number;
   userRole: string;
   initialSelectedExId?: string;
+  /** This event's friendly_url, used to build the booth URL. */
+  eventSlug?: string;
 }
 
-export function StandAssetsManager({ initialEventId, userRole, initialSelectedExId }: Props) {
-  const router = useRouter();
+export function StandAssetsManager({
+  initialEventId,
+  userRole,
+  initialSelectedExId,
+  eventSlug,
+}: Props) {
   const [eventId] = useState(initialEventId);
   const [exhibitors, setExhibitors] = useState<Exhibitor[]>([]);
   const [selectedExId, setSelectedExId] = useState<number | null>(
@@ -153,6 +160,8 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
   const [exhibitor, setExhibitor] = useState<any | null>(null);
   const [lobbyChild, setLobbyChild] = useState<LobbyChild | null>(null);
   const [standImage, setStandImage] = useState<string>("");
+  /** The Exhibitor Stand Layout's title — decides which fixed slot set this stand offers. */
+  const [standLayoutTitle, setStandLayoutTitle] = useState<string>("");
   const [spots, setSpots] = useState<Spot[]>([]);
   const [brochures, setBrochures] = useState<Asset[]>([]);
   // Fixed template-slot uploads (top banner, hanging banners, pull-up banners, tabletop image) —
@@ -234,6 +243,7 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
       setZoneName(res.data.zoneName || "");
       setLobbyChild(res.data.lobbyChild || null);
       setStandImage(res.data.standImage || "");
+      setStandLayoutTitle(res.data.standLayoutTitle || "");
       setSpots(res.data.spots || []);
       setBrochures(res.data.brochures || []);
       setTemplateAssets(res.data.templateAssets || {});
@@ -247,6 +257,27 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
   useEffect(() => {
     loadData();
   }, [selectedExId]);
+
+  /**
+   * Mirror the selected exhibitor into the URL: ?event_id=<id>&ex_id=<id>.
+   *
+   * Uses history.replaceState rather than router.replace deliberately. This page is a server
+   * component, so a Next navigation would re-run it, remount this manager and re-fetch the whole
+   * stand — the canvas would blink every time the organiser picked a name from the dropdown.
+   * replaceState only rewrites the address bar, which is all that is wanted: the link is
+   * copy-pasteable, a refresh reopens the same stand, and Back still works.
+   *
+   * Runs on any change to selectedExId, so it also captures the exhibitor the API auto-selects on
+   * first load, not just an explicit pick from the dropdown.
+   */
+  useEffect(() => {
+    if (typeof window === "undefined" || !selectedExId) return;
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("ex_id") === String(selectedExId)) return;
+    url.searchParams.set("event_id", String(eventId));
+    url.searchParams.set("ex_id", String(selectedExId));
+    window.history.replaceState(window.history.state, "", url.toString());
+  }, [selectedExId, eventId]);
 
   // Give a freshly-uploaded background a clean chance to load instead of sticking on the
   // previous image's failure state.
@@ -289,9 +320,15 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
   // Public booth URL for this exhibitor — used by "View My Booth" and both share actions.
   // friendly_url isn't always set on legacy rows, so fall back to a query-param link the
   // exhibitors directory can resolve instead of pointing at a route that will 404.
-  const boothPath = exhibitor?.friendly_url
-    ? `/virtual-directory/${exhibitor.friendly_url}`
-    : `/exhibitors?ex_id=${selectedExId ?? ""}`;
+  // The real booth: /virtual-event/<event slug>?mybooth=1&ex_id=<id>. Keyed on the exhibitor's id
+  // rather than their friendly_url, which is empty on most migrated rows — that is why this used
+  // to fall back to a directory search link instead of opening the stand.
+  const boothPath =
+    eventSlug && selectedExId
+      ? `/virtual-event/${eventSlug}?mybooth=1&ex_id=${selectedExId}`
+      : exhibitor?.friendly_url
+        ? `/virtual-directory/${exhibitor.friendly_url}`
+        : `/exhibitors?ex_id=${selectedExId ?? ""}`;
   const boothUrl = typeof window !== "undefined" ? `${window.location.origin}${boothPath}` : boothPath;
 
   async function handleCopyBoothLink() {
@@ -466,7 +503,16 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
   // than accumulates a gallery.
   async function handleUploadTemplateSlot(slotKey: string, file?: File) {
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
+
+    // A video slot (the Basic Stand's wall screen) takes an mp4/webm; everything else takes an
+    // image. The route re-checks this — the browser check just fails faster and more clearly.
+    const slot = activeSlots.find((s) => s.key === slotKey);
+    const wantsVideo = slot?.kind === "video";
+    if (wantsVideo && !file.type.startsWith("video/")) {
+      setErrorMessage("That slot is the stand's screen — please choose an MP4 or WebM video.");
+      return;
+    }
+    if (!wantsVideo && !file.type.startsWith("image/")) {
       setErrorMessage("Please choose an image file for this banner slot.");
       return;
     }
@@ -570,11 +616,29 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
     });
   }, [spots]);
 
-  /** How many of the six editable slots already carry artwork — the "x of 6 placed" readout. */
-  const filledSlotCount = useMemo(
-    () => STAND_TEMPLATE_SLOTS.filter((slot) => templateAssets[slot.key]?.imageUrl).length,
-    [templateAssets]
+  /**
+   * Which upload areas this stand offers.
+   *
+   * The Basic Stand's artwork has a header, two centre rectangles, a table-front banner and a
+   * wall SCREEN that takes a video; the standard stand has a header, two hanging banners, two
+   * pull-ups and a tabletop. Reusing one set of coordinates across both put upload boxes in
+   * mid-air, so the set is chosen from the layout's own title. See slotsForStandLayout().
+   */
+  const activeSlots: StandTemplateSlot[] = useMemo(
+    // standImage is passed as well as the title because migrated layout rows often have no title
+    // at all — the artwork itself is what the coordinates were measured against.
+    () => slotsForStandLayout(standLayoutTitle, standImage),
+    [standLayoutTitle, standImage]
   );
+
+  /** How many of this stand's slots already carry media — the "x of n placed" readout. */
+  const filledSlotCount = useMemo(
+    () => activeSlots.filter((slot) => templateAssets[slot.key]?.imageUrl).length,
+    [activeSlots, templateAssets]
+  );
+
+  /** Human list of the areas, for the header line and the legend. */
+  const slotSummary = useMemo(() => activeSlots.map((s) => s.label).join(", "), [activeSlots]);
 
   // Determine background stand image url path
   const resolvedStandImage = useMemo(() => {
@@ -750,15 +814,23 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
         <div className={PANEL_FLUSH}>
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-6 py-4">
             <div>
-              <h2 className="text-sm font-black uppercase tracking-wider text-white">Stand Designer</h2>
+              <h2 className="flex flex-wrap items-center gap-2 text-sm font-black uppercase tracking-wider text-white">
+                Stand Designer
+                {/* The layout name is what picks the slot set (slotsForStandLayout). Showing it
+                    makes a mismatch obvious — "these boxes are in the wrong place" and "this stand
+                    is on a layout I have no slot set for" look identical without it. */}
+                <span className={BADGE_NEUTRAL} title="Exhibitor Stand Layout / background artwork">
+                  {standLayoutTitle || standImage || "Default layout"}
+                </span>
+              </h2>
               <p className="mt-0.5 text-[11px] font-medium text-zinc-400">
-                Six upload areas: header banner, two hanging banners, two pull-up banners and the
-                tabletop panel. Hover one and click the upload icon to add or change its artwork.
+                {activeSlots.length} upload areas: {slotSummary}. Hover one and click the upload icon
+                to add or change its media.
               </p>
             </div>
             <div className="flex items-center gap-2">
               <span className={BADGE_NEUTRAL}>
-                {filledSlotCount} / {STAND_TEMPLATE_SLOTS.length} placed
+                {filledSlotCount} / {activeSlots.length} placed
               </span>
               {!menuVisible && (
                 <button
@@ -784,17 +856,18 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
 
             {/* The SIX browse/upload areas — the only editable points on the stand: header banner,
                 the two hanging top banners, the two pull-up banners, and the tabletop panel.
-                Positions come from STAND_TEMPLATE_SLOTS, whose percentage boxes line up with the
+                Positions come from the layout's own slot set, whose percentage boxes line up with the
                 seeded stand templates as well as the generic fallback, so they are drawn on every
                 background rather than only on stand_img.png. */}
-            {STAND_TEMPLATE_SLOTS.map((slot) => {
+            {activeSlots.map((slot) => {
                 const uploaded = templateAssets[slot.key];
                 // The local preview wins while an upload is in flight; after it lands the two are
-                // the same picture anyway, so the swap is invisible.
+                // the same file anyway, so the swap is invisible.
                 const slotImageUrl =
                   slotPreviews[slot.key] ||
                   (uploaded?.imageUrl ? exhibitorAssetUrl(uploaded.imageUrl) : undefined);
                 const isUploading = uploadingSlot === slot.key;
+                const isVideoSlot = slot.kind === "video";
 
                 return (
                   <div
@@ -808,17 +881,30 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
                     }}
                     title={`${slot.label} — ${slot.helpText}`}
                   >
-                    {slotImageUrl && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={slotImageUrl}
-                        alt={slot.label}
-                        className="absolute inset-0 h-full w-full object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLElement).style.display = "none";
-                        }}
-                      />
-                    )}
+                    {slotImageUrl &&
+                      (isVideoSlot ? (
+                        // Muted + loop so a stand full of screens is not a wall of noise; the
+                        // public booth plays it the same way.
+                        <video
+                          key={slotImageUrl}
+                          src={slotImageUrl}
+                          className="absolute inset-0 h-full w-full object-cover"
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                        />
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={slotImageUrl}
+                          alt={slot.label}
+                          className="absolute inset-0 h-full w-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = "none";
+                          }}
+                        />
+                      ))}
 
                     {!slotImageUrl && (
                       <span className="pointer-events-none absolute inset-0 flex items-center justify-center px-1 text-center text-[9px] font-black uppercase leading-tight tracking-wider text-white/70 opacity-0 transition group-hover:opacity-100">
@@ -831,7 +917,7 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
                         templateSlotInputRefs.current[slot.key] = el;
                       }}
                       type="file"
-                      accept="image/*"
+                      accept={isVideoSlot ? "video/*" : "image/*"}
                       className="hidden"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
@@ -926,7 +1012,7 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
               <span className="h-3 w-3 rounded-sm border-2 border-dashed border-brand-pink/60" /> Upload area
             </span>
             <span className="flex items-center gap-1.5">
-              <ImageIcon className="h-3.5 w-3.5 text-brand-pink" /> Header, hanging (x2), pull-up (x2), tabletop
+              <ImageIcon className="h-3.5 w-3.5 text-brand-pink" /> {slotSummary}
             </span>
             {lobbyChild?.title && (
               <span className="ml-auto flex items-center gap-1.5">
@@ -965,21 +1051,29 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
               <Eye className="h-4 w-4 shrink-0 text-brand-pink" /> View My Booth
             </button>
 
-            {/* Legacy parity: `view_exhibitor?action=edit&from_view_booth=1&id=<ex_id>&event_id=<id>`.
-                The Next page reads `ex_id` and opens the Edit Trade Stand modal on that row. */}
-            <a
-              href={`/members/view_exhibitor?event_id=${eventId}${selectedExId ? `&ex_id=${selectedExId}` : ""}`}
+            {/* `?ex_id=<id>` opens the list page with the Edit Trade Stand MODAL already on this
+                exhibitor — the behaviour asked for from the stand designer. (The dedicated
+                full-details page still exists at `?action=edit&id=<id>`; it is simply not what this
+                button uses.) */}
+            {/* next/link, not <a>: it prefetches the route so the Edit Trade Stand modal opens on
+                an already-fetched page, and navigates client-side instead of reloading the app. */}
+            <Link
+              href={
+                selectedExId
+                  ? `/members/view_exhibitor?event_id=${eventId}&ex_id=${selectedExId}&from_view_booth=1`
+                  : `/members/view_exhibitor?event_id=${eventId}`
+              }
               className={sidebarLink}
             >
               <Venus className="h-4 w-4 shrink-0 text-brand-pink" /> Exhibitor Full Details
-            </a>
+            </Link>
 
-            <a
+            <Link
               href={`/dashboard/my-event/team-members${eventId ? `?event_id=${eventId}` : ""}`}
               className={sidebarLink}
             >
               <UserPlus className="h-4 w-4 shrink-0 text-brand-pink" /> Manage My Team
-            </a>
+            </Link>
 
             <div className="relative" ref={shareMenuRef}>
               <button
@@ -1315,8 +1409,12 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
                 </button>
               </div>
 
-              <div
-                className="relative w-full overflow-hidden rounded-2xl border border-white/10 bg-black/60"
+              {/* The whole preview is the link to the live booth — clicking the stand is the
+                  obvious gesture, and it lands on the same URL "Share My Booth Link" copies. */}
+              <a
+                href={boothPath}
+                title="Open this booth"
+                className="group relative block w-full overflow-hidden rounded-2xl border border-white/10 bg-black/60 transition hover:border-brand-pink/50"
                 style={{ aspectRatio: "16/9" }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1353,39 +1451,64 @@ export function StandAssetsManager({ initialEventId, userRole, initialSelectedEx
                     pull-ups and the tabletop. The preview used to draw only the DB hotspots above,
                     so a stand whose artwork lives in the slots looked empty here even though the
                     designer (and the public booth) showed it. Drawn last, and in the same
-                    STAND_TEMPLATE_SLOTS coordinates the designer uses, so the two views match. */}
-                {STAND_TEMPLATE_SLOTS.map((slot) => {
+                    coordinates the designer uses, so the two views match. */}
+                {activeSlots.map((slot) => {
                   const uploaded = templateAssets[slot.key];
                   const src =
                     slotPreviews[slot.key] ||
                     (uploaded?.imageUrl ? exhibitorAssetUrl(uploaded.imageUrl) : undefined);
                   if (!src) return null;
-                  return (
+                  const style = {
+                    left: `${slot.left}%`,
+                    top: `${slot.top}%`,
+                    width: `${slot.width}%`,
+                    height: `${slot.height}%`,
+                  };
+                  return slot.kind === "video" ? (
+                    <video
+                      key={`tpl-${slot.key}`}
+                      src={src}
+                      className="absolute object-cover"
+                      style={style}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                    />
+                  ) : (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       key={`tpl-${slot.key}`}
                       src={src}
                       alt={slot.label}
                       className="absolute object-contain"
-                      style={{
-                        left: `${slot.left}%`,
-                        top: `${slot.top}%`,
-                        width: `${slot.width}%`,
-                        height: `${slot.height}%`,
-                      }}
+                      style={style}
                       onError={(e) => {
                         (e.target as HTMLElement).style.display = "none";
                       }}
                     />
                   );
                 })}
-              </div>
+                {/* Hover affordance — without it a full-bleed image gives no hint it is clickable. */}
+                <span className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition group-hover:opacity-100">
+                  <span className="flex items-center gap-2 rounded-full bg-white/95 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-zinc-900 shadow-lg">
+                    <ExternalLink className="h-4 w-4" />
+                    Open booth
+                  </span>
+                </span>
+              </a>
 
               <div className={`${MODAL_FOOTER} items-center justify-between`}>
                 <p className="truncate text-[11px] font-medium text-zinc-500">{boothUrl}</p>
-                <button type="button" onClick={() => setShowBoothPreview(false)} className={BTN_SECONDARY}>
-                  Close Preview
-                </button>
+                <div className="flex shrink-0 items-center gap-3">
+                  <a href={boothPath} className={BTN_PRIMARY}>
+                    <ExternalLink className="h-4 w-4" />
+                    Open Booth
+                  </a>
+                  <button type="button" onClick={() => setShowBoothPreview(false)} className={BTN_SECONDARY}>
+                    Close Preview
+                  </button>
+                </div>
               </div>
             </div>
           </div>

@@ -169,6 +169,86 @@ function poolConfig(connectionString: string) {
   };
 }
 
+/**
+ * ---------------------------------------------------------------------------
+ * Stale-connection retry.
+ * ---------------------------------------------------------------------------
+ *
+ * node-postgres pools sockets, and neither it nor Prisma is told when the SERVER closes one.
+ * Prisma Postgres's proxy drops idle connections on its own schedule, so the pool can hand out a
+ * socket that is already dead; the query fails immediately with
+ *
+ *   Raw query failed. Code: `N/A`. Message: `Server has closed the connection.`
+ *
+ * ...even though the database is perfectly healthy. Lowering idleTimeoutMillis narrows the window
+ * but cannot close it — there is always a race between the server closing a connection and this
+ * process noticing.
+ *
+ * The failure happens BEFORE the statement reaches the server, so re-issuing it is safe. One retry
+ * gets a fresh connection from the pool and succeeds.
+ *
+ * DELIBERATELY READS ONLY. A write that fails this way almost certainly did not run, but "almost
+ * certainly" is not good enough when the cost of being wrong is a duplicated row or a
+ * double-applied update: if the statement did reach the server and only the response was lost, a
+ * retry applies it twice. Writes therefore still surface the error to the caller.
+ */
+const RETRYABLE_READ_OPERATIONS = new Set([
+  "findUnique",
+  "findUniqueOrThrow",
+  "findFirst",
+  "findFirstOrThrow",
+  "findMany",
+  "count",
+  "aggregate",
+  "groupBy",
+  // Raw SELECTs. $executeRaw / $executeRawUnsafe are the write half and are deliberately absent.
+  "$queryRaw",
+  "$queryRawUnsafe",
+]);
+
+function isDeadConnectionError(error: unknown): boolean {
+  const err = error as { message?: unknown; code?: unknown; cause?: unknown } | null;
+  if (!err) return false;
+
+  const code = typeof err.code === "string" ? err.code : "";
+  // P1017 is Prisma's own "server has closed the connection".
+  if (code === "P1017" || code === "ECONNRESET" || code === "EPIPE") return true;
+
+  const message = typeof err.message === "string" ? err.message : "";
+  if (
+    /server has closed the connection|connection terminated|connection reset|socket hang up|ECONNRESET|EPIPE/i.test(
+      message
+    )
+  ) {
+    return true;
+  }
+
+  // Prisma wraps the driver error a layer down.
+  return err.cause ? isDeadConnectionError(err.cause) : false;
+}
+
+function withStaleConnectionRetry(client: any): any {
+  if (typeof client?.$extends !== "function") return client;
+  try {
+    return client.$extends({
+      query: {
+        async $allOperations({ operation, args, query }: any) {
+          try {
+            return await query(args);
+          } catch (error) {
+            if (!RETRYABLE_READ_OPERATIONS.has(operation) || !isDeadConnectionError(error)) throw error;
+            console.warn(`[prisma] stale connection on ${operation}; retrying once.`);
+            return query(args);
+          }
+        },
+      },
+    });
+  } catch {
+    // An extension failing to apply must never take the whole client down.
+    return client;
+  }
+}
+
 let prismaInstance: any;
 
 const dbUrl = process.env.DATABASE_URL;
@@ -190,7 +270,7 @@ if (
         );
       }
       const adapter = new PrismaPg(poolConfig(dbUrl));
-      prismaInstance = new PrismaClient({ adapter });
+      prismaInstance = withStaleConnectionRetry(new PrismaClient({ adapter }));
       if (process.env.NODE_ENV !== "production") {
         globalForPrisma.prisma = prismaInstance;
       }

@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createPortal } from "react-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { isAxiosError } from "axios";
 import {
-  Plus, Pencil, Trash2, Search, X, ChevronLeft, ChevronRight, Filter, ExternalLink,
+  Plus, Pencil, Trash2, Search, X, ChevronLeft, ChevronRight, Filter, ExternalLink, Store,
   Video, Star, CheckCircle, Clock,
   Download,
   Upload,
@@ -1380,9 +1382,24 @@ export function ExhibitorsAdminManager({
   initialExhibitors,
   initialStats,
   initialExhibitorId,
+  returnTo,
+  eventId,
 }: {
   initialExhibitors: ExhibitorAdminRow[];
   initialStats: ExhibitorStats;
+  /**
+   * This event's id. Needed only to build the "Manage Stand" link — every write on this page
+   * resolves the event from the session on the server, so nothing else depends on it.
+   */
+  eventId?: number;
+  /**
+   * Where to go when the deep-linked modal is saved or dismissed.
+   *
+   * Set when this page was opened from somewhere that owns the journey — the stand designer's
+   * "Exhibitor Full Details" — so Save and Cancel return there instead of dumping the organiser
+   * on a 232-row list they never asked to see.
+   */
+  returnTo?: string;
   /**
    * Deep-link target: when /members/view_exhibitor is opened with `?ex_id=<id>` (the way the
    * stand designer's "Exhibitor Full Details" link arrives, mirroring the legacy
@@ -1407,6 +1424,13 @@ export function ExhibitorsAdminManager({
   const [notice, setNotice] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  const router = useRouter();
+
+  // Warm the return destination while the organiser is still editing, so Save/Cancel lands on an
+  // already-fetched page instead of waiting on a cold render.
+  useEffect(() => {
+    if (returnTo) router.prefetch(returnTo);
+  }, [returnTo, router]);
 
   // Open the deep-linked exhibitor once, on first render. Guarded by a ref rather than by
   // `modalExhibitor` so closing the modal does not immediately reopen it, and so a later refresh
@@ -1654,8 +1678,29 @@ export function ExhibitorsAdminManager({
     }
   }
 
-  function handleSaved() {
+  /**
+   * Leaving the deep-linked modal.
+   *
+   * Only the exhibitor this page was deep-linked to sends the organiser back: opening some OTHER
+   * row's modal from the list afterwards should behave normally and stay on the list.
+   */
+  function leaveModal(row: ExhibitorAdminRow | "new" | null) {
+    const wasDeepLinked =
+      Boolean(returnTo) && row !== "new" && row !== null && row.id === initialExhibitorId;
     setModalExhibitor(null);
+    if (wasDeepLinked && returnTo) {
+      // router.push, not window.location.href: a client-side navigation reuses the already-loaded
+      // app shell and the prefetched route, where a full document load re-downloads and re-runs
+      // everything. That difference is what made Save/Cancel feel like it hung.
+      router.push(returnTo);
+      return;
+    }
+    return true;
+  }
+
+  function handleSaved() {
+    const row = modalExhibitor;
+    if (leaveModal(row) !== true) return;
     refreshData();
   }
 
@@ -1947,6 +1992,17 @@ export function ExhibitorsAdminManager({
                     </td>
                     <td className="px-4 py-5">
                       <div className="flex items-center justify-center gap-2">
+                        {eventId ? (
+                          // Straight to this exhibitor's stand designer. next/link so it prefetches
+                          // and navigates client-side, like the other cross-page links here.
+                          <Link
+                            href={`/members/manage_stand_assets?event_id=${eventId}&ex_id=${exhibitor.id}`}
+                            className="h-8 w-8 inline-flex items-center justify-center rounded-lg bg-white/5 text-zinc-400 hover:bg-brand-pink hover:text-white transition-all shadow-xl cursor-pointer"
+                            title="Manage Stand Assets"
+                          >
+                            <Store className="h-4 w-4" />
+                          </Link>
+                        ) : null}
                         <button
                           onClick={() => setModalExhibitor(exhibitor)}
                           className="h-8 w-8 inline-flex items-center justify-center rounded-lg bg-white/5 text-zinc-400 hover:bg-brand-purple hover:text-white transition-all shadow-xl cursor-pointer"
@@ -2043,7 +2099,7 @@ export function ExhibitorsAdminManager({
                   status: (modalExhibitor.status as (typeof EXHIBITOR_STATUSES)[number]) ?? "pending",
                 }
           }
-          onClose={() => setModalExhibitor(null)}
+          onClose={() => leaveModal(modalExhibitor)}
           onSaved={handleSaved}
         />
       )}

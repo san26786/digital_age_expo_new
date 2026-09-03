@@ -19,7 +19,7 @@ import { LobbyHotspots, type HotspotWithMenu } from "@/components/virtual-event/
 import { LobbyFooterNav, type FooterItem } from "@/components/virtual-event/LobbyFooterNav";
 import { getExhibitorStandById } from "@/lib/services/exhibitorStand";
 import { exhibitorAssetUrl, standTemplateUrl } from "@/lib/assets";
-import { STAND_TEMPLATE_SLOTS } from "@/lib/standTemplateSlots";
+import { findSlotByKey } from "@/lib/standTemplateSlots";
 import { BoothView, type BoothSpot } from "@/components/virtual-event/BoothView";
 import { createOutageCollector } from "@/lib/db-errors";
 import { DatabaseOutageNotice } from "@/components/common/DatabaseOutageNotice";
@@ -207,7 +207,7 @@ export default async function VirtualEventLobbyPage({
 
     const slotSpots: BoothSpot[] = templateSlots
       .map((slot: { key: string; url: string }, i: number): BoothSpot | null => {
-        const def = STAND_TEMPLATE_SLOTS.find((d) => d.key === slot.key);
+        const def = findSlotByKey(slot.key);
         const src = exhibitorAssetUrl(slot.url);
         if (!def || !src) return null;
         return {
@@ -218,6 +218,7 @@ export default async function VirtualEventLobbyPage({
           width: def.width,
           height: def.height,
           src,
+          isVideo: def.kind === "video",
         };
       })
       .filter((s): s is BoothSpot => s !== null);

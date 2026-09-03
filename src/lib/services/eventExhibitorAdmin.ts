@@ -251,6 +251,25 @@ export async function getExhibitorsAdmin(context: EventMemberContext): Promise<E
   return rows.map(toRow);
 }
 
+/**
+ * One exhibitor's full record, for the dedicated details page
+ * (/members/view_exhibitor?action=edit&id=<id>&event_id=<id>).
+ *
+ * Event-scoped like every other read here, so an organiser cannot pull a record from an event
+ * they do not run by editing the id in the URL.
+ */
+export async function getExhibitorAdminById(
+  context: EventMemberContext,
+  id: number
+): Promise<ExhibitorAdminRow | null> {
+  if (context.role !== "organiser" || !id) return null;
+  const row = await prisma.find_event_exhibitor.findFirst({
+    where: { id, event_id: context.eventId },
+    select: SELECT_FIELDS,
+  });
+  return row ? toRow(row) : null;
+}
+
 export async function getExhibitorsAdminStats(context: EventMemberContext): Promise<ExhibitorStats> {
   if (context.role !== "organiser") {
     return {

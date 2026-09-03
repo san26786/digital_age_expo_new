@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireEventMember } from "@/lib/auth/requireEventMember";
 import { prisma } from "@/lib/prisma";
 import { resolveExhibitorStand } from "@/lib/services/exhibitorStand";
-import { STAND_TEMPLATE_SLOT_KEYS } from "@/lib/standTemplateSlots";
+import { STAND_TEMPLATE_SLOT_KEYS, findSlotByKey } from "@/lib/standTemplateSlots";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 
@@ -81,7 +81,7 @@ export async function GET(request: Request) {
   // Everything below enriches the canvas (zone name, background image, hotspots, brochures).
   // None of it should be able to take down the exhibitor list/selection above — the shared
   // resolveExhibitorStand() helper degrades each step to a safe default instead of throwing.
-  const { zoneName, standImage, spots } = await resolveExhibitorStand(exhibitor, eventId);
+  const { zoneName, standImage, spots, standLayoutTitle } = await resolveExhibitorStand(exhibitor, eventId);
 
   // The editor additionally needs a real find_event_lobby_layout_type_assets row per spot so
   // there's something to attach uploads/links to — the public read-only viewer doesn't need this.
@@ -146,7 +146,7 @@ export async function GET(request: Request) {
       },
     });
     const withGallery = await Promise.all(
-      rows.map(async (row) => {
+      rows.map(async (row: { id: number; title: string | null; asset_attachment: string | null }) => {
         const gallery = await prisma.find_event_lobby_asset_gallery.findFirst({
           where: { parent_asset_id: row.id },
           orderBy: { id: "desc" },
@@ -167,6 +167,8 @@ export async function GET(request: Request) {
     exhibitor,
     zoneName,
     standImage,
+    /** Picks the slot set on the client — see slotsForStandLayout(). */
+    standLayoutTitle,
     spots: enrichedSpots,
     brochures,
     templateAssets,
@@ -297,7 +299,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Unknown template slot" }, { status: 400 });
       }
       if (files.length === 0) {
-        return NextResponse.json({ error: "Please choose an image to upload" }, { status: 400 });
+        return NextResponse.json({ error: "Please choose a file to upload" }, { status: 400 });
       }
 
       let asset = await prisma.find_event_lobby_layout_type_assets.findFirst({
@@ -319,10 +321,34 @@ export async function POST(request: Request) {
         });
       }
 
-      // Each slot only ever shows one image — replace, don't accumulate.
+      // Each slot only ever shows one file — replace, don't accumulate.
       await prisma.find_event_lobby_asset_gallery.deleteMany({ where: { parent_asset_id: asset.id } });
 
       const file = files[0];
+
+      /* A slot declares what it accepts (see standTemplateSlots.ts): the Basic Stand's wall
+       * screen takes a video, every other slot takes an image. Validated here as well as in the
+       * browser because the client check is only a convenience — this is the one that counts. */
+      const slotDef = findSlotByKey(slotKey);
+      const wantsVideo = slotDef?.kind === "video";
+      const mime = String(file.type || "");
+      if (wantsVideo && !mime.startsWith("video/")) {
+        return NextResponse.json(
+          { error: "This slot is a screen — please choose an MP4 or WebM video." },
+          { status: 400 }
+        );
+      }
+      if (!wantsVideo && !mime.startsWith("image/")) {
+        return NextResponse.json({ error: "Please choose an image file for this slot." }, { status: 400 });
+      }
+      // A stand video is streamed to every visitor's browser, so keep it modest.
+      const maxBytes = wantsVideo ? 50 * 1024 * 1024 : 5 * 1024 * 1024;
+      if (file.size > maxBytes) {
+        return NextResponse.json(
+          { error: wantsVideo ? "Video must be 50MB or smaller." : "Image must be 5MB or smaller." },
+          { status: 400 }
+        );
+      }
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
       const uploadDir = join(process.cwd(), "public", "images", "lobby_assets");
@@ -330,8 +356,9 @@ export async function POST(request: Request) {
         await mkdir(uploadDir, { recursive: true });
       } catch {}
 
-      const ext = (file.name.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "");
-      const filename = `event_${asset.id}_${slotKey}_${Date.now()}.${ext || "png"}`;
+      const fallbackExt = wantsVideo ? "mp4" : "png";
+      const ext = (file.name.split(".").pop() || fallbackExt).toLowerCase().replace(/[^a-z0-9]/g, "");
+      const filename = `event_${asset.id}_${slotKey}_${Date.now()}.${ext || fallbackExt}`;
       await writeFile(join(uploadDir, filename), buffer);
 
       await prisma.find_event_lobby_asset_gallery.create({

@@ -4,6 +4,7 @@ import { Store } from "lucide-react";
 import { authOptions } from "@/lib/auth/options";
 import { getDomain } from "@/lib/services/domain";
 import { getEventMemberContext } from "@/lib/services/eventAccess";
+import { getEventById } from "@/lib/services/events";
 import { MembersPageShell } from "@/components/ui/MembersPageShell";
 import { StandAssetsManager } from "@/components/dashboard/StandAssetsManager";
 
@@ -29,6 +30,10 @@ export default async function ManageStandAssetsPage({ searchParams }: PageProps)
   const eventId = queryEventId || defaultEventId;
   const exId = resolvedParams.ex_id || "";
 
+  // The booth lives at /virtual-event/<event slug>?mybooth=1&ex_id=<id>, so the designer needs
+  // this event's friendly_url to build its "view / share this booth" links.
+  const event = await getEventById(eventId);
+
   const context = (await getEventMemberContext(eventId, Number(session.user.id))) ?? {
     role: "organiser" as const, // Fallback gracefully to let organisers manage stand assets in demo mode
     eventId,
@@ -49,6 +54,7 @@ export default async function ManageStandAssetsPage({ searchParams }: PageProps)
         initialEventId={eventId}
         userRole={context.role}
         initialSelectedExId={exId}
+        eventSlug={event?.friendly_url ?? undefined}
       />
     </MembersPageShell>
   );

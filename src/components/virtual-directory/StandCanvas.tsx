@@ -14,6 +14,8 @@ interface SpotAsset {
   width: number;
   height: number;
   src: string;
+  /** A video slot (e.g. the Basic Stand's wall screen) renders a looping <video>, not an <img>. */
+  isVideo?: boolean;
 }
 
 interface SocialLink {
@@ -128,19 +130,40 @@ export function StandCanvas({
       {/* Template-slot coordinates line up with the seeded stand templates as well as the default
           frame, and the editor offers those six slots on EVERY background — gating them on the
           fallback made artwork an exhibitor had just uploaded invisible to visitors. */}
-      {templateSpots.map((spot) => (
+      {templateSpots.map((spot) => {
+        const style = {
+          left: `${spot.x}%`,
+          top: `${spot.y}%`,
+          width: `${spot.width}%`,
+          height: `${spot.height}%`,
+        };
+        // Muted + loop: several stands on screen at once must not become a wall of noise, and
+        // autoplay is only allowed at all while muted.
+        return spot.isVideo ? (
+          <video
+            key={`tpl-${spot.id}`}
+            src={spot.src}
+            className="absolute object-cover drop-shadow-xl"
+            style={style}
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+        ) : (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             key={`tpl-${spot.id}`}
             src={spot.src}
             alt={spot.title || "Stand asset"}
             className="absolute object-contain drop-shadow-xl"
-            style={{ left: `${spot.x}%`, top: `${spot.y}%`, width: `${spot.width}%`, height: `${spot.height}%` }}
+            style={style}
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).style.display = "none";
             }}
           />
-        ))}
+        );
+      })}
 
       {spots.map((spot) => (
         // eslint-disable-next-line @next/next/no-img-element

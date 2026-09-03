@@ -28,6 +28,8 @@ export interface BoothSpot {
   height: number;
   /** Artwork to paint in the box, when the spot has any. */
   src?: string;
+  /** A video slot (e.g. the Basic Stand's wall screen) renders a looping <video>, not an <img>. */
+  isVideo?: boolean;
   /** True for the interactive tiles (Schedule a Meeting, Video Call, Chat, Sales Team, screens). */
   interactive?: boolean;
 }
@@ -121,24 +123,38 @@ export function BoothView({
         {/* Uploaded artwork — the six banner slots plus whatever the DB hotspots carry. */}
         {spots
           .filter((spot) => spot.src)
-          .map((spot) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              key={`art-${spot.id}`}
-              src={spot.src}
-              alt={spot.title || "Stand artwork"}
-              className="absolute object-fill"
-              style={{
-                left: `${spot.x}%`,
-                top: `${spot.y}%`,
-                width: `${spot.width}%`,
-                height: `${spot.height}%`,
-              }}
-              onError={(e) => {
-                (e.currentTarget as HTMLImageElement).style.display = "none";
-              }}
-            />
-          ))}
+          .map((spot) => {
+            const style = {
+              left: `${spot.x}%`,
+              top: `${spot.y}%`,
+              width: `${spot.width}%`,
+              height: `${spot.height}%`,
+            };
+            return spot.isVideo ? (
+              <video
+                key={`art-${spot.id}`}
+                src={spot.src}
+                className="absolute object-cover"
+                style={style}
+                autoPlay
+                muted
+                loop
+                playsInline
+              />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={`art-${spot.id}`}
+                src={spot.src}
+                alt={spot.title || "Stand artwork"}
+                className="absolute object-fill"
+                style={style}
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).style.display = "none";
+                }}
+              />
+            );
+          })}
 
         {/* Red pulsing markers over the interactive tiles, as on the reference booth. Centred in
             their box so the dot lands on the tile art rather than in its corner. */}

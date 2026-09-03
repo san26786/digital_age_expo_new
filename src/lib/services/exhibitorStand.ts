@@ -19,8 +19,14 @@ export interface ResolvedStand {
   zoneName: string;
   standImage: string;
   spots: ResolvedStandSpot[];
-  /** Fixed template-slot artwork, keyed by STAND_TEMPLATE_SLOTS.key. See the note where it is built. */
+  /** Fixed template-slot artwork, keyed by slot key. See the note where it is built. */
   templateSlots: { key: string; url: string }[];
+  /**
+   * The Exhibitor Stand Layout's own title ("Basic Stand", "Ultra Stand", ...). Decides WHICH set
+   * of fixed upload slots this stand uses — see slotsForStandLayout(). Empty when the exhibitor
+   * has no layout assigned and the generic fallback background is showing.
+   */
+  standLayoutTitle: string;
 }
 
 /**
@@ -164,7 +170,7 @@ export async function resolveExhibitorStand(exhibitor: any, eventId: number): Pr
     // Template slots are additive — failing to resolve them must not blank the stand.
   }
 
-  return { zoneName, standImage, spots, templateSlots };
+  return { zoneName, standImage, spots, templateSlots, standLayoutTitle: lobbyChild?.title ?? "" };
 }
 
 /**

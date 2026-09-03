@@ -224,16 +224,18 @@ export interface LobbyFooterMenuItem {
 }
 
 /** Resolves a menu row's real destination — mirrors the handful of post-actions this app
- * actually has native pages for (see resolveMenuChildHref, which does the same for hotspot/
- * dropdown children). Returns null (never a dead "#") when nothing matches yet. */
+ * actually has native pages for. Returns null (never a dead "#") when nothing matches yet.
+ *
+ * This is the same resolution the hotspot/dropdown children use, so it simply delegates rather
+ * than keeping a second copy: the two drifted apart once already, and the footer's copy was the
+ * one missing the layout_id branch — which meant every exhibition-zone entry in the footer
+ * dropdown rendered as "coming soon" even though its zone existed. */
 function resolveLobbyHref(row: {
   networking_room_id: number | null;
   exhibitor_id: number | null;
   layout_id: number | null;
 }): string | null {
-  if (row.exhibitor_id) return `/exhibitors?exhibitor=${row.exhibitor_id}`;
-  if (row.networking_room_id) return `/networking?room=${row.networking_room_id}`;
-  return null;
+  return resolveMenuChildHref(row);
 }
 
 /**
