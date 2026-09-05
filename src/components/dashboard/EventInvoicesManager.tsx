@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   FileText,
   Search,
@@ -19,23 +19,28 @@ import {
 import type { EventInvoiceItem } from "@/lib/services/eventInvoices";
 
 import { ModalPortal } from "@/components/ui/ModalPortal";
+import { TablePagination } from "@/components/dashboard/TablePagination";
 interface EventInvoicesManagerProps {
   eventId: number;
   invoices: EventInvoiceItem[];
   isFranchise: boolean;
 }
 
+/** Matches the row count the other admin tables page at. */
+const PAGE_SIZE = 20;
+
 export function EventInvoicesManager({ eventId, invoices, isFranchise }: EventInvoicesManagerProps) {
   const [keyword, setKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [orderTypeFilter, setOrderTypeFilter] = useState("");
   const [selectedInvoices, setSelectedInvoices] = useState<number[]>([]);
+  const [page, setPage] = useState(1);
 
   // Modals state
   const [activeModal, setActiveModal] = useState<"product" | "listing" | "feed" | "custom" | null>(null);
   const [activeItem, setActiveItem] = useState<EventInvoiceItem | null>(null);
 
-  const filteredInvoices = invoices.filter((inv) => {
+  const filteredInvoices = useMemo(() => invoices.filter((inv) => {
     const matchKeyword =
       !keyword ||
       inv.name.toLowerCase().includes(keyword.toLowerCase()) ||
@@ -47,13 +52,38 @@ export function EventInvoicesManager({ eventId, invoices, isFranchise }: EventIn
     const matchType = !orderTypeFilter || inv.type.toLowerCase().includes(orderTypeFilter.toLowerCase());
 
     return matchKeyword && matchStatus && matchType;
-  });
+  }), [invoices, keyword, statusFilter, orderTypeFilter]);
+
+  /*
+   * Back to page 1 whenever the filters change.
+   *
+   * Without this, narrowing a 90-row list while sitting on page 5 leaves you on a page that no
+   * longer exists and the table renders empty — which reads as "the filter found nothing".
+   */
+  useEffect(() => {
+    setPage(1);
+  }, [keyword, statusFilter, orderTypeFilter]);
+
+  const pagedInvoices = useMemo(
+    () => filteredInvoices.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [filteredInvoices, page]
+  );
+
+  /*
+   * Select-all covers THIS PAGE, not the whole filtered set.
+   *
+   * Before pagination the two were the same thing. Now they are not, and a checkbox that
+   * silently selects 90 invoices when 20 are on screen is how someone bulk-mails the wrong
+   * people. The header box reflects the visible rows for the same reason.
+   */
+  const pageIds = pagedInvoices.map((i) => i.id);
+  const allOnPageSelected = pageIds.length > 0 && pageIds.every((id) => selectedInvoices.includes(id));
 
   const toggleSelectAll = () => {
-    if (selectedInvoices.length === filteredInvoices.length) {
-      setSelectedInvoices([]);
+    if (allOnPageSelected) {
+      setSelectedInvoices((prev) => prev.filter((id) => !pageIds.includes(id)));
     } else {
-      setSelectedInvoices(filteredInvoices.map((i) => i.id));
+      setSelectedInvoices((prev) => [...new Set([...prev, ...pageIds])]);
     }
   };
 
@@ -142,7 +172,7 @@ export function EventInvoicesManager({ eventId, invoices, isFranchise }: EventIn
                 <th className="px-6 py-4 font-black uppercase tracking-wider text-center w-12">
                   <input
                     type="checkbox"
-                    checked={selectedInvoices.length === filteredInvoices.length && filteredInvoices.length > 0}
+                    checked={allOnPageSelected}
                     onChange={toggleSelectAll}
                     className="rounded border-white/20 bg-black/40 text-brand-pink focus:ring-0 cursor-pointer"
                   />
@@ -169,7 +199,7 @@ export function EventInvoicesManager({ eventId, invoices, isFranchise }: EventIn
                   </td>
                 </tr>
               ) : (
-                filteredInvoices.map((inv) => (
+                pagedInvoices.map((inv) => (
                   <tr key={inv.id} className="hover:bg-white/5 transition-colors">
                     <td className="px-4 py-4 text-center">
                       <input
@@ -249,6 +279,14 @@ export function EventInvoicesManager({ eventId, invoices, isFranchise }: EventIn
             </tbody>
           </table>
         </div>
+
+        <TablePagination
+          currentPage={page}
+          totalItems={filteredInvoices.length}
+          pageSize={PAGE_SIZE}
+          onPageChange={setPage}
+          className="px-6 pb-6"
+        />
       </div>
 
       {/* Newsletter Modals */}

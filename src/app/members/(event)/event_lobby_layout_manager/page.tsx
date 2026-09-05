@@ -7,7 +7,7 @@ import { getServerSession } from "next-auth";
 import { Home, ChevronRight, ExternalLink } from "lucide-react";
 import { authOptions } from "@/lib/auth/options";
 import { getDomain } from "@/lib/services/domain";
-import { getEventMemberContext } from "@/lib/services/eventAccess";
+import { getEventMemberContext, canManageLobby, LOBBY_ACCESS_DENIED } from "@/lib/services/eventAccess";
 import { getEventById } from "@/lib/services/events";
 import { getLobbies, getPrimaryLobby, type LobbyRow } from "@/lib/services/eventLobby";
 import { getAuditoriumChildLobby } from "@/lib/services/eventLobbyChild";
@@ -67,15 +67,15 @@ export default async function EventLobbyLayoutManagerPage({
     userId: Number(session.user.id),
   };
 
-  if (context.role !== "organiser") {
+  // Not `role === "organiser"`: the lobby is run by the event's team, not only by the single
+  // account that owns the event row. canManageLobby() is the one place that rule lives.
+  if (!canManageLobby(context)) {
     return (
       <div className="section-transition space-y-6">
         <Breadcrumb eventId={eventId} />
         <h1 className="text-3xl font-black uppercase text-white">Lobby Details</h1>
         <div className="glass-panel rounded-2xl p-8 text-center border-dashed border-white/10">
-          <p className="text-zinc-400 font-medium italic">
-            Virtual lobby configuration is restricted to event organisers.
-          </p>
+          <p className="text-zinc-400 font-medium italic">{LOBBY_ACCESS_DENIED}</p>
         </div>
       </div>
     );

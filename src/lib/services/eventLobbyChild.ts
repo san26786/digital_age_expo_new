@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { canManageLobby } from "@/lib/services/eventAccess";
 import type { EventMemberContext } from "@/lib/services/eventAccess";
 import type { EventLobbyChildInput } from "@/lib/validations/eventLobbyChild";
 
@@ -41,7 +42,7 @@ function toRow(c: any): ChildLobbyRow {
 }
 
 export async function getChildLobbyById(context: EventMemberContext, id: number): Promise<ChildLobbyRow | null> {
-  if (context.role !== "organiser") return null;
+  if (!canManageLobby(context)) return null;
   const row = await prisma.find_event_lobby_child_layout_manager.findFirst({
     where: { id, event_id: context.eventId },
     select: SELECT_FIELDS,
@@ -51,7 +52,7 @@ export async function getChildLobbyById(context: EventMemberContext, id: number)
 
 /** Mirrors members/event_lobby_layout_child.php's list — child layouts (zones) under an event's primary lobby. */
 export async function getChildLobbies(context: EventMemberContext, eventLayoutId: number): Promise<ChildLobbyRow[]> {
-  if (context.role !== "organiser") return [];
+  if (!canManageLobby(context)) return [];
   const rows = await prisma.find_event_lobby_child_layout_manager.findMany({
     where: { event_layout_id: eventLayoutId, event_id: context.eventId },
     orderBy: { id: "desc" },
@@ -61,11 +62,31 @@ export async function getChildLobbies(context: EventMemberContext, eventLayoutId
 }
 
 /** Mirrors the `action=change_auditiorium_link` branch of event_lobby_layout_manager.php, which
- * resolves the event's single "auditorium" zone to jump straight to its spot editor. */
+ * resolves the event's single "auditorium" zone to jump straight to its spot editor.
+ *
+ * SCOPED BY event_layout_id, NOT event_id. The legacy lookup is
+ * `WHERE event_layout_id=? AND layout_type='auditorium'`, and copying our usual
+ * `event_id: context.eventId` filter onto it quietly breaks on migrated data: these lobby tables
+ * carry rows whose event_id was never stamped. The column is a non-null Int here, so the
+ * degenerate value is 0 — event_lobby_spots.php ships a repair statement for exactly that case
+ * on its own table —
+ *
+ *     UPDATE find_event_lobby_spots SET event_id=? WHERE event_layout_id=? AND (event_id IS NULL OR event_id=0)
+ *
+ * A row like that still has the right event_layout_id, so it belongs to this event; requiring
+ * event_id as well would return nothing and send the organiser to "no auditorium zone" instead
+ * of the spot editor. The scoping is not weakened: eventLayoutId comes from getPrimaryLobby(),
+ * which is already event-scoped and organiser-gated, so a child of that layout is by definition
+ * a child of this event's lobby. Rows that DO carry an event_id must still match it, so a
+ * mis-stamped row from another event cannot slip through. */
 export async function getAuditoriumChildLobby(context: EventMemberContext, eventLayoutId: number): Promise<ChildLobbyRow | null> {
-  if (context.role !== "organiser") return null;
+  if (!canManageLobby(context)) return null;
   const row = await prisma.find_event_lobby_child_layout_manager.findFirst({
-    where: { event_layout_id: eventLayoutId, event_id: context.eventId, layout_type: "auditorium" },
+    where: {
+      event_layout_id: eventLayoutId,
+      layout_type: "auditorium",
+      OR: [{ event_id: context.eventId }, { event_id: 0 }],
+    },
     orderBy: { id: "asc" },
     select: SELECT_FIELDS,
   });
@@ -73,7 +94,7 @@ export async function getAuditoriumChildLobby(context: EventMemberContext, event
 }
 
 export async function createChildLobby(context: EventMemberContext, eventLayoutId: number, input: EventLobbyChildInput) {
-  if (context.role !== "organiser") return null;
+  if (!canManageLobby(context)) return null;
   return prisma.find_event_lobby_child_layout_manager.create({
     data: {
       event_id: context.eventId,
@@ -93,7 +114,7 @@ export async function createChildLobby(context: EventMemberContext, eventLayoutI
 }
 
 export async function updateChildLobby(context: EventMemberContext, id: number, input: EventLobbyChildInput) {
-  if (context.role !== "organiser") return { count: 0 };
+  if (!canManageLobby(context)) return { count: 0 };
   return prisma.find_event_lobby_child_layout_manager.updateMany({
     where: { id, event_id: context.eventId },
     data: {
@@ -110,13 +131,13 @@ export async function updateChildLobby(context: EventMemberContext, id: number, 
 }
 
 export async function deleteChildLobby(context: EventMemberContext, id: number) {
-  if (context.role !== "organiser") return { count: 0 };
+  if (!canManageLobby(context)) return { count: 0 };
   return prisma.find_event_lobby_child_layout_manager.deleteMany({ where: { id, event_id: context.eventId } });
 }
 
 /** Mirrors Event_Lobby::copyChild() — duplicates a child layout row, only offered for exhibition/auditorium zones. */
 export async function copyChildLobby(context: EventMemberContext, id: number) {
-  if (context.role !== "organiser") return null;
+  if (!canManageLobby(context)) return null;
   const source = await prisma.find_event_lobby_child_layout_manager.findFirst({
     where: { id, event_id: context.eventId },
   });

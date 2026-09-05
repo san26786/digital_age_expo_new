@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { canManageLobby } from "@/lib/services/eventAccess";
 import type { EventMemberContext } from "@/lib/services/eventAccess";
 import type { EventLobbyInput } from "@/lib/validations/eventLobby";
 
@@ -59,7 +60,7 @@ function toRow(l: any): LobbyRow {
  * legacy pages' single-row assumption).
  */
 export async function getPrimaryLobby(context: EventMemberContext): Promise<LobbyRow | null> {
-  if (context.role !== "organiser") return null;
+  if (!canManageLobby(context)) return null;
   const row = await prisma.find_event_lobby_layout_manager.findFirst({
     where: { event_id: context.eventId },
     orderBy: { id: "asc" },
@@ -85,7 +86,7 @@ export async function getPublicLobby(eventId: number): Promise<LobbyRow | null> 
 
 /** Mirrors members/event_lobby_layout_manager.php's list view — organiser-only lobby layouts for this event. */
 export async function getLobbies(context: EventMemberContext): Promise<LobbyRow[]> {
-  if (context.role !== "organiser") return [];
+  if (!canManageLobby(context)) return [];
   const rows = await prisma.find_event_lobby_layout_manager.findMany({
     where: { event_id: context.eventId },
     orderBy: { id: "desc" },
@@ -95,7 +96,7 @@ export async function getLobbies(context: EventMemberContext): Promise<LobbyRow[
 }
 
 export async function createLobby(context: EventMemberContext, input: EventLobbyInput) {
-  if (context.role !== "organiser") return null;
+  if (!canManageLobby(context)) return null;
   return prisma.find_event_lobby_layout_manager.create({
     data: {
       event_id: context.eventId,
@@ -118,7 +119,7 @@ export async function createLobby(context: EventMemberContext, input: EventLobby
 }
 
 export async function updateLobby(context: EventMemberContext, id: number, input: EventLobbyInput) {
-  if (context.role !== "organiser") return { count: 0 };
+  if (!canManageLobby(context)) return { count: 0 };
   return prisma.find_event_lobby_layout_manager.updateMany({
     where: { id, event_id: context.eventId },
     data: {
@@ -139,7 +140,7 @@ export async function updateLobby(context: EventMemberContext, id: number, input
 }
 
 export async function deleteLobby(context: EventMemberContext, id: number) {
-  if (context.role !== "organiser") return { count: 0 };
+  if (!canManageLobby(context)) return { count: 0 };
   return prisma.find_event_lobby_layout_manager.deleteMany({ where: { id, event_id: context.eventId } });
 }
 
@@ -173,7 +174,7 @@ export async function getLobbyTemplates(): Promise<LobbyTemplateOption[]> {
  * fresh find_event_lobby_layout_manager row scoped to this organiser's event.
  */
 export async function importLobbyFromTemplate(context: EventMemberContext, templateId: number) {
-  if (context.role !== "organiser") return null;
+  if (!canManageLobby(context)) return null;
   const template = await prisma.find_event_lobby_templates.findUnique({ where: { id: templateId } });
   if (!template) return null;
 

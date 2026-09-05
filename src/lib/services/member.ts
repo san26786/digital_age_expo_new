@@ -234,6 +234,10 @@ export async function getMemberProfile(userId: number) {
       user_last_name: "Organiser",
       user_phone: "+44 7111 222333",
       user_organization: "Digital Age Expo Management",
+      user_position: "",
+      linkedin_user_profile: "",
+      date_of_birth: null,
+      profile_description: "",
       timezone: "Europe/London",
       created: new Date(),
     };
@@ -247,6 +251,10 @@ export async function getMemberProfile(userId: number) {
       user_last_name: "Exhibitor",
       user_phone: "+44 7123 456789",
       user_organization: "InnovateTech Exhibitions",
+      user_position: "",
+      linkedin_user_profile: "",
+      date_of_birth: null,
+      profile_description: "",
       timezone: "Europe/London",
       created: new Date(),
     };
@@ -260,6 +268,10 @@ export async function getMemberProfile(userId: number) {
       user_last_name: "Speaker",
       user_phone: "+44 7987 654321",
       user_organization: "Future AI Labs",
+      user_position: "",
+      linkedin_user_profile: "",
+      date_of_birth: null,
+      profile_description: "",
       timezone: "Europe/London",
       created: new Date(),
     };
@@ -273,6 +285,10 @@ export async function getMemberProfile(userId: number) {
       user_last_name: "Visitor",
       user_phone: "+44 7555 666777",
       user_organization: "Global Visitors Network",
+      user_position: "",
+      linkedin_user_profile: "",
+      date_of_birth: null,
+      profile_description: "",
       timezone: "Europe/London",
       created: new Date(),
     };
@@ -286,6 +302,10 @@ export async function getMemberProfile(userId: number) {
       user_last_name: "Member",
       user_phone: "+44 7000 000000",
       user_organization: "Digital Age Expo",
+      user_position: "",
+      linkedin_user_profile: "",
+      date_of_birth: null,
+      profile_description: "",
       timezone: "Europe/London",
       created: new Date(),
     };
@@ -301,6 +321,12 @@ export async function getMemberProfile(userId: number) {
       user_last_name: true,
       user_phone: true,
       user_organization: true,
+      // Job title and LinkedIn, so /account_onboarding can prefill Personal Details from the
+      // signed-in account instead of presenting the user an empty form about themselves.
+      user_position: true,
+      linkedin_user_profile: true,
+      date_of_birth: true,
+      profile_description: true,
       timezone: true,
       created: true,
     },

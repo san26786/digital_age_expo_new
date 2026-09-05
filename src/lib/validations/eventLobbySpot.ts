@@ -9,12 +9,20 @@ import { z } from "zod";
  */
 export const LOBBY_SPOT_TYPES = ["info", "video", "link", "networking"] as const;
 
+/**
+ * Size is OPTIONAL, and its absence is meaningful: a spot with no width/height is a point marker,
+ * a spot with both is a panel (one of the screens on the zone artwork). Never default these to a
+ * number — a zero-size panel is invisible and a defaulted one silently turns every marker into a
+ * box.
+ */
 export const eventLobbySpotSchema = z.object({
   title: z.string().trim().max(120).optional().or(z.literal("")),
   spot_type: z.enum(LOBBY_SPOT_TYPES).default("info"),
   redirection_path: z.string().trim().max(255).optional().or(z.literal("")),
   x: z.coerce.number().min(0).max(100),
   y: z.coerce.number().min(0).max(100),
+  width: z.coerce.number().min(1).max(100).optional(),
+  height: z.coerce.number().min(1).max(100).optional(),
 });
 
 export type EventLobbySpotInput = z.infer<typeof eventLobbySpotSchema>;

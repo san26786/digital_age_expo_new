@@ -6,7 +6,7 @@ import { getServerSession } from "next-auth";
 import { Home, ChevronRight, CircleDot } from "lucide-react";
 import { authOptions } from "@/lib/auth/options";
 import { getDomain } from "@/lib/services/domain";
-import { getEventMemberContext } from "@/lib/services/eventAccess";
+import { getEventMemberContext, canManageLobby, LOBBY_ACCESS_DENIED } from "@/lib/services/eventAccess";
 import { getPrimaryLobby } from "@/lib/services/eventLobby";
 import { getChildLobbyById } from "@/lib/services/eventLobbyChild";
 import { getSpots } from "@/lib/services/eventLobbySpots";
@@ -88,15 +88,15 @@ export default async function EventLobbySpotsPage({
     userId: Number(session.user.id),
   };
 
-  if (context.role !== "organiser") {
+  // Not `role === "organiser"`: the lobby is run by the event's team, not only by the single
+  // account that owns the event row. canManageLobby() is the one place that rule lives.
+  if (!canManageLobby(context)) {
     return (
       <div className="section-transition space-y-6">
         <Breadcrumb eventId={eventId} />
         <h1 className="text-3xl font-black uppercase text-white">Lobby Spots</h1>
         <div className="glass-panel rounded-2xl p-8 text-center border-dashed border-white/10">
-          <p className="text-zinc-400 font-medium italic">
-            Virtual lobby configuration is restricted to event organisers.
-          </p>
+          <p className="text-zinc-400 font-medium italic">{LOBBY_ACCESS_DENIED}</p>
         </div>
       </div>
     );
@@ -150,12 +150,27 @@ export default async function EventLobbySpotsPage({
     ? standTemplateUrl(child.image)
     : lobbyAssetUrl(lobby.image);
 
+  /*
+   * A zone's artwork is a STILL far more often than a clip — the auditorium reached from
+   * "Change Auditorium link" is files/lobby/child/event_1470.png. The old code only ever looked
+   * for a video, so any PNG-backed zone fell through to DEFAULT_LOBBY_VIDEO and drew the correct
+   * spots over the wrong room. The legacy template branches on the extension
+   * (`strpos($image, ".mp4")` -> <video>, else <img>), so this does the same and hands the canvas
+   * whichever one applies.
+   *
+   * The image is passed through even when it is not on disk yet: the canvas says so plainly
+   * rather than substituting an unrelated clip, and it starts working by itself once
+   * `npm run images:download` has mirrored public/images/external/**.
+   */
+  const backgroundIsVideo = isLobbyVideoAsset(rawBackground);
+
   const configuredVideo =
-    resolvedBackground &&
-    isLobbyVideoAsset(rawBackground) &&
-    publicFileExists(resolvedBackground)
+    resolvedBackground && backgroundIsVideo && publicFileExists(resolvedBackground)
       ? resolvedBackground
       : null;
+
+  const backgroundImage: string | null =
+    !backgroundIsVideo && resolvedBackground ? resolvedBackground : null;
 
   const backgroundVideo: string = configuredVideo ?? DEFAULT_LOBBY_VIDEO;
 
@@ -182,6 +197,7 @@ export default async function EventLobbySpotsPage({
         <LobbySpotsCanvas
           spots={spots}
           backgroundVideo={backgroundVideo}
+          backgroundImage={backgroundImage}
           childId={child?.id}
         />
       </div>

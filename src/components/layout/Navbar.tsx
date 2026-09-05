@@ -17,7 +17,6 @@ import {
 
 import { MenuItem } from "@/lib/services/menu";
 import { LogoutButton } from "@/components/member/LogoutButton";
-import { DEFAULT_EVENT_ID } from "@/lib/site-config";
 
 interface NavbarProps {
   menu: MenuItem[];
@@ -485,7 +484,7 @@ export function Navbar({
                 </Link>
 
                 <Link
-                  href={`/account_onboarding?event_id=${DEFAULT_EVENT_ID}`}
+                  href="/account_onboarding"
                   className="group/link flex items-center justify-between rounded-xl px-3 py-2.5 text-xs font-semibold text-zinc-300 hover:bg-white/5 hover:text-white"
                 >
                   Account Onboarding
@@ -810,7 +809,7 @@ export function Navbar({
                   </Link>
 
                   <Link
-                    href={`/account_onboarding?event_id=${DEFAULT_EVENT_ID}`}
+                    href="/account_onboarding"
                     onClick={() =>
                       setDrawerOpen(false)
                     }

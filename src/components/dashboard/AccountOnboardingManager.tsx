@@ -78,23 +78,69 @@ const STEP_ICONS = [
   CheckCircle,
 ];
 
-export function AccountOnboardingManager() {
+/**
+ * The signed-in user's own details, read server-side from their session and passed in. The
+ * wizard never fetches an identity itself and never takes one from the URL.
+ */
+export interface OnboardingProfile {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  jobTitle: string;
+  linkedin: string;
+  businessName: string;
+  dateOfBirth: string;
+  profileDescription: string;
+}
+
+/**
+ * The step-1 fields that mirror the user's find_users row. They are re-seeded from the server on
+ * every load (see the restore effect), so this list is the single place that decides which fields
+ * the account owns and which the draft owns.
+ */
+const IDENTITY_FIELDS = [
+  "firstName",
+  "lastName",
+  "email",
+  "phone",
+  "jobTitle",
+  "linkedin",
+  "dateOfBirth",
+  "profileDescription",
+  "businessName",
+] as const;
+
+const DRAFT_KEY = "findusonweb_onboarding_data";
+const STEP_KEY = "findusonweb_onboarding_step";
+/** Which account the saved draft belongs to — see the restore effect for why this matters. */
+const OWNER_KEY = "findusonweb_onboarding_user";
+
+export function AccountOnboardingManager({
+  userId,
+  initialProfile,
+}: {
+  userId: number;
+  initialProfile: OnboardingProfile;
+}) {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
-    // Step 1: Personal Details
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    jobTitle: "",
-    linkedin: "",
+    // Step 1: Personal Details — seeded from the signed-in account, editable from here on.
+    firstName: initialProfile.firstName,
+    lastName: initialProfile.lastName,
+    email: initialProfile.email,
+    phone: initialProfile.phone,
+    jobTitle: initialProfile.jobTitle,
+    linkedin: initialProfile.linkedin,
+    dateOfBirth: initialProfile.dateOfBirth,
+    profileDescription: initialProfile.profileDescription,
 
     // Step 2: Choose a Business
     businessRelationType: "register", // "register" | "claim"
     businessSearchQuery: "",
 
     // Step 3: Business Profile
-    businessName: "",
+    businessName: initialProfile.businessName,
     category: "Technology",
     website: "",
     businessDescription: "",
@@ -172,13 +218,47 @@ export function AccountOnboardingManager() {
     cardDisplayAddress: "",
   });
 
-  // Load from LocalStorage on mount
+  /**
+   * Restore an in-progress draft from this browser.
+   *
+   * Two things this has to get right, neither of which the old version did:
+   *
+   *  - THE DRAFT MUST BELONG TO THIS ACCOUNT. The draft is one shared localStorage key on a
+   *    device that may be shared — a stand PC, a family laptop. Restoring it unconditionally
+   *    would show the previous person's name, email and phone to whoever signs in next. So the
+   *    owning user id is stored with it, and a draft belonging to someone else is discarded.
+   *
+   *  - MERGE, DON'T REPLACE. The old code did setFormData(JSON.parse(saved)), swapping the whole
+   *    object for whatever shape was saved. Any field added to the wizard later would come back
+   *    `undefined` for a returning user, flipping its input from controlled to uncontrolled.
+   *    Spreading the saved values over the current defaults keeps new fields defined.
+   */
   useEffect(() => {
-    const saved = localStorage.getItem("findusonweb_onboarding_data");
-    const savedStep = localStorage.getItem("findusonweb_onboarding_step");
+    const owner = localStorage.getItem(OWNER_KEY);
+    if (owner && owner !== String(userId)) {
+      localStorage.removeItem(DRAFT_KEY);
+      localStorage.removeItem(STEP_KEY);
+      localStorage.removeItem(OWNER_KEY);
+      return;
+    }
+
+    const saved = localStorage.getItem(DRAFT_KEY);
+    const savedStep = localStorage.getItem(STEP_KEY);
     if (saved) {
       try {
-        setFormData(JSON.parse(saved));
+        const parsed = JSON.parse(saved);
+        setFormData((current) => {
+          const merged = { ...current, ...parsed };
+          // A draft saved BEFORE the page learned to prefill holds "" for every identity field,
+          // and a blank string is a perfectly valid value to spread — so the merge above happily
+          // overwrote the account details with nothing, which is why the form kept rendering
+          // empty for a signed-in user. An empty draft value means "never filled in", not
+          // "deliberately cleared", so the account's own value wins over it.
+          for (const key of IDENTITY_FIELDS) {
+            if (!merged[key]) merged[key] = current[key];
+          }
+          return merged;
+        });
       } catch (e) {
         console.error("Error loading onboarding state", e);
       }
@@ -189,12 +269,13 @@ export function AccountOnboardingManager() {
         setCurrentStep(stepIdx);
       }
     }
-  }, []);
+  }, [userId]);
 
   // Save to LocalStorage whenever state changes
   const saveState = (data: typeof formData, step: number) => {
-    localStorage.setItem("findusonweb_onboarding_data", JSON.stringify(data));
-    localStorage.setItem("findusonweb_onboarding_step", String(step));
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+    localStorage.setItem(STEP_KEY, String(step));
+    localStorage.setItem(OWNER_KEY, String(userId));
   };
 
   const updateField = (key: keyof typeof formData, value: any) => {
@@ -229,8 +310,9 @@ export function AccountOnboardingManager() {
 
   const handleReset = () => {
     if (confirm("Are you sure you want to clear your progress and restart?")) {
-      localStorage.removeItem("findusonweb_onboarding_data");
-      localStorage.removeItem("findusonweb_onboarding_step");
+      localStorage.removeItem(DRAFT_KEY);
+      localStorage.removeItem(STEP_KEY);
+      localStorage.removeItem(OWNER_KEY);
       window.location.reload();
     }
   };
@@ -409,6 +491,28 @@ export function AccountOnboardingManager() {
                       value={formData.linkedin}
                       onChange={(e) => updateField("linkedin", e.target.value)}
                       placeholder="https://linkedin.com/in/username"
+                      className="w-full px-4 py-2.5 bg-zinc-950/50 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                    />
+                  </div>
+                  {/* Date of Birth and Profile Description exist on the legacy Personal Details
+                      step and on find_users, but had no field here — so the data was read and
+                      then had nowhere to go. */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-semibold text-zinc-300">Date of Birth</label>
+                    <input
+                      type="date"
+                      value={formData.dateOfBirth}
+                      onChange={(e) => updateField("dateOfBirth", e.target.value)}
+                      className="w-full px-4 py-2.5 bg-zinc-950/50 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                    />
+                  </div>
+                  <div className="space-y-2 sm:col-span-2">
+                    <label className="text-xs font-semibold text-zinc-300">Profile Description</label>
+                    <textarea
+                      rows={4}
+                      value={formData.profileDescription}
+                      onChange={(e) => updateField("profileDescription", e.target.value)}
+                      placeholder="A short introduction that appears on your public profile."
                       className="w-full px-4 py-2.5 bg-zinc-950/50 border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500 transition-colors"
                     />
                   </div>

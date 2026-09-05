@@ -66,6 +66,7 @@ import {
   ChevronDown,
   ChevronsDown,
   type LucideIcon,
+  Handshake,
 } from "lucide-react";
 import { DEFAULT_EVENT_ID } from "@/lib/site-config";
 
@@ -493,7 +494,18 @@ function buildTabs(eventId: number | string, eventSlug?: string | null): Tab[] {
         },
         {
           title: "Enter the show",
-          href: `${BASE}/event_lobby_layout_manager?action=view_lobby&${q}`,
+          /*
+           * The lobby itself, same as "View My Booth" above and for the same reason: the old
+           * href went to event_lobby_layout_manager?action=view_lobby, a members page that only
+           * redirects after rendering its organiser guard, so an exhibitor clicking this landed
+           * on the guard instead of the show.
+           *
+           * The slug is the event's own friendly_url, passed down from the server component —
+           * never hardcoded, so this stays correct for every event, not just 1474.
+           */
+          href: eventSlug
+            ? `/virtual-event/${eventSlug}`
+            : `${BASE}/event_lobby_layout_manager?action=view_lobby&${q}`,
           icon: Eye,
         },
         {
@@ -535,8 +547,13 @@ function buildTabs(eventId: number | string, eventSlug?: string | null): Tab[] {
         },
         {
           title: "Buy Sponsorship",
-          href: `${BASE}/event_ticket?${q}`,
-          icon: Home,
+          /*
+           * The purchase form, not the Event Tickets admin screen this used to open — which is
+           * why clicking Buy Sponsorship landed on "Event Tickets". Mirrors the legacy
+           * advertise.php?action=add&type=sponsorship_option&event_id=<id>.
+           */
+          href: `${BASE}/buy_sponsorship?${q}`,
+          icon: Handshake,
           colorClass: "bg-red-600 hover:bg-red-700",
         },
         {

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios, { isAxiosError } from "axios";
-import { Target, Video, Link2, Users, Pencil, Trash2, X, Check } from "lucide-react";
+import { Target, Video, Link2, Users, Pencil, Trash2, X, Check, ImagePlus } from "lucide-react";
 import { eventLobbySpotSchema, LOBBY_SPOT_TYPES, type EventLobbySpotInput } from "@/lib/validations/eventLobbySpot";
 import type { LobbySpotRow } from "@/lib/services/eventLobbySpots";
 
@@ -24,6 +24,15 @@ const TYPE_META: Record<(typeof LOBBY_SPOT_TYPES)[number], { icon: typeof Target
   networking: { icon: Users, label: "Networking", dot: "bg-emerald-600" },
 };
 
+/**
+ * Default footprint for a hand-placed browse area, in percent of the artwork.
+ *
+ * Sized to roughly match the hall screens in the legacy auditorium data (35.7% x 35.1%), so a
+ * fresh panel lands close to the right size and usually needs nudging rather than rebuilding.
+ */
+const DEFAULT_PANEL_WIDTH = 35;
+const DEFAULT_PANEL_HEIGHT = 35;
+
 interface LobbySpotsCanvasProps {
   spots: LobbySpotRow[];
   /**
@@ -31,6 +40,16 @@ interface LobbySpotsCanvasProps {
    * Optional — falls back to DEFAULT_BACKGROUND_VIDEO if not provided.
    */
   backgroundVideo?: string | null;
+  /**
+   * Public path to a background STILL, e.g. "/images/external/lobby/child/event_1470.png".
+   *
+   * A child zone's artwork is usually a PNG, not a clip — the auditorium this page is reached
+   * from is `files/lobby/child/event_1470.png`. The legacy template branches on exactly this
+   * (`strpos($image, ".mp4")` picks <video>, everything else falls through to <img class="img-fluid">),
+   * and without the image branch a PNG-backed zone silently rendered the default clip: the right
+   * spots floating over the wrong room. When set, this wins over backgroundVideo.
+   */
+  backgroundImage?: string | null;
   childId?: number;
 }
 
@@ -80,13 +99,26 @@ function SpotFormModal({
       redirection_path: defaultValues.redirection_path ?? "",
       x: defaultValues.x,
       y: defaultValues.y,
+      width: defaultValues.width,
+      height: defaultValues.height,
     },
   });
 
   async function onSubmit(data: EventLobbySpotInput) {
     setErrorMessage(null);
     try {
-      onSaved({ ...data, id: defaultValues.id });
+      /*
+       * width/height are re-attached from defaultValues rather than read out of `data`: the form
+       * has no inputs for them, and relying on react-hook-form to echo unregistered defaults back
+       * through handleSubmit is exactly the kind of assumption that silently turns a browse area
+       * into a point marker on save.
+       */
+      onSaved({
+        ...data,
+        width: defaultValues.width,
+        height: defaultValues.height,
+        id: defaultValues.id,
+      });
       onClose();
     } catch (err) {
       setErrorMessage(
@@ -177,12 +209,20 @@ function SpotFormModal({
 export function LobbySpotsCanvas({
   spots,
   backgroundVideo,
+  backgroundImage,
   childId,
 }: LobbySpotsCanvasProps) {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const [localSpots, setLocalSpots] = useState(spots);
   const [addType, setAddType] = useState<(typeof LOBBY_SPOT_TYPES)[number] | null>(null);
+  /**
+   * Placing a BROWSE AREA rather than a point spot.
+   *
+   * Kept separate from addType because it is not another spot type — it is the same spot with a
+   * size, and size is what turns a marker into an uploadable panel.
+   */
+  const [addingPanel, setAddingPanel] = useState(false);
   const [draggingId, setDraggingId] = useState<number | null>(null);
   const [modalSpot, setModalSpot] = useState<SpotFormValues | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -198,6 +238,62 @@ export function LobbySpotsCanvas({
   const [srcFailed, setSrcFailed] = useState(false);
   const videoSrc = srcFailed ? DEFAULT_BACKGROUND_VIDEO : requestedSrc;
 
+  const imageSrc = toPublicPath(backgroundImage);
+  const [imageFailed, setImageFailed] = useState(false);
+
+  const [uploadingSpotId, setUploadingSpotId] = useState<number | null>(null);
+
+  /**
+   * Put artwork on a panel spot.
+   *
+   * The new URL is written straight into local state rather than triggering a refetch: the
+   * response already carries it (with a cache-busting suffix, because the filename is derived
+   * from the spot id and so never changes), and reloading the whole canvas would throw away any
+   * unsaved drag positions.
+   */
+  async function uploadSpotImage(spotId: number, file: File) {
+    setUploadingSpotId(spotId);
+    setErrorMessage(null);
+    try {
+      const body = new FormData();
+      body.append("file", file);
+      body.append("id", String(spotId));
+
+      const res = await fetch("/api/members/lobby-spots/upload", { method: "POST", body });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        setErrorMessage(data?.error ?? "Could not upload that image.");
+        return;
+      }
+      setLocalSpots((prev) =>
+        prev.map((s) => (s.id === spotId ? { ...s, imageUrl: data?.url ?? null } : s))
+      );
+    } catch {
+      setErrorMessage("Could not upload that image.");
+    } finally {
+      setUploadingSpotId(null);
+    }
+  }
+
+  async function clearSpotImage(spotId: number) {
+    setErrorMessage(null);
+    try {
+      const body = new FormData();
+      body.append("id", String(spotId));
+      body.append("remove", "1");
+
+      const res = await fetch("/api/members/lobby-spots/upload", { method: "POST", body });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        setErrorMessage(data?.error ?? "Could not remove that image.");
+        return;
+      }
+      setLocalSpots((prev) => prev.map((s) => (s.id === spotId ? { ...s, imageUrl: null } : s)));
+    } catch {
+      setErrorMessage("Could not remove that image.");
+    }
+  }
+
   useEffect(() => setLocalSpots(spots), [spots]);
   useEffect(() => setSrcFailed(false), [requestedSrc]);
 
@@ -209,6 +305,31 @@ export function LobbySpotsCanvas({
   }
 
   function handleBackgroundClick(e: React.MouseEvent<HTMLDivElement>) {
+    if (addingPanel && containerRef.current) {
+      if ((e.target as HTMLElement).closest("[data-spot-marker]")) return;
+      const { x, y } = relativePosition(e.clientX, e.clientY);
+      /*
+       * The click is the panel's CENTRE, but x/y are stored as its top-left, so half the default
+       * size comes back off. Clamped so a click near an edge still lands a fully visible panel
+       * instead of one hanging off the artwork.
+       */
+      const width = DEFAULT_PANEL_WIDTH;
+      const height = DEFAULT_PANEL_HEIGHT;
+      const left = Math.min(Math.max(x - width / 2, 0), 100 - width);
+      const top = Math.min(Math.max(y - height / 2, 0), 100 - height);
+      setModalSpot({
+        title: "",
+        spot_type: "info",
+        redirection_path: "",
+        x: left,
+        y: top,
+        width,
+        height,
+      });
+      setAddingPanel(false);
+      return;
+    }
+
     if (!addType || !containerRef.current) return;
     if ((e.target as HTMLElement).closest("[data-spot-marker]")) return;
     const { x, y } = relativePosition(e.clientX, e.clientY);
@@ -229,6 +350,9 @@ export function LobbySpotsCanvas({
       redirection_path: spot.redirectionPath ?? "",
       x: spot.x,
       y: spot.y,
+      // Carried through so opening and saving a browse area does not demote it to a marker.
+      width: spot.width ?? undefined,
+      height: spot.height ?? undefined,
     });
   }
 
@@ -289,35 +413,175 @@ export function LobbySpotsCanvas({
       {errorMessage && <p className="mb-3 text-sm text-red-600">{errorMessage}</p>}
 
       <p className="mb-3 text-sm text-slate-500">
-        {addType
-          ? `Click anywhere on the video below to place a "${TYPE_META[addType].label}" spot.`
-          : "Pick a spot type from the toolbar below, then click the video to place it. Drag existing spots to reposition, click a spot to edit it."}
+        {addingPanel
+          ? "Click the middle of the screen you want to cover — it becomes a browse area you can upload artwork into, then drag or resize."
+          : addType
+            ? `Click anywhere on the background below to place a "${TYPE_META[addType].label}" spot.`
+            : "Pick a spot type from the toolbar below, then click the background to place it. Drag existing spots to reposition, click a spot to edit it."}
       </p>
 
       <div
         ref={containerRef}
         onClick={handleBackgroundClick}
-        className={`relative w-full overflow-hidden border border-slate-200 ${addType ? "cursor-crosshair" : ""}`}
+        className={`relative w-full overflow-hidden border border-slate-200 ${
+          addType || addingPanel ? "cursor-crosshair" : ""
+        }`}
       >
-        <video
-          key={videoSrc}
-          src={videoSrc}
-          onError={() => {
-            if (videoSrc !== DEFAULT_BACKGROUND_VIDEO) setSrcFailed(true);
-            else console.error(`[LobbySpotsCanvas] background video failed to load: ${videoSrc}`);
-          }}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          className="block min-h-[280px] w-full select-none object-cover"
-        />
+        {imageSrc && !imageFailed ? (
+          /*
+           * NATURAL ASPECT RATIO, deliberately: `h-auto`, never object-cover.
+           *
+           * Every spot is positioned in PERCENTAGES of this box. Cropping or letterboxing the
+           * artwork moves the picture underneath those percentages while leaving them where they
+           * are, so each marker drifts off the thing it labels — the same trap as the stand
+           * template slots. Letting the image set the box's height keeps the two in lockstep at
+           * any width, exactly like the legacy `img-fluid` (width:100%; height:auto).
+           */
+          <img
+            key={imageSrc}
+            src={imageSrc}
+            alt=""
+            onError={() => setImageFailed(true)}
+            className="block w-full select-none"
+          />
+        ) : imageSrc && imageFailed ? (
+          /*
+           * The artwork is configured but not on disk — public/images/external/** only exists
+           * once `npm run images:download` has mirrored it. Say so, rather than falling back to
+           * the default clip: an unrelated room under the correct spots reads as "the spots are
+           * wrong" and sends you looking in the wrong place.
+           */
+          <div className="flex min-h-[280px] w-full flex-col items-center justify-center gap-2 bg-zinc-900 px-6 text-center">
+            <p className="text-sm font-semibold text-zinc-300">Zone artwork not downloaded yet</p>
+            <p className="max-w-md text-xs text-zinc-500">
+              This zone is configured with <code className="text-zinc-400">{imageSrc.split("/").pop()}</code>,
+              which isn&apos;t in <code className="text-zinc-400">public/images/external/</code> yet.
+              Run <code className="text-zinc-400">npm run images:download</code> to mirror it. Spots
+              below still save normally.
+            </p>
+          </div>
+        ) : (
+          <video
+            key={videoSrc}
+            src={videoSrc}
+            onError={() => {
+              if (videoSrc !== DEFAULT_BACKGROUND_VIDEO) setSrcFailed(true);
+              else console.error(`[LobbySpotsCanvas] background video failed to load: ${videoSrc}`);
+            }}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            className="block min-h-[280px] w-full select-none object-cover"
+          />
+        )}
 
         {localSpots.map((spot) => {
           const type = (spot.spotType as (typeof LOBBY_SPOT_TYPES)[number]) ?? "info";
           const meta = TYPE_META[type] ?? TYPE_META.info;
           const isVideo = type === "video";
+
+          /*
+           * A spot with a width and height is a PANEL — one of the screens on the zone artwork,
+           * like the two hall displays in the auditorium — and is drawn at its real size so it
+           * covers the thing it represents. Everything else stays a point marker.
+           *
+           * The two differ in how they anchor, which is easy to get wrong: a marker is centred on
+           * its coordinate (-translate-x-1/2), whereas a panel's x/y is its TOP-LEFT corner, the
+           * same convention the legacy builder writes. Centring a panel would offset it by half
+           * its own size.
+           */
+          const panel =
+            spot.width !== null && spot.height !== null
+              ? { width: spot.width, height: spot.height }
+              : null;
+
+          if (panel) {
+            const uploading = uploadingSpotId === spot.id;
+            return (
+              <div
+                key={spot.id}
+                data-spot-marker
+                onMouseDown={(e) => startDrag(spot.id, e)}
+                style={{
+                  // Exactly the four values the legacy block carries, in the same units:
+                  //   style="width: 35.7292%; height: 35.1389%; left: 51.4844%; top: 2.31337%;
+                  //          transform: rotate(0rad)"
+                  // Percentages resolve against the artwork's own box, so the panel keeps
+                  // covering the same part of the picture at any window width.
+                  left: `${spot.x}%`,
+                  top: `${spot.y}%`,
+                  width: `${panel.width}%`,
+                  height: `${panel.height}%`,
+                  transform: spot.angle ? `rotate(${spot.angle}rad)` : undefined,
+                }}
+                className="group absolute cursor-move border-2 border-dashed border-white/70 bg-black/20"
+              >
+                {spot.imageUrl && (
+                  <img
+                    src={spot.imageUrl}
+                    alt=""
+                    className="pointer-events-none absolute inset-0 h-full w-full object-fill"
+                  />
+                )}
+
+                {/*
+                  * Always visible, not hover-only. A hover-reveal control on a panel that is
+                  * itself only an outline is effectively invisible — there is nothing to suggest
+                  * hovering. The scrim stays light until hover so it does not bury artwork that
+                  * has already been uploaded.
+                  */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 p-2 text-center">
+                  <div
+                    className={`absolute inset-0 transition ${
+                      spot.imageUrl ? "bg-black/0 group-hover:bg-black/55" : "bg-black/35 group-hover:bg-black/55"
+                    }`}
+                  />
+                  <span
+                    className={`relative text-[11px] font-bold uppercase tracking-wide text-white transition ${
+                      spot.imageUrl ? "opacity-0 group-hover:opacity-100" : "opacity-100"
+                    }`}
+                  >
+                    {spot.title || meta.label}
+                  </span>
+                  <label
+                    className={`relative cursor-pointer rounded-md bg-white px-3 py-1 text-[11px] font-bold text-zinc-900 shadow transition hover:bg-zinc-100 ${
+                      spot.imageUrl ? "opacity-0 group-hover:opacity-100" : "opacity-100"
+                    }`}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {uploading ? "Uploading…" : spot.imageUrl ? "Replace" : "Browse"}
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/gif,image/webp"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        // Reset the input so re-picking the SAME file fires change again.
+                        e.target.value = "";
+                        if (file) void uploadSpotImage(spot.id, file);
+                      }}
+                    />
+                  </label>
+                  {spot.imageUrl && (
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        void clearSpotImage(spot.id);
+                      }}
+                      className="relative text-[10px] font-semibold text-white/80 underline hover:text-white"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          }
 
           return (
             <div
@@ -380,7 +644,34 @@ export function LobbySpotsCanvas({
         })}
       </div>
 
-      <div className="mt-4 flex justify-center gap-3">
+      {/*
+        * Says plainly what came back from the database. "4 spots, 0 browse areas" is the
+        * difference between "the feature is broken" and "these rows have no size", which is not
+        * otherwise visible from the picture.
+        */}
+      <p className="mt-3 text-center text-xs text-slate-500">
+        {localSpots.length} spot{localSpots.length === 1 ? "" : "s"} on this zone
+        {" · "}
+        {localSpots.filter((s) => s.width !== null && s.height !== null).length} browse area
+        {localSpots.filter((s) => s.width !== null && s.height !== null).length === 1 ? "" : "s"}
+      </p>
+
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+        <button
+          type="button"
+          title="Add a browse area"
+          onClick={() => {
+            setAddingPanel((prev) => !prev);
+            setAddType(null);
+          }}
+          className={`flex h-11 items-center gap-2 rounded-full px-4 text-xs font-bold uppercase tracking-wide text-white shadow transition ${
+            addingPanel ? "bg-emerald-600" : "bg-purple-800 hover:bg-purple-900"
+          }`}
+        >
+          <ImagePlus className="h-4 w-4" />
+          Browse Area
+        </button>
+
         {LOBBY_SPOT_TYPES.map((type) => {
           const meta = TYPE_META[type];
           const Icon = meta.icon;
@@ -390,7 +681,10 @@ export function LobbySpotsCanvas({
               key={type}
               type="button"
               title={meta.label}
-              onClick={() => setAddType((prev) => (prev === type ? null : type))}
+              onClick={() => {
+                setAddType((prev) => (prev === type ? null : type));
+                setAddingPanel(false);
+              }}
               className={`flex h-11 w-11 items-center justify-center rounded-full text-white shadow transition ${
                 active ? "bg-emerald-600" : "bg-purple-800 hover:bg-purple-900"
               }`}

@@ -17,7 +17,8 @@
     "members:routes": "tsx scripts/generate-member-routes.ts",
     "members:check-links": "tsx scripts/check-member-links.ts",
     "db:lobby-templates": "tsx scripts/seed-lobby-templates.ts",
-    "db:industries": "tsx scripts/seed-industries.ts"
+    "db:industries": "tsx scripts/seed-industries.ts",
+    "db:engagement-report": "tsx scripts/create-engagement-report-table.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
