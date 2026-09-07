@@ -1,5 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import type { EventMemberContext } from "@/lib/services/eventAccess";
+import {
+  raiseOrderAndInvoice,
+  getBuyerListings,
+  ownsListing,
+  type AdvertiseOrderResult,
+} from "@/lib/services/advertiseOrders";
 
 /**
  * ---------------------------------------------------------------------------
@@ -27,9 +33,6 @@ import type { EventMemberContext } from "@/lib/services/eventAccess";
  * legacy's own order and invoice both carry `type_id = sponsorship_id` (the category), not the
  * find_sponsorship_option id — so the order and invoice produced here are complete without it.
  */
-
-/** The legacy hardcodes 20% VAT in every branch of advertise.php. */
-const VAT_RATE = 20;
 
 export interface SponsorshipChoice {
   id: number;
@@ -118,11 +121,7 @@ export async function getSponsorshipFormOptions(
       };
     }),
     // The businesses this member owns — the legacy read find_listings by session user id.
-    listings: (await prisma.find_listings.findMany({
-      where: { user_id: context.userId },
-      select: { id: true, title: true },
-      orderBy: { title: "asc" },
-    })) as { id: number; title: string }[],
+    listings: await getBuyerListings(context),
   };
 }
 
@@ -131,116 +130,27 @@ export interface SponsorshipPurchaseInput {
   listingId: number;
 }
 
-export interface SponsorshipPurchaseResult {
-  invoiceId: number;
-  orderId: number;
-  subtotal: number;
-  tax: number;
-  total: number;
-  description: string;
-}
-
-/**
- * A unique `find_orders.order_id`.
- *
- * That column is NOT NULL and @unique, and the legacy fills it with a random number then
- * immediately rewrites it as random+rowid. Rather than reproduce the double write, this picks up
- * from the current maximum, which cannot collide and keeps the numbers human-readable.
- */
-async function nextOrderId(): Promise<number> {
-  const highest = await prisma.find_orders.findFirst({
-    orderBy: { order_id: "desc" },
-    select: { order_id: true },
-  });
-  return Number(highest?.order_id ?? 100000) + 1;
-}
-
-/**
- * Raise the order and invoice for a chosen sponsorship.
- *
- * The PRICE IS READ FROM THE DATABASE, never taken from the request. The form shows a List Price
- * field, and a posted price would let anyone buy a £1,500 sponsorship for £1 by editing it.
- */
 export async function createSponsorshipPurchase(
   context: EventMemberContext,
   input: SponsorshipPurchaseInput
-): Promise<SponsorshipPurchaseResult | { error: string }> {
+): Promise<AdvertiseOrderResult | { error: string }> {
   const sponsorship = await prisma.find_sponsorship_categories.findUnique({
     where: { id: input.sponsorshipId },
     select: { id: true, title: true, price: true },
   });
   if (!sponsorship) return { error: "That sponsorship option no longer exists." };
 
-  // The listing must belong to the buyer — otherwise an order could be attached to someone
-  // else's business by posting their id.
-  const listing = await prisma.find_listings.findFirst({
-    where: { id: input.listingId, user_id: context.userId },
-    select: { id: true, user_id: true },
+  if (!(await ownsListing(context, input.listingId))) {
+    return { error: "Choose one of your own listings." };
+  }
+
+  return raiseOrderAndInvoice(context, {
+    type: "sponsorship_option",
+    typeId: sponsorship.id,
+    listingId: input.listingId,
+    // Read from the database, never from the request — the form's List Price is display only.
+    subtotal: Number(sponsorship.price ?? 0),
+    description: sponsorship.title,
+    invoiceDescription: "SponsorShip Payment",
   });
-  if (!listing) return { error: "Choose one of your own listings." };
-
-  const subtotal = Number(sponsorship.price ?? 0);
-  const tax = Math.round(((subtotal * VAT_RATE) / 100) * 100) / 100;
-  const total = Math.round((subtotal + tax) * 100) / 100;
-  const description = sponsorship.title;
-
-  const order = await prisma.find_orders.create({
-    data: {
-      // Required, no defaults — see trap 2.
-      order_id: await nextOrderId(),
-      type: "sponsorship_option",
-      type_id: sponsorship.id,
-      listing_user_id: context.userId,
-
-      user_id: context.userId,
-      event_id: context.eventId,
-      order_listing_id: listing.id,
-      order_description: description,
-      order_sub_total: subtotal,
-      tax_amount: tax,
-      price: total,
-      date: new Date(),
-    },
-    select: { id: true, order_id: true },
-  });
-
-  const invoice = await prisma.find_invoices.create({
-    data: {
-      type: "sponsorship_option",
-      type_id: sponsorship.id,
-      user_id: context.userId,
-      event_id: context.eventId,
-      order_id: order.id,
-      description: "SponsorShip Payment",
-      subtotal,
-      tax,
-      total,
-      tax_rate: VAT_RATE,
-      date: new Date(),
-      status: "unpaid",
-
-      // Required, no defaults — blank exactly as the legacy leaves them until payment.
-      payment_type: "",
-      cheque_no: "",
-      remittance: 0,
-      bank_name: "",
-      remark: "",
-    },
-    select: { id: true },
-  });
-
-  // The legacy links the two after the fact; same here, since the invoice needs the order id.
-  await prisma.find_orders.update({
-    where: { id: order.id },
-    data: { invoice_id: invoice.id },
-  });
-
-  return {
-    invoiceId: invoice.id,
-    orderId: order.order_id,
-    subtotal,
-    tax,
-    total,
-    description,
-  };
 }

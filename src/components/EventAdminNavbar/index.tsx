@@ -558,13 +558,22 @@ function buildTabs(eventId: number | string, eventSlug?: string | null): Tab[] {
         },
         {
           title: "Buy Speaker Slot",
-          href: `${BASE}/manage_speakers?${q}`,
+          /*
+           * The purchase form, not the Manage Speakers admin screen it used to open. Mirrors
+           * advertise.php?action=add&type=speaker_slot&event_id=<id>.
+           */
+          href: `${BASE}/buy_speaker_slot?${q}`,
           icon: Megaphone,
           colorClass: "bg-red-600 hover:bg-red-700",
         },
         {
           title: "Buy Banner Stand",
-          href: `${BASE}/manage_banner_stands?${q}`,
+          /*
+           * The purchase form, not the Manage Banner Stand admin table it used to open. Mirrors
+           * advertise.php?action=add&type=banner_stand&event_id=<id>. Manage Banner Stand still
+           * has its own tile under Manage Virtual Booth.
+           */
+          href: `${BASE}/buy_banner_stand?${q}`,
           icon: Bookmark,
           colorClass: "bg-red-600 hover:bg-red-700",
         },
