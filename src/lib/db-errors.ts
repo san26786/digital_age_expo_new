@@ -94,6 +94,14 @@ const UNAVAILABLE_DRIVER_CODES = new Set([
 ]);
 
 const QUOTA_MESSAGE = /(exceeded[^.]*\bquota\b|\bquota\b[^.]*exceeded|upgrade your plan|exceeded[^.]*\blimit(s)?\b|plan limit)/i;
+/**
+ * node-postgres's pool throws this exact sentence, with no SQLSTATE attached, when a checkout
+ * waits past `connectionTimeoutMillis`. It means one of two very different things — every
+ * connection is busy, or a NEW connection could not be established in time — and neither is
+ * described by the generic "database unavailable" text, so it gets its own branch below.
+ */
+const POOL_ACQUIRE_TIMEOUT_MESSAGE = /timeout exceeded when trying to connect/i;
+
 const UNREACHABLE_MESSAGE =
   // `failed to connect to upstream database` is Prisma Postgres's wording when its proxy cannot
   // reach the instance behind it — the message carries no SQLSTATE, so without this pattern the
@@ -178,13 +186,15 @@ export function getDatabaseOutage(error: unknown): DatabaseOutage | null {
 
   if (sqlState || prismaCode || driverCode || looksUnreachable) {
     const code = sqlState ?? prismaCode ?? driverCode;
-    if (code === "53300" || code === "P2024") {
+    if (code === "53300" || code === "P2024" || POOL_ACQUIRE_TIMEOUT_MESSAGE.test(text)) {
       return {
         kind: "unreachable",
         title: "Database is out of connections",
         detail:
-          "Every connection in the pool is busy or the server has hit its own connection limit. " +
-          "Stop any stray dev servers/scripts still holding connections, or lower DATABASE_POOL_SIZE.",
+          "The pool could not hand out a connection in time. Either every connection is busy (stop " +
+          "any stray dev servers/scripts still holding them, or raise DATABASE_POOL_SIZE), or a new " +
+          "connection could not be established at all — run `npm run db:ping` to tell the two apart: " +
+          "it reports DNS, TCP, TLS/auth and query timings separately.",
         code,
         raw: messages[0],
       };

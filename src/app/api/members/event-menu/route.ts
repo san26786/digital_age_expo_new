@@ -23,14 +23,22 @@ import {
 
 const ACTION_VALUES = MENU_ACTION_TYPES.map((a) => a.value) as [string, ...string[]];
 
-/** "" and "0" both mean "nothing selected" in the form's selects — normalise them to null. */
+/**
+ * "" and "0" both mean "nothing selected" in the form's selects — normalise them to null.
+ *
+ * `.default(null)` is what lets the key be *absent* as well as empty. Listing z.undefined() inside
+ * the union is not enough: in zod 4 a transformed union is still a required object key, so a form
+ * that simply has no input for one of these columns (the chat picker, say) made every save fail
+ * with "Invalid input: expected nonoptional, received undefined".
+ */
 const optionalId = z
   .union([z.string(), z.number(), z.null(), z.undefined()])
   .transform((v) => {
     if (v === null || v === undefined || v === "" || v === "0") return null;
     const n = Number(v);
     return Number.isFinite(n) && n > 0 ? n : null;
-  });
+  })
+  .default(null);
 
 const menuSchema = z.object({
   title: z.string().trim().min(1, "Title is required").max(100, "Title is too long"),
@@ -42,7 +50,8 @@ const menuSchema = z.object({
   parent_id: optionalId,
   post_action_type: z
     .union([z.enum(ACTION_VALUES), z.literal(""), z.null(), z.undefined()])
-    .transform((v) => (v ? String(v) : null)),
+    .transform((v) => (v ? String(v) : null))
+    .default(null),
   post_asset_id: optionalId,
   layout_id: optionalId,
   networking_room_id: optionalId,
@@ -107,8 +116,14 @@ export async function POST(request: Request) {
 
   const parsed = menuSchema.safeParse(body);
   if (!parsed.success) {
+    const issue = parsed.error.issues[0];
+    // Name the field for the machine-generated messages ("Invalid input: expected ..."), which on
+    // their own tell an organiser nothing about which box to look at.
+    const field = issue?.path?.length ? String(issue.path.join(".")) : "";
+    const message = issue?.message ?? "Please check the form and try again.";
+    const generic = /^invalid (input|type|value)/i.test(message);
     return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Please check the form and try again." },
+      { error: field && generic ? `${field}: ${message}` : message },
       { status: 400 }
     );
   }

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { lobbyMenuIconUrl, lobbySiteImageUrl } from "@/lib/assets";
+import { lobbyAssetUrl, lobbyMenuIconUrl, lobbySiteImageUrl } from "@/lib/assets";
 import { PUBLIC_SITE_URL } from "@/lib/site-config";
 
 /**
@@ -79,18 +79,33 @@ export interface LobbyMenuGroup {
 /** Resolves a child menu row's link target — mirrors lobby.php's per-row post_action_type
  * switch (chat/asset/layout-zone/networking-room/exhibitor-booth redirects), simplified down
  * to the handful of destinations this app actually has native pages for so far. */
-function resolveMenuChildHref(row: {
-  networking_room_id: number | null;
-  exhibitor_id: number | null;
-  layout_id: number | null;
-}): string | null {
+function resolveMenuChildHref(
+  row: {
+    networking_room_id: number | null;
+    exhibitor_id: number | null;
+    layout_id: number | null;
+  },
+  eventSlug?: string | null
+): string | null {
   if (row.exhibitor_id) return `/exhibitors?exhibitor=${row.exhibitor_id}`;
   if (row.networking_room_id) return `/networking?room=${row.networking_room_id}`;
   // The Exhibition category's children are exhibition zones (find_event_lobby_child_layout_
   // manager rows, the same "exhibition_zone_id" find_event_exhibitor rows point at) — link
   // straight to the exhibitor directory filtered to that zone instead of a dead "#zone-N" anchor
   // that never had a matching element on the page.
-  if (row.layout_id) return `/exhibitors?zone=${row.layout_id}`;
+  /*
+   * Inside the virtual event a layout child opens its own room on this route — the auditorium
+   * halls (Ted Talk Hall, Keynote Forum, ...) are layout children, so this is what makes clicking
+   * one open the hall instead of leaving the show for the flat /exhibitors list.
+   *
+   * Without a slug (any caller outside the virtual event) the directory link is still right,
+   * since there is no lobby to render a room inside.
+   */
+  if (row.layout_id) {
+    return eventSlug
+      ? `/virtual-event/${eventSlug}?zone=${row.layout_id}`
+      : `/exhibitors?zone=${row.layout_id}`;
+  }
   return null;
 }
 
@@ -99,7 +114,11 @@ function resolveMenuChildHref(row: {
  * categories, their children are the dropdown entries. count = number of active children,
  * mirroring lobby.php's getEventMenu() exactly (that's where "Auditorium (6)" comes from).
  */
-export async function getLobbyMenuGroups(eventId: number): Promise<LobbyMenuGroup[]> {
+export async function getLobbyMenuGroups(
+  eventId: number,
+  /** Present when rendering inside /virtual-event/[slug] — see resolveMenuChildHref. */
+  eventSlug?: string | null
+): Promise<LobbyMenuGroup[]> {
   const topLevel = await prisma.find_event_lobby_menu.findMany({
     where: { event_id: eventId, active: 1, OR: [{ parent_id: null }, { parent_id: 0 }] },
     orderBy: { seq: "asc" },
@@ -117,7 +136,11 @@ export async function getLobbyMenuGroups(eventId: number): Promise<LobbyMenuGrou
       id: t.id,
       title: t.title ?? "",
       count: kids.length,
-      children: kids.map((c) => ({ id: c.id, title: c.title ?? "", href: resolveMenuChildHref(c) })),
+      children: kids.map((c) => ({
+        id: c.id,
+        title: c.title ?? "",
+        href: resolveMenuChildHref(c, eventSlug),
+      })),
     };
   });
 }
@@ -203,6 +226,14 @@ export interface LobbyFooterMenuChild {
   id: number;
   title: string;
   href: string | null;
+  /**
+   * Same meaning as LobbyFooterMenuItem.iframeUrl — embedded content that opens in a modal.
+   *
+   * A child needs it because "Show Guide" is not necessarily a top-level footer icon: an
+   * organiser may just as well hang it inside an "Info" dropdown, and without this the child
+   * resolved to null and rendered as the greyed-out "Coming soon" entry.
+   */
+  iframeUrl?: string | null;
 }
 
 export interface LobbyFooterMenuItem {
@@ -214,6 +245,13 @@ export interface LobbyFooterMenuItem {
    *  callers (page.tsx) special-case "briefcase" to merge in the visitor's live asset count. */
   kind: string;
   href: string | null;
+  /**
+   * Embedded content that opens in a modal instead of navigating — the "Show Guide" Event Guide.
+   *
+   * Deliberately separate from `href`: an asset flagged `is_iframe` is a Canva/embed URL, and
+   * making it a link would send the visitor out of the virtual event to view it.
+   */
+  iframeUrl?: string | null;
   external?: boolean;
   count?: number | null;
   children?: LobbyFooterMenuChild[];
@@ -230,12 +268,15 @@ export interface LobbyFooterMenuItem {
  * than keeping a second copy: the two drifted apart once already, and the footer's copy was the
  * one missing the layout_id branch — which meant every exhibition-zone entry in the footer
  * dropdown rendered as "coming soon" even though its zone existed. */
-function resolveLobbyHref(row: {
-  networking_room_id: number | null;
-  exhibitor_id: number | null;
-  layout_id: number | null;
-}): string | null {
-  return resolveMenuChildHref(row);
+function resolveLobbyHref(
+  row: {
+    networking_room_id: number | null;
+    exhibitor_id: number | null;
+    layout_id: number | null;
+  },
+  eventSlug?: string | null
+): string | null {
+  return resolveMenuChildHref(row, eventSlug);
 }
 
 /**
@@ -249,6 +290,135 @@ function resolveLobbyHref(row: {
  * resolve to null/"coming soon" rather than a dead link), and "layout" opens a lobby zone/room —
  * resolved the same way hotspot children are.
  */
+/** The columns of find_event_lobby_layout_type_assets a menu destination can come from. */
+interface MenuAssetRow {
+  id: number;
+  asset_url: string | null;
+  is_iframe: boolean | null;
+  asset_type: string | null;
+  external_link: string | null;
+  asset_attachment: string | null;
+}
+
+/**
+ * Turns one asset row into a destination, and says whether it embeds or navigates.
+ *
+ * THREE COLUMNS CAN HOLD THE URL, and which one is populated depends on how the asset was
+ * created. `asset_url` only was the original assumption here, and it is the one that is empty
+ * for exactly the assets that matter: the CP's own asset manager writes a link asset to
+ * `external_link` (see stand-assets/route.ts, which sets both, and StandAssetsManager, which
+ * reads `external_link || asset_url`), while an *uploaded* asset keeps a bare filename — not a
+ * URL — in `asset_url`/`asset_attachment`. With only `asset_url` consulted, an Event Guide row
+ * whose URL lives in `external_link` resolved to nothing at all, and the footer rendered it as
+ * a dropdown whose only content was "Coming soon."
+ *
+ * `is_iframe` is the intended flag for "embed this rather than link to it", but legacy rows
+ * predate it, so an `asset_type` of iframe/embed counts too. Only an absolute URL can be
+ * embedded; a bare filename is a file in the lobby asset store and becomes a plain link.
+ */
+function menuAssetTarget(asset: MenuAssetRow): { kind: "iframe" | "link"; url: string } | null {
+  const raw = [asset.external_link, asset.asset_url, asset.asset_attachment]
+    .map((v) => (v ? String(v).trim() : ""))
+    .find((v) => v !== "");
+  if (!raw) return null;
+
+  const isAbsolute = /^(https?:)?\/\//i.test(raw);
+  /*
+   * A URL that is *itself* an embed URL — ".../view?embed", ".../embed/xyz" — is embedded
+   * content by construction, whatever the row says. Migration lost `is_iframe` on some rows, and
+   * linking a visitor to a bare Canva embed URL throws them out of the show, which is never the
+   * intended behaviour for a menu item. Deliberately narrow: it matches only an explicit embed
+   * marker, so an ordinary link or a PDF is unaffected.
+   */
+  const urlIsAnEmbed = /[?&]embed\b/i.test(raw) || /\/embed(\/|\?|$)/i.test(raw);
+  const embeds =
+    asset.is_iframe === true || /iframe|embed/i.test(asset.asset_type ?? "") || urlIsAnEmbed;
+
+  if (embeds && isAbsolute) return { kind: "iframe", url: raw };
+  if (isAbsolute) return { kind: "link", url: raw };
+
+  // A stored filename — resolve it against the mirrored lobby asset folder rather than handing
+  // the browser a relative path that resolves against /virtual-event/<slug>.
+  const resolved = lobbyAssetUrl(raw);
+  return resolved ? { kind: "link", url: resolved } : null;
+}
+
+/**
+ * Where one find_event_lobby_menu row actually points, for both top-level rows and dropdown
+ * children.
+ *
+ * Split out because the asset case has to be resolved identically in both places. It was
+ * top-level-only once, which is why a "Show Guide" row nested under a dropdown opened nothing.
+ */
+function resolveMenuRowTarget(
+  row: {
+    post_action_type: string | null;
+    post_asset_id: number | null;
+    networking_room_id: number | null;
+    exhibitor_id: number | null;
+    layout_id: number | null;
+  },
+  assetById: Map<number, MenuAssetRow>,
+  eventSlug: string
+): { href: string | null; external: boolean; iframeUrl: string | null } {
+  let href: string | null = null;
+  let external = false;
+  /** Set for embedded content that opens in a modal rather than navigating — see "asset". */
+  let iframeUrl: string | null = null;
+
+  switch (row.post_action_type ?? "") {
+    case "lobby":
+      href = `/virtual-event/${eventSlug}`;
+      break;
+    case "exhibitor_list":
+      href = "/exhibitors";
+      break;
+    case "chat":
+      href = "/contact";
+      break;
+    case "layout":
+      href = resolveLobbyHref(row, eventSlug);
+      break;
+    case "asset": {
+      /*
+       * An asset opens one of TWO ways, and the `is_iframe` flag is which.
+       *
+       * A normal asset is a file to open — a PDF, an image — so it becomes an external link.
+       * An asset flagged `is_iframe` is embedded content: the legacy renders it inside a modal
+       * with `<iframe style="width:100%;height:80vh;">`, which is how "Show Guide" opens the
+       * Event Guide (a Canva embed). That branch used to be excluded outright (`!is_iframe`),
+       * leaving href null, so the item resolved to nothing and rendered as "coming soon".
+       *
+       * The URL goes to `iframeUrl` rather than `href`: it must NOT become a link, because
+       * navigating to a Canva embed URL throws the visitor out of the show — the whole point of
+       * the modal is that the guide opens over the lobby.
+       */
+      const asset = row.post_asset_id ? assetById.get(row.post_asset_id) : undefined;
+      const target = asset ? menuAssetTarget(asset) : null;
+      if (target?.kind === "iframe") {
+        iframeUrl = target.url;
+      } else if (target) {
+        href = target.url;
+        external = true;
+      }
+      break;
+    }
+    case "briefcase":
+      // Left null on purpose — page.tsx overrides this item's href/count/children with the
+      // visitor's live getVisitorBriefcase() result, same as everything else that isn't a
+      // plain find_event_lobby_menu destination.
+      href = null;
+      break;
+    default:
+      // Unchanged from before: an unrecognised action type resolves to nothing rather than a
+      // dead link. Callers that have a sensible fallback (dropdown children, which resolve off
+      // their target columns) apply it themselves.
+      href = null;
+  }
+
+  return { href, external, iframeUrl };
+}
+
 export async function getLobbyFooterMenu(eventId: number, eventSlug: string): Promise<LobbyFooterMenuItem[]> {
   const topLevel = await prisma.find_event_lobby_menu.findMany({
     where: { event_id: eventId, active: 1, OR: [{ parent_id: null }, { parent_id: 0 }] },
@@ -261,13 +431,23 @@ export async function getLobbyFooterMenu(eventId: number, eventSlug: string): Pr
     orderBy: { seq: "asc" },
   });
 
-  const assetRowIds = topLevel
+  // Children as well as top-level rows: "Show Guide" is just as likely to sit inside a dropdown
+  // as to be its own footer icon, and an asset id that was never fetched can only resolve to
+  // "coming soon".
+  const assetRowIds = [...topLevel, ...children]
     .filter((row) => row.post_action_type === "asset" && row.post_asset_id)
     .map((row) => row.post_asset_id as number);
   const assets = assetRowIds.length
     ? await prisma.find_event_lobby_layout_type_assets.findMany({
         where: { id: { in: assetRowIds } },
-        select: { id: true, asset_url: true, is_iframe: true },
+        select: {
+          id: true,
+          asset_url: true,
+          is_iframe: true,
+          asset_type: true,
+          external_link: true,
+          asset_attachment: true,
+        },
       })
     : [];
   const assetById = new Map(assets.map((a) => [a.id, a]));
@@ -285,44 +465,21 @@ export async function getLobbyFooterMenu(eventId: number, eventSlug: string): Pr
         kind,
         href: null,
         count: kids.length,
-        children: kids.map((k) => ({ id: k.id, title: k.title ?? "", href: resolveLobbyHref(k) })),
+        children: kids.map((k) => {
+          const target = resolveMenuRowTarget(k, assetById, eventSlug);
+          return {
+            id: k.id,
+            title: k.title ?? "",
+            // Target columns stay the fallback, so every child that resolved before still does.
+            href: target.href ?? resolveLobbyHref(k, eventSlug),
+            iframeUrl: target.iframeUrl,
+          };
+        }),
         emptyLabel: "Not configured yet.",
       };
     }
 
-    let href: string | null = null;
-    let external = false;
-
-    switch (kind) {
-      case "lobby":
-        href = `/virtual-event/${eventSlug}`;
-        break;
-      case "exhibitor_list":
-        href = "/exhibitors";
-        break;
-      case "chat":
-        href = "/contact";
-        break;
-      case "layout":
-        href = resolveLobbyHref(row);
-        break;
-      case "asset": {
-        const asset = row.post_asset_id ? assetById.get(row.post_asset_id) : undefined;
-        if (asset?.asset_url && !asset.is_iframe) {
-          href = asset.asset_url;
-          external = true;
-        }
-        break;
-      }
-      case "briefcase":
-        // Left null on purpose — page.tsx overrides this item's href/count/children with the
-        // visitor's live getVisitorBriefcase() result, same as everything else that isn't a
-        // plain find_event_lobby_menu destination.
-        href = null;
-        break;
-      default:
-        href = null;
-    }
+    const { href, external, iframeUrl } = resolveMenuRowTarget(row, assetById, eventSlug);
 
     return {
       id: row.id,
@@ -330,6 +487,7 @@ export async function getLobbyFooterMenu(eventId: number, eventSlug: string): Pr
       iconUrl,
       kind,
       href,
+      iframeUrl,
       external,
       count: null,
       children: [],

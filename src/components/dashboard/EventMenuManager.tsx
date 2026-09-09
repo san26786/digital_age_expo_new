@@ -130,6 +130,11 @@ interface FormState {
   networking_room_id: string;
   post_asset_id: string;
   exhibitor_id: string;
+  /**
+   * No picker offers this yet, but the column exists and the API blanks whatever it is not sent.
+   * Round-tripping it keeps an existing chat destination from being wiped by an unrelated edit.
+   */
+  chat_user_id: string;
   active: boolean;
 }
 
@@ -142,6 +147,7 @@ const BLANK_FORM: FormState = {
   networking_room_id: "",
   post_asset_id: "",
   exhibitor_id: "",
+  chat_user_id: "",
   active: true,
 };
 
@@ -252,6 +258,7 @@ export function EventMenuManager({ eventId }: { eventId: number }) {
       networking_room_id: row.networkingRoomId ? String(row.networkingRoomId) : "",
       post_asset_id: row.postAssetId ? String(row.postAssetId) : "",
       exhibitor_id: row.exhibitorId ? String(row.exhibitorId) : "",
+      chat_user_id: row.chatUserId ? String(row.chatUserId) : "",
       active: row.active,
     });
   }

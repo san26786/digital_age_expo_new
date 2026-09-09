@@ -29,6 +29,7 @@ import {
   type ExhibitorDirectoryEntry,
 } from "@/components/virtual-event/ExhibitorListModal";
 import { AgendaModal } from "@/components/virtual-event/AgendaModal";
+import { GuideModal } from "@/components/virtual-event/GuideModal";
 import { PhotoBoothModal } from "@/components/virtual-event/PhotoBoothModal";
 import type { ScheduleDay } from "@/lib/services/schedule";
 
@@ -164,6 +165,8 @@ export interface FooterChild {
   id: number | string;
   title: string;
   href: string | null;
+  /** Embedded content (an asset flagged is_iframe) — opens GuideModal instead of navigating. */
+  iframeUrl?: string | null;
 }
 
 export interface FooterItem {
@@ -177,6 +180,10 @@ export interface FooterItem {
   kind?: string;
 
   href?: string | null;
+
+  /** Embedded content (an asset flagged is_iframe) — opens GuideModal instead of navigating.
+   *  Mirrors LobbyFooterMenuItem.iframeUrl in publicLobby.ts. */
+  iframeUrl?: string | null;
 
   external?: boolean;
 
@@ -210,6 +217,10 @@ export function LobbyFooterNav({
   eventSlug?: string;
 }) {
   const [openKey, setOpenKey] = useState<string | null>(null);
+
+  /** The embedded-content item whose modal is open — "Show Guide" and anything else flagged
+   *  is_iframe. Holds the item so the modal gets its real title and URL. */
+  const [guide, setGuide] = useState<{ title: string; url: string } | null>(null);
 
   const [showExhibitorList, setShowExhibitorList] =
     useState(false);
@@ -342,6 +353,10 @@ export function LobbyFooterNav({
                   item.label ?? item.title ?? "",
                 );
 
+              /* Embedded content opens in a modal instead of navigating — see the "asset"
+                 branch in getLobbyFooterMenu. */
+              const opensGuide = !!item.iframeUrl;
+
               const hasChildren =
                 !!item.children?.length;
 
@@ -351,6 +366,7 @@ export function LobbyFooterNav({
                 !opensExhibitorModal &&
                 !opensAgendaModal &&
                 !opensPhotoBooth &&
+                !opensGuide &&
                 (hasChildren || !item.href);
 
               const isOpen =
@@ -453,6 +469,25 @@ export function LobbyFooterNav({
                       {content}
                     </button>
 
+                  ) : opensGuide ? (
+
+                    /* =============================================
+                        SHOW GUIDE — embedded content in a modal
+                    ============================================== */
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setGuide({
+                          title: item.title || "Event Guide",
+                          url: item.iframeUrl!,
+                        })
+                      }
+                      className={buttonClass}
+                    >
+                      {content}
+                    </button>
+
                   ) : isDropdown ? (
 
                     /* =============================================
@@ -537,7 +572,41 @@ export function LobbyFooterNav({
                             (child) => (
                               <li key={child.id}>
 
-                                {child.href ? (
+                                {child.iframeUrl ? (
+
+                                  /* Embedded content nested inside a dropdown — opens the same
+                                     modal a top-level "Show Guide" icon does, rather than
+                                     linking out to the embed URL. */
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setOpenKey(null);
+                                      setGuide({
+                                        title:
+                                          child.title ||
+                                          "Event Guide",
+                                        url: child.iframeUrl!,
+                                      });
+                                    }}
+                                    className="
+                                      block
+                                      w-full
+                                      rounded-lg
+                                      px-3
+                                      py-2
+                                      text-left
+                                      text-sm
+                                      font-medium
+                                      text-white
+                                      transition
+                                      hover:bg-brand-pink/15
+                                      hover:text-brand-pink
+                                    "
+                                  >
+                                    {child.title}
+                                  </button>
+
+                                ) : child.href ? (
 
                                   <Link
                                     href={child.href}
@@ -646,6 +715,17 @@ export function LobbyFooterNav({
         onClose={() => setShowPhotoBooth(false)}
         eventTitle={eventTitle}
       />
+
+      {/* ======================================================
+          SHOW GUIDE MODAL
+      ====================================================== */}
+
+      {/* Mounted only while open, unlike the modals above which take an `open` prop: unmounting
+          tears the iframe down, so closing the guide actually stops the embed rather than leaving
+          a hidden Canva document loaded behind the lobby. */}
+      {guide && (
+        <GuideModal title={guide.title} url={guide.url} onClose={() => setGuide(null)} />
+      )}
     </>
   );
 }

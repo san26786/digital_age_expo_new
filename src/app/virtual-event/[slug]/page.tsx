@@ -21,6 +21,8 @@ import { getExhibitorStandById } from "@/lib/services/exhibitorStand";
 import { exhibitorAssetUrl, standTemplateUrl } from "@/lib/assets";
 import { findSlotByKey } from "@/lib/standTemplateSlots";
 import { BoothView, type BoothSpot } from "@/components/virtual-event/BoothView";
+import { getAuditoriumScene } from "@/lib/services/publicAuditorium";
+import { AuditoriumView } from "@/components/virtual-event/AuditoriumView";
 import { createOutageCollector } from "@/lib/db-errors";
 import { DatabaseOutageNotice } from "@/components/common/DatabaseOutageNotice";
 
@@ -46,12 +48,18 @@ export default async function VirtualEventLobbyPage({
    * the legacy booth URL, reused rather than given a page of its own so the footer nav, the
    * session gate and the top-right actions stay in exactly one place.
    */
-  searchParams?: Promise<{ mybooth?: string; ex_id?: string }>;
+  searchParams?: Promise<{ mybooth?: string; ex_id?: string; zone?: string }>;
 }) {
   const { slug } = await params;
   const query = searchParams ? await searchParams : {};
   const boothExhibitorId = Number(query.ex_id) || 0;
   const wantsBooth = Boolean(boothExhibitorId) || query.mybooth === "1";
+  /**
+   * `?zone=<child layout id>` opens one room — the auditorium halls the "Auditorium (6)"
+   * dropdown links to. Same route as the lobby and the booth, so the footer nav, the session gate
+   * and the top-right actions stay in exactly one place.
+   */
+  const zoneId = Number(query.zone) || 0;
 
   /*
    * Every read below goes through this collector.
@@ -94,7 +102,9 @@ export default async function VirtualEventLobbyPage({
 
   const [lobby, menuGroups, footerMenu, exhibitorExtras, exhibitorDirectory, scheduleDays] = await Promise.all([
     guard(() => getPublicLobby(event.id), null),
-    guard(() => getLobbyMenuGroups(event.id), [] as Awaited<ReturnType<typeof getLobbyMenuGroups>>),
+    // Slug passed so the Auditorium dropdown's halls open on this route rather than leaving the
+    // show for /exhibitors.
+    guard(() => getLobbyMenuGroups(event.id, slug), [] as Awaited<ReturnType<typeof getLobbyMenuGroups>>),
     guard(() => getLobbyFooterMenu(event.id, slug), [] as Awaited<ReturnType<typeof getLobbyFooterMenu>>),
     guard(() => getExhibitorMenuExtras(event.id, userId), [] as Awaited<ReturnType<typeof getExhibitorMenuExtras>>),
     guard(() => getEventExhibitorDirectory(event.id), [] as Awaited<ReturnType<typeof getEventExhibitorDirectory>>),
@@ -145,6 +155,31 @@ export default async function VirtualEventLobbyPage({
     ),
     ...exhibitorExtras,
   ];
+
+  /*
+   * Auditorium mode.
+   *
+   * Checked before booth mode so a ?zone= link is never swallowed by a leftover mybooth param.
+   * An unresolvable id falls through to the lobby rather than erroring — the visitor came from a
+   * menu, and the lobby is where that menu lives.
+   */
+  const auditorium = zoneId ? await guard(() => getAuditoriumScene(event.id, zoneId), null) : null;
+
+  if (auditorium) {
+    return (
+      <div className="relative h-screen w-full overflow-hidden bg-zinc-950 text-white">
+        <AuditoriumView scene={auditorium} eventSlug={slug} eventTitle={event.title} />
+
+        <LobbyFooterNav
+          items={footerItems}
+          exhibitors={exhibitorDirectory}
+          scheduleDays={scheduleDays}
+          eventTitle={event.title}
+          eventSlug={slug}
+        />
+      </div>
+    );
+  }
 
   /*
    * Booth mode.
