@@ -147,16 +147,27 @@ export const getDomain = cache(async function getDomain() {
   }
 
   const activeEventId = await getActiveEventIdSetting(domain?.id ?? DOMAIN_ID);
-  const resolvedEventId = activeEventId ?? DEFAULT_EVENT_ID;
+
+  /**
+   * The fallback chain, in order: the CP's active-event setting for this site, then this site's
+   * own find_domains.event_id, then DEFAULT_EVENT_ID.
+   *
+   * The middle step is new, and it exists because DEFAULT_EVENT_ID is Digital Age Expo's event
+   * (852). Under one site that was a harmless last resort; with several, a newly created
+   * location whose active-event setting has not been chosen yet would have served DAE's whole
+   * programme — schedule, speakers, exhibitors — under its own branding. Its own row is a far
+   * better guess than another site's event.
+   *
+   * The CP's "Mark Active" / General Settings "Event" dropdown remains the one deliberate,
+   * visible way to set this (see site-config.ts and cp/settings/general), and its setting still
+   * wins outright. find_domains.event_id is only consulted when nothing has been chosen: it is
+   * an unenforced legacy column that drifted to a wrong event id before (row 150 still reads
+   * 1474 today, which is why it must not take priority).
+   */
+  const resolvedEventId = activeEventId ?? domain?.event_id ?? DEFAULT_EVENT_ID;
 
   if (domain) {
-    // find_domains.event_id / linked_profile_listing_id are unenforced legacy columns —
-    // this site's event is resolved above (CP "active event" setting, falling back to
-    // DEFAULT_EVENT_ID), NOT from whatever's stored on this row. That row drifted to other
-    // event ids before (e.g. 1474) and silently pointed every page at the wrong event's
-    // data; the CP's own "Mark Active" / General Settings "Event" dropdown is now the one
-    // deliberate, visible way to change what this returns — see site-config.ts and
-    // src/app/cp/(shell)/settings/general/page.tsx.
+    // linked_profile_listing_id is an unenforced legacy column too, so it keeps its own default.
     return {
       ...domain,
       event_id: resolvedEventId,
