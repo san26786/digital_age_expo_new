@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { DOMAIN_ID } from "@/lib/site-config";
+import { getSiteId } from "@/lib/services/domain";
 import { generateSalt, hashPassword } from "@/lib/auth/password";
 
 const PAGE_SIZE = 25;
@@ -112,7 +112,7 @@ export async function listUsers(params: {
   }
 
   const where = {
-    domain_id: DOMAIN_ID,
+    domain_id: await getSiteId(),
     ...buildSearchWhere(params.field, params.keyword?.trim()),
     ...(groupFilterIds ? { id: { in: groupFilterIds } } : {}),
   };
@@ -196,7 +196,7 @@ export async function listUsers(params: {
 
 export async function getUserForEdit(id: number) {
   const user = await prisma.find_users.findFirst({
-    where: { id, domain_id: DOMAIN_ID },
+    where: { id, domain_id: await getSiteId() },
     select: {
       id: true,
       login: true,
@@ -309,7 +309,7 @@ export async function createUser(input: CreateUserInput): Promise<number> {
 
   const created = await prisma.find_users.create({
     data: {
-      domain_id: DOMAIN_ID,
+      domain_id: await getSiteId(),
       login: input.login,
       user_email: input.email,
       pass: hash,
@@ -391,7 +391,7 @@ export async function createUser(input: CreateUserInput): Promise<number> {
 
 export async function findRegistrationConflict(login: string, email: string): Promise<"login_taken" | "email_taken" | null> {
   const existing = await prisma.find_users.findFirst({
-    where: { domain_id: DOMAIN_ID, OR: [{ login }, { user_email: email }] },
+    where: { domain_id: await getSiteId(), OR: [{ login }, { user_email: email }] },
     select: { login: true, user_email: true },
   });
   if (!existing) return null;

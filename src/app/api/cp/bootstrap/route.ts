@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { DOMAIN_ID } from "@/lib/site-config";
+import { getSiteId } from "@/lib/services/domain";
 import { generateSalt, hashPassword } from "@/lib/auth/password";
 import { CP_PERMISSIONS, CP_SEED_ROLES } from "@/lib/cp/rbac";
 import { ADMIN_LOGIN_PERMISSION } from "@/lib/cp/auth/authRepository";
@@ -108,7 +108,7 @@ export async function GET(request: Request) {
   log.push(`DATABASE_URL is ${process.env.DATABASE_URL ? "set" : "MISSING"} in this process.`);
 
   let user = await prisma.find_users.findFirst({
-    where: { domain_id: DOMAIN_ID, OR: [{ login }, { user_email: email }] },
+    where: { domain_id: await getSiteId(), OR: [{ login }, { user_email: email }] },
     select: { id: true, login: true },
   });
 
@@ -119,7 +119,7 @@ export async function GET(request: Request) {
     const hash = hashPassword(password, salt, "sha256");
     const created = await prisma.find_users.create({
       data: {
-        domain_id: DOMAIN_ID,
+        domain_id: await getSiteId(),
         login,
         user_email: email,
         pass: hash,

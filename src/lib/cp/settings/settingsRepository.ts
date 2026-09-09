@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { DOMAIN_ID } from "@/lib/site-config";
+import { getSiteId } from "@/lib/services/domain";
 
 /**
  * Project Settings backing store — reuses find_settings, the legacy admin CP's own DOMAIN-
@@ -31,18 +31,20 @@ export interface SettingRow {
 }
 
 /** All settings in a grouptitle (e.g. "general", "company", "branding", "theme", "seo", "social") for this domain. */
-export async function getSettingsGroup(grouptitle: string, domainId: number = DOMAIN_ID): Promise<SettingRow[]> {
+export async function getSettingsGroup(grouptitle: string, domainId?: number): Promise<SettingRow[]> {
+  const domain = domainId ?? (await getSiteId());
   return prisma.$queryRaw<SettingRow[]>`
     SELECT varname, grouptitle, value, optioncode, optioncode_type, optioncode_parse_type, validationcode
     FROM find_settings
-    WHERE grouptitle = ${grouptitle} AND "DOMAIN" = ${domainId}
+    WHERE grouptitle = ${grouptitle} AND "DOMAIN" = ${domain}
     ORDER BY varname
   `;
 }
 
-export async function getSetting(varname: string, domainId: number = DOMAIN_ID): Promise<string | null> {
+export async function getSetting(varname: string, domainId?: number): Promise<string | null> {
+  const domain = domainId ?? (await getSiteId());
   const rows = await prisma.$queryRaw<{ value: string | null }[]>`
-    SELECT value FROM find_settings WHERE varname = ${varname} AND "DOMAIN" = ${domainId} LIMIT 1
+    SELECT value FROM find_settings WHERE varname = ${varname} AND "DOMAIN" = ${domain} LIMIT 1
   `;
   return rows[0]?.value ?? null;
 }
@@ -61,7 +63,7 @@ export async function defineSetting(input: {
   optioncodeType?: string;
   domainId?: number;
 }): Promise<void> {
-  const domainId = input.domainId ?? DOMAIN_ID;
+  const domainId = input.domainId ?? (await getSiteId());
   const optioncodeType = input.optioncodeType ?? "text";
   const existing = await prisma.$queryRaw<{ varname: string }[]>`
     SELECT varname FROM find_settings WHERE varname = ${input.varname} AND "DOMAIN" = ${domainId} LIMIT 1
@@ -81,7 +83,8 @@ export async function defineSetting(input: {
  * domain already defines it and INSERT a new row for this domain. Throws if the varname has
  * never been defined anywhere — call defineSetting() first for a genuinely new key.
  */
-export async function setSetting(varname: string, value: string, domainId: number = DOMAIN_ID): Promise<void> {
+export async function setSetting(varname: string, value: string, domainIdInput?: number): Promise<void> {
+  const domainId = domainIdInput ?? (await getSiteId());
   const existing = await prisma.$queryRaw<{ varname: string }[]>`
     SELECT varname FROM find_settings WHERE varname = ${varname} AND "DOMAIN" = ${domainId} LIMIT 1
   `;
@@ -110,7 +113,9 @@ export async function setSetting(varname: string, value: string, domainId: numbe
 }
 
 /** Bulk save — used by each settings sub-page's Server Action (one call per form submit). */
-export async function setSettings(values: Record<string, string>, domainId: number = DOMAIN_ID): Promise<void> {
+export async function setSettings(values: Record<string, string>, domainIdInput?: number): Promise<void> {
+  // Resolved once here rather than per key, so a bulk save can't straddle two sites.
+  const domainId = domainIdInput ?? (await getSiteId());
   for (const [varname, value] of Object.entries(values)) {
     await setSetting(varname, value, domainId);
   }

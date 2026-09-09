@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { appliesToDomain } from "@/lib/services/menu";
-import { DOMAIN_ID } from "@/lib/site-config";
+import { getSiteId } from "@/lib/services/domain";
 
 const PAGE_SIZE = 20;
 
@@ -40,7 +40,8 @@ export async function listMenuLinks(params: { page?: number; search?: string } =
       domain_id: true,
     },
   });
-  const scoped = allMatching.filter((row) => appliesToDomain(row.domain_id));
+  const siteId = await getSiteId();
+  const scoped = allMatching.filter((row) => appliesToDomain(row.domain_id, siteId));
 
   const total = scoped.length;
   const links = scoped.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -58,7 +59,8 @@ export async function listTopLevelLinks() {
     orderBy: { ordering: "asc" },
     select: { id: true, title: true, domain_id: true },
   });
-  return rows.filter((row) => appliesToDomain(row.domain_id));
+  const siteId = await getSiteId();
+  return rows.filter((row) => appliesToDomain(row.domain_id, siteId));
 }
 
 export interface MenuLinkInput {
@@ -100,7 +102,7 @@ export async function createMenuLink(input: MenuLinkInput): Promise<number> {
       // New links created from this CP belong to this site specifically — never left blank
       // (which the legacy "applies everywhere" convention would treat as global/shared across
       // every domain in the install).
-      domain_id: String(DOMAIN_ID),
+      domain_id: String(await getSiteId()),
     },
     select: { id: true },
   });

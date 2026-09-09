@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { DOMAIN_ID } from "@/lib/site-config";
+import { getSiteId } from "@/lib/services/domain";
 
 export interface MenuItem {
   id: number;
@@ -153,16 +153,21 @@ export const DEFAULT_MENU: MenuItem[] = [
 
 /** Legacy multi-domain gate, inherited from class_menu_links.php: a row with a blank/null
  * domain_id applies everywhere; otherwise it applies only if its comma-separated domain_id
- * list includes this site's DOMAIN_ID. Exported so menuLinksRepository.ts (the CP's Menu
+ * list includes the current site's id. Exported so menuLinksRepository.ts (the CP's Menu
  * Manager) can scope its own listing the same way — without this, the Menu Manager shows
  * every domain's rows mixed together (727 of them, from the shared legacy install), not just
- * this site's. */
-export function appliesToDomain(domainId: string | null): boolean {
+ * this site's.
+ *
+ * `siteId` is passed in rather than read from site-config because this is the column that
+ * decides which location a nav item belongs to: with the id hardcoded, every site would have
+ * shown Digital Age Expo's menu. Callers get it from getSiteId(). This stays synchronous so it
+ * can be used directly inside a .filter(). */
+export function appliesToDomain(domainId: string | null, siteId: number): boolean {
   if (!domainId || domainId.trim() === "") return true;
   return domainId
     .split(",")
     .map((id) => id.trim())
-    .includes(String(DOMAIN_ID));
+    .includes(String(siteId));
 }
 
 /**
@@ -319,7 +324,8 @@ export async function getMenu(): Promise<MenuItem[]> {
       },
     });
 
-    const visible = rows.filter((row: any) => appliesToDomain(row.domain_id));
+    const siteId = await getSiteId();
+    const visible = rows.filter((row: any) => appliesToDomain(row.domain_id, siteId));
 
     if (visible.length >= 3) {
       const byId = new Map<number, MenuItem>();

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { DOMAIN_ID } from "@/lib/site-config";
+import { getSiteId } from "@/lib/services/domain";
 import { verifyPassword } from "@/lib/auth/password";
 
 /**
@@ -84,7 +84,7 @@ export async function verifyCpCredentials(
 
   const user = await prisma.find_users.findFirst({
     where: {
-      domain_id: DOMAIN_ID,
+      domain_id: await getSiteId(),
       OR: [{ login: identifier }, { user_email: identifier }],
     },
     select: {

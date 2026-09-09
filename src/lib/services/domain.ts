@@ -186,3 +186,19 @@ export const getDomain = cache(async function getDomain() {
 });
 
 export type SiteDomain = Awaited<ReturnType<typeof getDomain>>;
+
+/**
+ * The find_domains id of the site this request belongs to — the multi-site replacement for
+ * importing the DOMAIN_ID constant.
+ *
+ * Anything that scopes a query by domain (menu links, member accounts, CP settings and users)
+ * should take its id from here rather than from site-config, or it will read and write the
+ * wrong location's rows the moment a second site exists. DOMAIN_ID stays as the fallback
+ * inside getDomain(), so an unrecognised hostname still behaves exactly as it does today.
+ *
+ * Costs nothing to call repeatedly: getDomain() is wrapped in React's cache(), so every call
+ * within one render shares a single resolved promise.
+ */
+export async function getSiteId(): Promise<number> {
+  return (await getDomain()).id;
+}

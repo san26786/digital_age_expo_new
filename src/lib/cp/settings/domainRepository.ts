@@ -1,12 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { DOMAIN_ID } from "@/lib/site-config";
+import { getSiteId } from "@/lib/services/domain";
 
 /**
  * find_domains is NOT an EAV table like find_settings — every field here is a real, typed
- * column on exactly ONE row: this site's row (id = DOMAIN_ID, see site-config.ts — the same
- * row src/lib/services/domain.ts's getDomain() reads for the public site). So "get/set domain
- * settings" is a plain findUnique/update by id, not the varname/grouptitle lookup General
- * Settings uses against find_settings.
+ * column on one row per site. Which row is decided by the hostname the request arrived on, via
+ * getSiteId() (the same resolution src/lib/services/domain.ts's getDomain() does for the public
+ * site), so an organiser editing Company Details on one location's domain cannot overwrite
+ * another location's row. So "get/set domain settings" is a plain findUnique/update by id, not
+ * the varname/grouptitle lookup General Settings uses against find_settings.
  *
  * This repository only reads/writes the subset of find_domains's ~80 legacy columns that the
  * Company Details, Social Media, and Branding CP pages surface — the same "core fields, not
@@ -111,7 +113,7 @@ const FALLBACK_ROW: DomainSettingsRow = {
 /** Reads this site's find_domains row. Falls back to placeholder values if the row can't be reached, mirroring getDomain()'s own try/catch fallback in src/lib/services/domain.ts. */
 export async function getDomainSettings(): Promise<DomainSettingsRow> {
   try {
-    const row = await prisma.find_domains.findUnique({ where: { id: DOMAIN_ID }, select: DOMAIN_SETTINGS_SELECT });
+    const row = await prisma.find_domains.findUnique({ where: { id: await getSiteId() }, select: DOMAIN_SETTINGS_SELECT });
     return row ?? FALLBACK_ROW;
   } catch (e) {
     console.warn("Failed to fetch find_domains settings row, using fallback", e);
@@ -133,7 +135,7 @@ export interface CompanyDetailsInput {
 }
 
 export async function updateCompanyDetails(input: CompanyDetailsInput): Promise<void> {
-  await prisma.find_domains.update({ where: { id: DOMAIN_ID }, data: input });
+  await prisma.find_domains.update({ where: { id: await getSiteId() }, data: input });
 }
 
 export interface SocialMediaInput {
@@ -146,7 +148,7 @@ export interface SocialMediaInput {
 }
 
 export async function updateSocialMedia(input: SocialMediaInput): Promise<void> {
-  await prisma.find_domains.update({ where: { id: DOMAIN_ID }, data: input });
+  await prisma.find_domains.update({ where: { id: await getSiteId() }, data: input });
 }
 
 export interface BrandingInput {
@@ -162,7 +164,7 @@ export interface BrandingInput {
 
 export async function updateBranding(input: BrandingInput): Promise<void> {
   await prisma.find_domains.update({
-    where: { id: DOMAIN_ID },
+    where: { id: await getSiteId() },
     data: {
       template: input.template,
       alternate_logo: input.alternate_logo,

@@ -5,9 +5,9 @@ import { SettingsForm } from "../_components/SettingsForm";
 import { FIELD_CLASS, LABEL_CLASS, CHECKBOX_ROW_CLASS, CHECKBOX_CLASS } from "../_components/styles";
 
 /**
- * Company Details — reads/writes find_domains directly (this site's one row, id=DOMAIN_ID),
- * NOT find_settings. Unlike most of the newer tabs (an EAV table keyed by varname), every field
- * on this page is a real, typed column — see domainRepository.ts.
+ * Company Details — reads/writes find_domains directly (the row for whichever site's hostname
+ * this request arrived on), NOT find_settings. Unlike most of the newer tabs (an EAV table keyed
+ * by varname), every field on this page is a real, typed column — see domainRepository.ts.
  */
 export default async function CompanyDetailsPage() {
   const domain = await getDomainSettings();

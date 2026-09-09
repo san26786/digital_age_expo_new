@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { DOMAIN_ID } from "@/lib/site-config";
+import { getSiteId } from "@/lib/services/domain";
 import { generateSalt, hashPassword, verifyPassword } from "@/lib/auth/password";
 
 export interface RegisterMemberInput {
@@ -18,20 +18,26 @@ export type RegisterMemberError = "login_taken" | "email_taken" | "phone_taken";
  * Mirrors class_authentication.php::loadUser() — looks a member up by username or email within
  * this site's domain.
  *
- * The domain scope accepts 0 as well as DOMAIN_ID, and without that NO REAL ACCOUNT COULD LOG IN.
- * Every one of the 1,677 rows in find_users carries domain_id = 0 — the legacy platform never
- * populated it — so filtering on DOMAIN_ID alone could never match, and this query always returned
- * null. That is why the hardcoded demo credentials existed and were the only way into the member
- * area: real login had been broken the whole time.
+ * The domain scope accepts 0 as well as this site's id, and without that NO REAL ACCOUNT COULD
+ * LOG IN. Every one of the 1,677 rows in find_users carries domain_id = 0 — the legacy platform
+ * never populated it — so filtering on the site id alone could never match, and this query
+ * always returned null. That is why the hardcoded demo credentials existed and were the only way
+ * into the member area: real login had been broken the whole time.
  *
  * 0 is treated as "unscoped legacy row" rather than dropping the filter entirely, so
- * createMemberAccount()'s newly-registered members (which do write DOMAIN_ID) stay scoped as
+ * createMemberAccount()'s newly-registered members (which do write the site id) stay scoped as
  * intended.
+ *
+ * Worth being explicit about what that means once there is more than one site: because every
+ * legacy row is 0, those 1,677 accounts can sign in on ANY location's domain, while accounts
+ * created from here on can only sign in on the site that created them. Tightening that would
+ * mean backfilling domain_id on the legacy rows first — otherwise it locks all of them out
+ * again, which is the exact bug this comment was written about.
  */
 async function findUserForLogin(identifier: string) {
   return prisma.find_users.findFirst({
     where: {
-      domain_id: { in: [DOMAIN_ID, 0] },
+      domain_id: { in: [await getSiteId(), 0] },
       OR: [{ login: identifier }, { user_email: identifier }],
     },
     select: {
@@ -190,7 +196,7 @@ export async function findRegistrationConflict(
   phone: string,
 ): Promise<RegisterMemberError | null> {
   const existing = await prisma.find_users.findFirst({
-    where: { domain_id: DOMAIN_ID, OR: [{ login }, { user_email: email }, { user_phone: phone }] },
+    where: { domain_id: await getSiteId(), OR: [{ login }, { user_email: email }, { user_phone: phone }] },
     select: { login: true, user_email: true, user_phone: true },
   });
   if (!existing) return null;
@@ -205,7 +211,7 @@ export async function createMemberAccount(input: RegisterMemberInput) {
 
   return prisma.find_users.create({
     data: {
-      domain_id: DOMAIN_ID,
+      domain_id: await getSiteId(),
       login: input.login,
       user_email: input.email,
       pass: hash,
@@ -400,7 +406,7 @@ export async function getMemberSchedule(userId: number): Promise<MemberMeeting[]
 
   const meetings = await prisma.find_meeting.findMany({
     where: {
-      DOMAIN: DOMAIN_ID,
+      DOMAIN: await getSiteId(),
       OR: [{ from_user_id: userId }, { to_user_id: userId }],
     },
     orderBy: { start_time: "asc" },
