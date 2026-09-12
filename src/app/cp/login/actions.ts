@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { verifyCpCredentials } from "@/lib/cp/auth/authRepository";
+import { cpSessionPermissions, safeCpReturnPath } from "@/lib/cp/rbac";
 import { createSessionToken, CP_SESSION_COOKIE_NAME, CP_SESSION_MAX_AGE_SECONDS } from "@/lib/cp/auth/session";
 
 export interface CpLoginState {
@@ -30,7 +31,12 @@ export async function loginAction(_prev: CpLoginState, formData: FormData): Prom
     email: user.email,
     groupId: user.primaryGroup.id,
     groupName: user.primaryGroup.name,
-    perms: user.permissions,
+    // An administrator group is allowed everything without consulting the permission catalog
+    // (see hasPermission() in lib/cp/rbac.ts), and only the slugs this CP actually checks are
+    // stored — the legacy catalog is long enough that the full list can push the cookie past
+    // the ~4 KB the browser will keep, which silently drops the session on the next click.
+    admin: user.groups.some((group) => group.administrator),
+    perms: cpSessionPermissions(user.permissions),
   });
 
   const store = await cookies();
@@ -48,8 +54,11 @@ export async function loginAction(_prev: CpLoginState, formData: FormData): Prom
     maxAge: CP_SESSION_MAX_AGE_SECONDS,
   });
 
-  redirect("/cp");
+  // Back to whatever page bounced them here (the guards in lib/cp/rbac.ts put it in ?next=),
+  // so an expired session costs one sign-in instead of losing your place.
+  redirect(safeCpReturnPath(String(formData.get("next") ?? "")));
 }
+
 
 export async function logoutAction(): Promise<void> {
   const store = await cookies();

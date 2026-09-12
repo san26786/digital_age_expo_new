@@ -4,17 +4,38 @@ import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { requireCpPermission, CP_PERMISSIONS } from "@/lib/cp/rbac";
 import { setSettings } from "@/lib/cp/settings/settingsRepository";
-import { TYPOGRAPHY_SETTINGS_FIELDS } from "./fields";
+import { TYPOGRAPHY_SETTINGS_FIELDS, TYPOGRAPHY_NUMBER_FIELDS } from "./fields";
 import { optionalText, firstZodIssue } from "../_lib/validation";
 import type { SettingsActionState } from "../_components/SettingsForm";
+
+/**
+ * Range check built from the SAME min/max the number inputs declare, so the form and the
+ * Server Action can't drift apart. The inputs already stop an out-of-range value in the
+ * browser; a Server Action is directly callable, so the bound has to exist here too — and
+ * expressing it once means widening the stepper automatically widens what is accepted.
+ */
+function boundedNumber(field: { label: string; min: number; max: number }) {
+  return z.union([
+    z.literal(""),
+    z
+      .string()
+      .trim()
+      .refine((value) => {
+        const parsed = Number(value);
+        return Number.isFinite(parsed) && parsed >= field.min && parsed <= field.max;
+      }, `${field.label} must be a number between ${field.min} and ${field.max}.`),
+  ]);
+}
+
+const [BASE_FONT_SIZE_FIELD, HEADING_SCALE_FIELD] = TYPOGRAPHY_NUMBER_FIELDS;
 
 const typographySchema = z.object({
   cp_typography_primary_font: optionalText(150),
   cp_typography_secondary_font: optionalText(150),
   cp_typography_heading_font: optionalText(150),
   cp_typography_body_font: optionalText(150),
-  cp_typography_base_font_size: z.union([z.literal(""), z.string().trim().regex(/^\d{1,2}$/, "Enter a number of pixels, e.g. 16.")]),
-  cp_typography_heading_scale: z.union([z.literal(""), z.string().trim().regex(/^\d(\.\d{1,2})?$/, "Enter a scale factor, e.g. 1.25.")]),
+  cp_typography_base_font_size: boundedNumber(BASE_FONT_SIZE_FIELD),
+  cp_typography_heading_scale: boundedNumber(HEADING_SCALE_FIELD),
 });
 
 export async function saveTypographySettingsAction(

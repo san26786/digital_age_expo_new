@@ -24,7 +24,12 @@ export default async function ContactSettingsPage() {
         </p>
       </div>
 
-      <SettingsForm action={saveContactSettingsAction}>
+      <SettingsForm
+        action={saveContactSettingsAction}
+        /* Contact details ship empty — there is no plausible factory value for someone else's
+           phone number — so "Restore Defaults" here clears the form back to unset. */
+        defaults={Object.fromEntries(CONTACT_SETTINGS_FIELDS.map((field) => [field.varname, ""]))}
+      >
         <div className="grid gap-5 sm:grid-cols-2">
           {CONTACT_SETTINGS_FIELDS.map((field) => (
             <div key={field.varname} className="space-y-2">

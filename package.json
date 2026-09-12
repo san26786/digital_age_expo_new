@@ -19,7 +19,8 @@
     "db:lobby-templates": "tsx scripts/seed-lobby-templates.ts",
     "db:industries": "tsx scripts/seed-industries.ts",
     "db:engagement-report": "tsx scripts/create-engagement-report-table.ts",
-    "menu:check": "tsx scripts/check-lobby-menu.ts"
+    "menu:check": "tsx scripts/check-lobby-menu.ts",
+    "cp:grant-admin": "tsx scripts/grant-cp-admin.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

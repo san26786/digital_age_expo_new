@@ -2,6 +2,7 @@ import { getSettingsGroup, defineSetting } from "@/lib/cp/settings/settingsRepos
 import { THEME_SETTINGS_FIELDS, THEME_COLOR_FIELDS } from "./fields";
 import { saveThemeSettingsAction } from "./actions";
 import { SettingsForm } from "../_components/SettingsForm";
+import { ColorField } from "../_components/ColorField";
 import { LABEL_CLASS, CHECKBOX_ROW_CLASS, CHECKBOX_CLASS } from "../_components/styles";
 
 /**
@@ -10,6 +11,10 @@ import { LABEL_CLASS, CHECKBOX_ROW_CLASS, CHECKBOX_CLASS } from "../_components/
  * so this follows the same find_settings pattern General Settings uses instead. Once Phase 2
  * wires the public site to these values, each color below becomes a CSS custom property the
  * whole site reads from, replacing whatever is currently hardcoded.
+ *
+ * THEME_SETTINGS_FIELDS carries the shipped default for every field, so the same catalog that
+ * seeds find_settings on first load also feeds SettingsForm's "Restore Defaults" button —
+ * there is no second copy of the palette to drift out of step with this one.
  */
 export default async function ThemeSettingsPage() {
   for (const field of THEME_SETTINGS_FIELDS) {
@@ -19,14 +24,18 @@ export default async function ThemeSettingsPage() {
       value: field.defaultValue,
       // find_settings.optioncode_type is a fixed Postgres enum (text/textarea/select/radio/
       // checkbox/file/eval/text_tags/number_toggle) with no "color" member — this page renders
-      // its own <input type="color"> (or checkbox) based on field.type below, independently of
-      // what's stored here, so "text" is always a safe, valid value to persist.
+      // its own color input (or checkbox) based on field.type below, independently of what's
+      // stored here, so "text" is always a safe, valid value to persist.
       optioncodeType: "text",
     });
   }
 
   const rows = await getSettingsGroup("theme");
   const valueByVarname = new Map(rows.map((r) => [r.varname, r.value ?? ""]));
+
+  const defaults = Object.fromEntries(
+    THEME_SETTINGS_FIELDS.map((field) => [field.varname, field.defaultValue])
+  );
 
   return (
     <div className="space-y-6">
@@ -38,24 +47,15 @@ export default async function ThemeSettingsPage() {
         </p>
       </div>
 
-      <SettingsForm action={saveThemeSettingsAction}>
+      <SettingsForm action={saveThemeSettingsAction} defaults={defaults}>
         <div className="grid gap-5 sm:grid-cols-2">
           {THEME_COLOR_FIELDS.map((field) => (
-            <div key={field.varname} className="space-y-2">
-              <label className={LABEL_CLASS} htmlFor={field.varname}>
-                {field.label}
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  id={field.varname}
-                  type="color"
-                  name={field.varname}
-                  defaultValue={valueByVarname.get(field.varname) || field.defaultValue}
-                  className="h-11 w-16 cursor-pointer rounded-lg border border-white/10 bg-white/5"
-                />
-                <span className="text-xs text-zinc-500">{valueByVarname.get(field.varname) || field.defaultValue}</span>
-              </div>
-            </div>
+            <ColorField
+              key={field.varname}
+              name={field.varname}
+              label={field.label}
+              value={valueByVarname.get(field.varname) || field.defaultValue}
+            />
           ))}
         </div>
 

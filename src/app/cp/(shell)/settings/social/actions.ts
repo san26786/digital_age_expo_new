@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { CACHE_TAGS, revalidateContent } from "@/lib/cache";
 import { requireCpPermission, CP_PERMISSIONS } from "@/lib/cp/rbac";
 import { updateSocialMedia } from "@/lib/cp/settings/domainRepository";
 import { setSettings } from "@/lib/cp/settings/settingsRepository";
@@ -61,5 +62,9 @@ export async function saveSocialMediaAction(
 
   revalidatePath("/cp/settings/social");
   revalidatePath("/", "layout");
+  // revalidatePath only busts rendered routes. The footer's link list is an unstable_cache
+  // entry stored under the domain tag (see getPublicSocialLinks()), so without this an
+  // Enabled/Order change would keep showing the old icons until that window expired.
+  revalidateContent(CACHE_TAGS.domain);
   return { success: true, message: "Settings updated successfully." };
 }

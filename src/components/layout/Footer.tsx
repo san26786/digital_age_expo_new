@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { getDomain } from "@/lib/services/domain";
+import { getPublicSocialLinks } from "@/lib/services/social";
+import { getFooterContent } from "@/lib/services/footer";
 import { NewsletterForm } from "@/components/layout/NewsletterForm";
 import {
   Mail,
@@ -31,47 +33,19 @@ const QUICK_LINKS = [
   { href: "/event-services", label: "Addon Services" },
 ];
 
-const SOCIAL_CONFIG = [
-  {
-    key: "facebook",
-    label: "Facebook",
-    short: "FB",
-  },
-  {
-    key: "twitter",
-    label: "Twitter",
-    short: "X",
-  },
-  {
-    key: "instagram",
-    label: "Instagram",
-    short: "IG",
-  },
-  {
-    key: "youtube",
-    label: "YouTube",
-    short: "YT",
-  },
-  {
-    key: "linkedin",
-    label: "LinkedIn",
-    short: "IN",
-  },
-] as const;
-
 export async function Footer() {
-  const domain = await getDomain();
-
-  const socialLinks = SOCIAL_CONFIG.map((social) => ({
-    ...social,
-    href: domain[social.key],
-  })).filter(
-    (
-      social
-    ): social is typeof social & {
-      href: string;
-    } => Boolean(social.href)
-  );
+  // Which networks appear here, and in what order, is decided by the CP's Settings -> Social
+  // Media tab (Enabled + Order), not by this component. The hardcoded five-platform list that
+  // used to live here ignored both, and could never show TikTok/WhatsApp/Pinterest at all —
+  // see getPublicSocialLinks() for how the two storage locations are resolved.
+  // Description, contact block, copyright line and legal links all come from Settings ->
+  // Footer, each falling back to the wording this component shipped with when nothing has been
+  // saved (see getFooterContent()), so the page looks identical until an admin changes it.
+  const [domain, socialLinks, footer] = await Promise.all([
+    getDomain(),
+    getPublicSocialLinks(),
+    getFooterContent(),
+  ]);
 
   const currentYear = new Date().getFullYear();
 
@@ -137,17 +111,15 @@ export async function Footer() {
             {/* DESCRIPTION */}
 
             <p className="mt-6 max-w-md text-sm leading-7 text-zinc-400">
-              Connect, discover and grow at the Digital Age Expo. Explore
-              innovative businesses, meet industry leaders and build valuable
-              connections through our global business event.
+              {footer.description}
             </p>
 
             {/* CONTACT */}
 
             <div className="mt-7 space-y-3">
-              {domain.email && (
+              {footer.email && (
                 <a
-                  href={`mailto:${domain.email}`}
+                  href={`mailto:${footer.email}`}
                   className="group flex items-center gap-3 text-sm text-zinc-400 transition hover:text-white"
                 >
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] transition group-hover:border-fuchsia-500/40 group-hover:bg-fuchsia-500/10">
@@ -158,14 +130,14 @@ export async function Footer() {
                   </span>
 
                   <span className="break-all">
-                    {domain.email}
+                    {footer.email}
                   </span>
                 </a>
               )}
 
-              {domain.phone && (
+              {footer.phone && (
                 <a
-                  href={`tel:${domain.phone}`}
+                  href={`tel:${footer.phone}`}
                   className="group flex items-center gap-3 text-sm text-zinc-400 transition hover:text-white"
                 >
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] transition group-hover:border-purple-500/40 group-hover:bg-purple-500/10">
@@ -175,11 +147,19 @@ export async function Footer() {
                     />
                   </span>
 
-                  <span>{domain.phone}</span>
+                  <span>{footer.phone}</span>
                 </a>
               )}
 
-             
+              {footer.address && (
+                <div className="flex items-start gap-3 text-sm text-zinc-400">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04]">
+                    <MapPin size={16} className="text-sky-400" />
+                  </span>
+
+                  <span className="whitespace-pre-line leading-7">{footer.address}</span>
+                </div>
+              )}
             </div>
 
             {/* SOCIAL */}
@@ -323,33 +303,23 @@ export async function Footer() {
           <p className="text-xs text-zinc-500">
             © {currentYear}{" "}
             <span className="font-semibold text-zinc-400">
-              {domain.name}
+              {footer.copyrightText}
             </span>
-            . All rights reserved.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-zinc-500">
-            <Link
-              href="/privacy-policy"
-              className="transition hover:text-white"
-            >
-              Privacy Policy
-            </Link>
+            {footer.legalLinks.map((link, index) => (
+              <span key={link.href} className="flex items-center gap-4">
+                {index > 0 && <span className="h-1 w-1 rounded-full bg-zinc-700" />}
+                <Link href={link.href} className="transition hover:text-white">
+                  {link.label}
+                </Link>
+              </span>
+            ))}
 
-            <span className="h-1 w-1 rounded-full bg-zinc-700" />
+            {footer.legalLinks.length > 0 && <span className="h-1 w-1 rounded-full bg-zinc-700" />}
 
-            <Link
-              href="/terms-and-conditions"
-              className="transition hover:text-white"
-            >
-              Terms & Conditions
-            </Link>
-
-            <span className="h-1 w-1 rounded-full bg-zinc-700" />
-
-            <span className="text-zinc-600">
-              Digital Age Expo
-            </span>
+            <span className="text-zinc-600">{domain.name}</span>
           </div>
         </div>
       </div>

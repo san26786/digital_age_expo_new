@@ -46,7 +46,15 @@ export default async function GeneralSettingsPage() {
         </p>
       </div>
 
-      <SettingsForm action={saveGeneralSettingsAction}>
+      <SettingsForm
+        action={saveGeneralSettingsAction}
+        /* The Event dropdown below is deliberately left out of the defaults: "no active event"
+           is not a sensible thing to hand an admin, and it is not a find_settings general
+           field in the first place. Restoring defaults leaves the active event untouched. */
+        defaults={Object.fromEntries(
+          GENERAL_SETTINGS_FIELDS.map((field) => [field.varname, field.defaultValue])
+        )}
+      >
         {GENERAL_SETTINGS_FIELDS.map((field) => (
           <div key={field.varname} className="space-y-2">
             <label className={LABEL_CLASS} htmlFor={field.varname}>

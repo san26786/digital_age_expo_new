@@ -29,6 +29,14 @@ export interface CpSessionPayload {
   /** find_users_groups.id the user was in at login time (their "role" — a group IS a role here). */
   groupId: number;
   groupName: string;
+  /**
+   * True when at least one group the user belongs to is flagged `administrator` in
+   * find_users_groups. Recorded at login because it is the one authorisation fact that does
+   * NOT depend on the legacy find_users_permissions catalog being complete — see
+   * hasPermission() in lib/cp/rbac.ts. Optional so tokens minted before this field existed
+   * still verify and simply fall back to the `perms` list.
+   */
+  admin?: boolean;
   /** Permission slugs granted at login time — see lib/cp/rbac.ts for why this isn't re-queried on every request. */
   perms: string[];
   iat: number;

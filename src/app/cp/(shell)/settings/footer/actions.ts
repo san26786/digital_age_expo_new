@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { CACHE_TAGS, revalidateContent } from "@/lib/cache";
 import { requireCpPermission, CP_PERMISSIONS } from "@/lib/cp/rbac";
 import { setSettings } from "@/lib/cp/settings/settingsRepository";
 import { FOOTER_TEXT_FIELDS } from "./fields";
@@ -34,5 +35,8 @@ export async function saveFooterSettingsAction(
   await setSettings(parsed.data as Record<string, string>);
   revalidatePath("/cp/settings/footer");
   revalidatePath("/", "layout");
+  // The rendered footer reads these through an unstable_cache entry tagged `domain`
+  // (getFooterContent()), which revalidatePath alone does not clear.
+  revalidateContent(CACHE_TAGS.domain);
   return { success: true, message: "Settings updated successfully." };
 }

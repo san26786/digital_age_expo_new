@@ -99,16 +99,41 @@ async function ensureMenuItem(input: { title: string; icon: string; link: string
 }
 
 export async function GET(request: Request) {
+  /*
+   * NON-PRODUCTION ONLY. This route has no auth of its own and, in its full mode, creates or
+   * promotes an account to Super Admin from a query string — reachable by anyone who can load
+   * the URL. The file's own comment says it must not ship to production; this makes that
+   * enforceable rather than a note someone has to remember, so a forgotten file is inert
+   * instead of a site takeover.
+   */
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Not available." }, { status: 403 });
+  }
+
   const log: string[] = [];
   const { searchParams } = new URL(request.url);
+  /**
+   * ?menuOnly=1 seeds only the permission slugs, roles and the CP sidebar rows — no account is
+   * created, promoted, or given a password. This is what you want when login already works and
+   * the sidebar is simply empty; it keeps a password out of the URL and out of the response.
+   */
+  const menuOnly = searchParams.get("menuOnly") === "1";
   const login = searchParams.get("login") || "admin";
   const password = searchParams.get("password") || "password123";
   const email = searchParams.get("email") || `${login}@digitalageexpo.local`;
 
   log.push(`DATABASE_URL is ${process.env.DATABASE_URL ? "set" : "MISSING"} in this process.`);
 
-  let user = await prisma.find_users.findFirst({
-    where: { domain_id: DOMAIN_ID, OR: [{ login }, { user_email: email }] },
+  let user: { id: number; login: string } | null = null;
+
+  if (menuOnly) {
+    log.push("menuOnly=1 — skipping all account work; seeding permissions, roles and the sidebar only.");
+  } else {
+  user = await prisma.find_users.findFirst({
+    // Both values, matching findUserForLogin() and verifyCpCredentials() — the migration left
+    // find_users.domain_id at 0 on imported rows, so a strict DOMAIN_ID match finds nothing and
+    // this route would create a SECOND account rather than reusing the real one.
+    where: { domain_id: { in: [DOMAIN_ID, 0] }, OR: [{ login }, { user_email: email }] },
     select: { id: true, login: true },
   });
 
@@ -163,6 +188,7 @@ export async function GET(request: Request) {
     });
     user = created;
     log.push(`Created find_users row "${login}" (id=${user.id}).`);
+  }
   }
 
   for (const slug of ALL_PERMISSIONS) await ensurePermission(slug);
@@ -257,21 +283,33 @@ export async function GET(request: Request) {
   });
   log.push(`Ensured CP sidebar entries exist in find_dashboard_menu.`);
 
-  const superAdminGroupId = groupIdByName["Super Admin"];
-  const alreadyMember = await prisma.find_users_groups_lookup.findUnique({
-    where: { user_id_group_id: { user_id: user.id, group_id: superAdminGroupId } },
-  });
-  if (!alreadyMember) {
-    await prisma.find_users_groups_lookup.create({ data: { user_id: user.id, group_id: superAdminGroupId } });
-    log.push(`Granted find_users.id=${user.id} the Super Admin role.`);
-  } else {
-    log.push(`find_users.id=${user.id} already has the Super Admin role.`);
+  if (user) {
+    const superAdminGroupId = groupIdByName["Super Admin"];
+    const alreadyMember = await prisma.find_users_groups_lookup.findUnique({
+      where: { user_id_group_id: { user_id: user.id, group_id: superAdminGroupId } },
+    });
+    if (!alreadyMember) {
+      await prisma.find_users_groups_lookup.create({ data: { user_id: user.id, group_id: superAdminGroupId } });
+      log.push(`Granted find_users.id=${user.id} the Super Admin role.`);
+    } else {
+      log.push(`find_users.id=${user.id} already has the Super Admin role.`);
+    }
   }
+
+  const menuCount = await prisma.find_dashboard_menu.count({
+    where: { visible: true, link: { startsWith: "/cp" } },
+  });
+  log.push(`${menuCount} sidebar row(s) now match the CP shell's query (visible, link starts with /cp).`);
 
   return NextResponse.json({
     ok: true,
     steps: log,
-    signIn: { url: "/cp/login", login, password },
-    reminder: "Delete src/app/api/cp/bootstrap/route.ts once you've confirmed login works.",
+    sidebarRows: menuCount,
+    // Permissions are baked into the CP session cookie at login and not re-queried per request
+    // (see lib/cp/rbac.ts), so a session that predates this run still carries the old, smaller
+    // permission set and will keep hiding the items it did not have.
+    next: "Sign out of /cp and sign back in, so the session picks up the permission slugs this just created.",
+    signIn: user ? { url: "/cp/login", login, password } : null,
+    reminder: "Delete src/app/api/cp/bootstrap/route.ts once the CP is set up.",
   });
 }

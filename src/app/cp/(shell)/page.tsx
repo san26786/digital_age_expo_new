@@ -47,8 +47,22 @@ function toSlices(metric: DashboardMetric | null): DonutSlice[] {
   return [...shown, { label: `Other (${rest.length})`, value: otherValue, color: OTHER_SLICE_COLOR }];
 }
 
-export default async function CpDashboardPage() {
-  const [session, data] = await Promise.all([requireCpSession(), getDashboardData()]);
+/**
+ * `?denied=<slug>` is what requireCpPermission() attaches when it turns an admin away from a
+ * module they lack the grant for. Nothing used to read it, so the redirect looked like the
+ * sidebar link had simply thrown you back here for no reason — this renders the reason.
+ */
+export default async function CpDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ denied?: string | string[] }>;
+}) {
+  const [session, data, params] = await Promise.all([
+    requireCpSession(),
+    getDashboardData(),
+    searchParams,
+  ]);
+  const denied = Array.isArray(params.denied) ? params.denied[0] : params.denied;
 
   const stats: { label: string; value: number | string; icon: typeof Users; accent: string }[] = [
     { label: "Registered Users", value: data.users?.total ?? "—", icon: Users, accent: "var(--color-chart-series-1)" },
@@ -93,6 +107,14 @@ export default async function CpDashboardPage() {
 
   return (
     <div className="space-y-8">
+      {denied && (
+        <div className="rounded-2xl border border-amber-400/20 bg-amber-400/5 p-4 text-xs leading-relaxed text-amber-300">
+          <span className="font-bold">You were sent back here</span> because your role
+          (&quot;{session.groupName}&quot;) doesn&apos;t include{" "}
+          <code className="rounded bg-black/40 px-1.5 py-0.5 font-mono text-[11px]">{denied}</code>.
+          An administrator can grant it under Roles &amp; Permissions.
+        </div>
+      )}
       <div>
         <h1 className="text-xl font-black uppercase tracking-wider text-white">Dashboard</h1>
         <p className="mt-1 text-sm text-zinc-500">

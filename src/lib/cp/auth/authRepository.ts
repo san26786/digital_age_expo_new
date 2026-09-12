@@ -55,6 +55,68 @@ async function verifyTempAdminBypass(
   };
 }
 
+/* ==========================================================================
+ * TEMPORARY DEMO LOGIN — remove this whole block (and its call in
+ * verifyCpCredentials, and the DEMO block in src/app/cp/login/page.tsx)
+ * ==========================================================================
+ *
+ * A fixed demo account for /cp/login, mirroring the member portal's demo
+ * organiser (see demoCredentials() in src/lib/services/member.ts, same
+ * identifier and password, same synthetic user id -30) so one set of
+ * credentials gets you into both sides of the app while it is being shown.
+ *
+ * GATED TO NON-PRODUCTION. `NODE_ENV === "production"` short-circuits this
+ * before either string is compared, so the credentials cannot authenticate a
+ * real deployment even if this block is left in by accident. That gate is not
+ * optional: the password is a well-known string and it is printed on the login
+ * screen, so ungated this would be a published superadmin credential for
+ * anyone who can load /cp/login.
+ *
+ * TO REMOVE: delete this block, delete the `verifyDemoCpLogin` call at the top
+ * of verifyCpCredentials(), and delete the "TEMPORARY DEMO LOGIN" block in
+ * src/app/cp/login/page.tsx. Nothing else references it.
+ */
+export const DEMO_CP_EMAIL = "organiser@demo.com";
+export const DEMO_CP_PASSWORD = "password123";
+/** Accepted spellings — the email, or just the username part. */
+const DEMO_CP_IDENTIFIERS = [DEMO_CP_EMAIL, "organiser", "organizer", "organiser@demo.com"];
+
+/** Whether the demo credentials may be used at all. Never true in production. */
+export function isCpDemoLoginEnabled(): boolean {
+  return process.env.NODE_ENV !== "production";
+}
+
+async function verifyDemoCpLogin(
+  identifier: string,
+  plainPassword: string
+): Promise<CpAuthenticatedUser | null> {
+  if (!isCpDemoLoginEnabled()) return null;
+  const ident = identifier.trim().toLowerCase();
+  if (!DEMO_CP_IDENTIFIERS.includes(ident)) return null;
+  if (plainPassword !== DEMO_CP_PASSWORD) return null;
+
+  // Every permission slug that exists, read from the table rather than hardcoded so the demo
+  // account keeps working as new CP screens add permissions. If the database is unreachable the
+  // demo login still succeeds with admin_login alone, so it is usable for UI work while offline.
+  let permissions: string[] = [ADMIN_LOGIN_PERMISSION];
+  try {
+    const all = await prisma.find_users_permissions.findMany({ select: { id: true } });
+    if (all.length) permissions = all.map((p: { id: string }) => p.id);
+  } catch {
+    /* keep the admin_login-only fallback */
+  }
+
+  return {
+    id: -30,
+    name: "Oliver Organiser (demo)",
+    email: DEMO_CP_EMAIL,
+    groups: [{ id: 0, name: "Demo Admin", administrator: true }],
+    primaryGroup: { id: 0, name: "Demo Admin" },
+    permissions,
+  };
+}
+/* ===================== END TEMPORARY DEMO LOGIN ========================== */
+
 export interface CpAuthenticatedUser {
   id: number;
   name: string;
@@ -79,12 +141,30 @@ export async function verifyCpCredentials(
   identifier: string,
   plainPassword: string
 ): Promise<CpAuthenticatedUser | null> {
+  // TEMPORARY DEMO LOGIN — remove this line together with the block above.
+  const demo = await verifyDemoCpLogin(identifier, plainPassword);
+  if (demo) return demo;
+
   const tempAdmin = await verifyTempAdminBypass(identifier, plainPassword);
   if (tempAdmin) return tempAdmin;
 
   const user = await prisma.find_users.findFirst({
     where: {
-      domain_id: DOMAIN_ID,
+      /*
+       * `{ in: [DOMAIN_ID, 0] }`, not `DOMAIN_ID` — this is what made CP login impossible for
+       * every real account, and it is why the temporary bypass above exists.
+       *
+       * DOMAIN_ID is a find_domains.id (150). find_users.domain_id is a different column, and
+       * the MySQL -> Postgres migration left it at 0 on the imported rows, so a strict
+       * `domain_id: 150` matched NOTHING: the query returned null before any password was
+       * checked, and the login form reported its deliberately generic "invalid credentials, or
+       * this account doesn't have admin access" for what was really a failed lookup.
+       *
+       * findUserForLogin() in src/lib/services/member.ts already allows both values, which is
+       * why the member portal accepts the same accounts this panel rejected. Kept identical here
+       * so the two logins can never disagree about which rows exist again.
+       */
+      domain_id: { in: [DOMAIN_ID, 0] },
       OR: [{ login: identifier }, { user_email: identifier }],
     },
     select: {

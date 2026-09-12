@@ -38,6 +38,9 @@ export function SettingsNav() {
           <Link
             key={tab.href}
             href={tab.href}
+            /* See CpShellNav: never prefetch a session-gated route, or a redirect captured
+               while signed out gets replayed from the router cache on a later click. */
+            prefetch={false}
             aria-current={active ? "page" : undefined}
             className={
               "shrink-0 rounded-full px-4 py-2 text-xs font-black uppercase tracking-widest transition-colors " +

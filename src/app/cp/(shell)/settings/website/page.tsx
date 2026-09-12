@@ -27,7 +27,13 @@ export default async function WebsiteBehaviourPage() {
         </p>
       </div>
 
-      <SettingsForm action={saveWebsiteBehaviourAction}>
+      <SettingsForm
+        action={saveWebsiteBehaviourAction}
+        defaults={{
+          ...Object.fromEntries(WEBSITE_TOGGLE_FIELDS.map((field) => [field.varname, field.defaultValue])),
+          [WEBSITE_MAINTENANCE_MESSAGE_VARNAME]: WEBSITE_MAINTENANCE_MESSAGE_DEFAULT,
+        }}
+      >
         <div className="grid gap-4 sm:grid-cols-2">
           {WEBSITE_TOGGLE_FIELDS.map((field) => (
             <label key={field.varname} className={`${CHECKBOX_ROW_CLASS} rounded-xl border border-white/5 bg-white/[0.02] p-4`}>

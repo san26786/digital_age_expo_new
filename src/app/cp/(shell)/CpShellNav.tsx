@@ -38,9 +38,26 @@ export function CpShellNav({ items }: { items: find_dashboard_menu[] }) {
       </div>
       <nav className="flex-1 space-y-1 overflow-y-auto p-3">
         {items.length === 0 && (
-          <p className="px-3 py-2 text-xs text-zinc-600">
-            No menu items yet — run the seed script (src/app/cp/_scripts/seed.ts).
-          </p>
+          /* The old text here pointed at src/app/cp/_scripts/seed.ts, which does not exist —
+             that script was replaced by the bootstrap route below, so the instruction sent you
+             looking for a missing file. */
+          <div className="px-3 py-2 text-xs leading-relaxed text-zinc-500">
+            <p className="font-semibold text-zinc-400">Sidebar not seeded yet</p>
+            <p className="mt-2">
+              The menu is read from <code className="text-zinc-400">find_dashboard_menu</code>, and
+              no row there points at <code className="text-zinc-400">/cp</code> yet.
+            </p>
+            <p className="mt-2">
+              Open{" "}
+              <a
+                href="/api/cp/bootstrap?menuOnly=1"
+                className="text-brand-pink underline decoration-brand-pink/40 hover:decoration-brand-pink"
+              >
+                /api/cp/bootstrap?menuOnly=1
+              </a>{" "}
+              once, then sign out and back in.
+            </p>
+          </div>
         )}
         {items.map((item) => {
           const Icon = resolveIcon(item.icon);
@@ -49,6 +66,13 @@ export function CpShellNav({ items }: { items: find_dashboard_menu[] }) {
               key={item.id}
               href={item.link.startsWith("/") ? item.link : `/cp/${item.link}`}
               target={item.target || undefined}
+              /* Every /cp route is session-gated, and a prefetch is a real request that goes
+                 through those guards. Prefetching one while the session is expired (or before
+                 sign-in finishes) caches that route's redirect-to-login in the client router
+                 cache, and the cached result is what a later click replays — the link then
+                 "goes to the login page" even though the session is now perfectly valid. There
+                 is nothing worth prefetching in an admin panel; each page is a live DB read. */
+              prefetch={false}
               className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
             >
               <Icon className="h-4 w-4 shrink-0" />

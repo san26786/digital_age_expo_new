@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { requireCpSession } from "@/lib/cp/rbac";
+import { requireCpSession, hasPermission } from "@/lib/cp/rbac";
 import { prisma } from "@/lib/prisma";
 import { CpShellNav } from "./CpShellNav";
 import { CpShellTopbar } from "./CpShellTopbar";
@@ -31,9 +31,11 @@ export default async function CpShellLayout({ children }: { children: ReactNode 
     if (!item.check_permission) return true;
     if (!item.permission) return true;
     // find_dashboard_menu.permission is a free-form column (legacy data), not the
-    // CpPermissionSlug literal union, so this is a plain string membership check rather
-    // than the typed hasPermission() helper used elsewhere against known slugs.
-    return session.perms.includes(item.permission);
+    // CpPermissionSlug literal union — hasPermission() takes a plain string for exactly this
+    // reason. Using it (rather than reading session.perms directly) is what keeps the sidebar
+    // and the page guards from disagreeing: an administrator passes both, so the nav can no
+    // longer offer a link that the page it points at will refuse.
+    return hasPermission(session, item.permission);
   });
 
   return (
