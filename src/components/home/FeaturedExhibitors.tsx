@@ -54,25 +54,36 @@ export function FeaturedExhibitors({ exhibitors }: Props) {
             return (
               <div 
                 key={exh.id} 
-                className="rounded-2xl glass-panel p-6 flex flex-col justify-between h-56 transition-all duration-350 hover:border-brand-pink/50 hover:shadow-lg hover:shadow-brand-pink/10 animate-fade-in"
+                className="rounded-2xl glass-panel p-6 flex flex-col gap-5 min-h-[17rem] transition-all duration-350 hover:border-brand-pink/50 hover:shadow-lg hover:shadow-brand-pink/10 animate-fade-in"
                 id={`featured-exh-${exh.id}`}
               >
-                <div className="flex justify-between items-start">
-                  <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/10 bg-surface-2 flex items-center justify-center p-1.5 text-xs font-bold text-slate-400 shrink-0">
-                    <ExhibitorLogo
-                      src={logo}
-                      business={exh.business}
-                      className="h-full w-full object-contain"
-                      fallbackClassName="text-xs font-bold uppercase text-slate-400"
-                    />
-                  </div>
-                  {exh.standNumber && (
+                {/*
+                  The logo is the reason an exhibitor card exists, so it gets the card's full
+                  width and a real plate to sit on. It used to share a 48px square with 6px of
+                  padding — about 36px of actual artwork — which rendered every wordmark as an
+                  unreadable smudge and every initials fallback as tiny grey text. This matches
+                  the treatment on /exhibitors (ExhibitorsGrid), so the same logo doesn't appear
+                  at two wildly different sizes on two pages.
+
+                  The stand badge moves above it rather than sitting alongside: at this width a
+                  badge and a logo competing on one row is what forced the logo to be small.
+                */}
+                {exh.standNumber && (
+                  <div className="flex justify-end">
                     <span className="bg-brand-pink/10 border border-brand-pink/20 text-brand-pink text-[10px] font-bold font-mono px-3 py-1 rounded-full uppercase">
                       Stand {exh.standNumber}
                     </span>
-                  )}
+                  </div>
+                )}
+                <div className="flex h-24 w-full items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-4 shadow-inner sm:h-28">
+                  <ExhibitorLogo
+                    src={logo}
+                    business={exh.business}
+                    className="max-h-full max-w-full object-contain"
+                    fallbackClassName="text-3xl font-black uppercase tracking-tighter text-white/30"
+                  />
                 </div>
-                <div className="space-y-1 mt-6">
+                <div className="space-y-1 mt-auto">
                   <h4 className="font-extrabold text-white text-md uppercase tracking-wider line-clamp-1">
                     {exh.business}
                   </h4>

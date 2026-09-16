@@ -57,14 +57,41 @@ export interface PagedExhibitorsResult {
   total: number;
   page: number;
   pageSize: number;
+  /** Which buckets of the A-Z bar actually have exhibitors behind them, e.g. ["0-9","A","B","D"]. */
+  initials: string[];
 }
 
-/** Same data as getEventExhibitors, but paginated for the /exhibitors directory page. */
+/** The bucket an exhibitor's name falls into on the A-Z bar. */
+export const DIGIT_BUCKET = "0-9";
+
+/**
+ * Leading articles are NOT stripped: "The Dental Shaman" files under T, which is where the
+ * directory's own A-Z order puts it, and a bar that disagreed with the list it filters would
+ * send people to an empty page. Anything not starting with a letter — a digit, an ampersand,
+ * a quote — goes to 0-9, so no exhibitor is unreachable from the bar.
+ */
+export function exhibitorInitial(business: string | null | undefined): string {
+  const first = (business ?? "").trim().charAt(0).toUpperCase();
+  if (first >= "A" && first <= "Z") return first;
+  return DIGIT_BUCKET;
+}
+
+/**
+ * Same data as getEventExhibitors, but paginated for the /exhibitors directory page, and
+ * optionally narrowed to one letter of the A-Z bar.
+ *
+ * The roster is read as (id, business) first and the letter filter applied in JS rather than in
+ * SQL. That is deliberate at this size — a few hundred rows, already behind a cached read — and
+ * it buys the one thing a SQL `startsWith` cannot: the bar and the list are computed from the
+ * SAME rule, so a letter can never be offered on the bar and then come back empty because the
+ * database bucketed a name with a leading space or an accent differently than we did.
+ */
 async function read_getEventExhibitorsPaged(
   eventId: number,
   page = 1,
   pageSize = 20,
-  zoneId?: number
+  zoneId?: number,
+  letter?: string
 ): Promise<PagedExhibitorsResult> {
   const safePage = Math.max(1, Math.floor(page) || 1);
   const where = {
@@ -73,19 +100,46 @@ async function read_getEventExhibitorsPaged(
     ...(zoneId ? { exhibition_zone_id: zoneId } : {}),
   };
 
-  const [total, rows] = await Promise.all([
-    prisma.find_event_exhibitor.count({ where }),
-    prisma.find_event_exhibitor.findMany({
-      where,
-      orderBy: { business: "asc" },
-      skip: (safePage - 1) * pageSize,
-      take: pageSize,
-      select: EXHIBITOR_SELECT,
-    }),
-  ]);
+  const roster = await prisma.find_event_exhibitor.findMany({
+    where,
+    orderBy: { business: "asc" },
+    select: { id: true, business: true },
+  });
+
+  const initials: string[] = [
+    ...new Set<string>(roster.map((r: { business: string | null }) => exhibitorInitial(r.business))),
+  ].sort((a: string, b: string) =>
+    a === DIGIT_BUCKET ? -1 : b === DIGIT_BUCKET ? 1 : a.localeCompare(b)
+  );
+
+  const wanted = (letter ?? "").trim().toUpperCase();
+  const active = wanted === DIGIT_BUCKET || /^[A-Z]$/.test(wanted) ? wanted : "";
+  const matching = active
+    ? roster.filter((r: { business: string | null }) => exhibitorInitial(r.business) === active)
+    : roster;
+
+  const total = matching.length;
+  const pageIds = matching
+    .slice((safePage - 1) * pageSize, safePage * pageSize)
+    .map((r: { id: number }) => r.id);
+
+  if (pageIds.length === 0) {
+    return { exhibitors: [], total, page: safePage, pageSize, initials };
+  }
+
+  const rows = await prisma.find_event_exhibitor.findMany({
+    where: { id: { in: pageIds } },
+    select: EXHIBITOR_SELECT,
+  });
+
+  // `IN` does not preserve order, and the page must stay alphabetical.
+  const order = new Map<number, number>(
+    pageIds.map((id: number, index: number): [number, number] => [id, index])
+  );
+  rows.sort((a: { id: number }, b: { id: number }) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
 
   const exhibitors = await mapExhibitorRows(rows);
-  return { exhibitors, total, page: safePage, pageSize };
+  return { exhibitors, total, page: safePage, pageSize, initials };
 }
 
 /** The zone's own display name, for the /exhibitors?zone=<id> filtered heading. */
@@ -264,6 +318,8 @@ export interface ExhibitorDirectoryEntry {
   id: number;
   business: string;
   contactName: string | null;
+  /** The zone's own id — what ?zone=<id> links carry, so a zone page can filter on it. */
+  zoneId: number | null;
   zoneName: string | null;
   standNumber: string | null;
   about: string | null;
@@ -332,6 +388,7 @@ async function read_getEventExhibitorDirectory(eventId: number): Promise<Exhibit
       id: row.id,
       business: row.business || listing?.title || "Exhibitor",
       contactName,
+      zoneId: row.exhibition_zone_id ?? null,
       zoneName: zone?.title ?? null,
       standNumber: row.stand_number,
       about,

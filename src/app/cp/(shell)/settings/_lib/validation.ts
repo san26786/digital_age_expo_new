@@ -54,8 +54,46 @@ export const optionalImagePath = z.union([
     .string()
     .trim()
     .refine(
-      (v) => v.startsWith("/files/") || /^https?:\/\/.+/i.test(v),
-      "Must be an uploaded image or a valid http(s) URL."
+      isSiteImagePath,
+      "Must be an uploaded image, a file bundled with the site, or a valid http(s) URL."
+    ),
+]);
+
+/**
+ * Accepts what our own upload route produces (/files/settings/...), any other same-origin
+ * asset path (/images/..., /favicon.ico — the logos committed to public/ are referenced this
+ * way and are legitimate values for these fields), or a genuine absolute http(s) URL.
+ *
+ * Everything else is rejected, which is the point: these values are rendered straight into
+ * src/img attributes, so "//evil.example/x.png" (protocol-relative, NOT a local path),
+ * "data:text/html;base64,...", "javascript:..." and bare filenames must never round-trip
+ * through the form into a page.
+ */
+function isSiteImagePath(value: string): boolean {
+  if (/^https?:\/\/.+/i.test(value)) return true;
+  if (!value.startsWith("/") || value.startsWith("//")) return false;
+  return !/[\s<>"']/.test(value);
+}
+
+/** Strips a cache-busting ?v=… suffix before looking at the extension. */
+function pathWithoutQuery(value: string): string {
+  return value.split(/[?#]/)[0];
+}
+
+/**
+ * Favicon slot only. Browsers, crawlers and bookmark bars all read /favicon.ico without being
+ * told to; a .png or .svg in that slot works in some places and silently doesn't in others,
+ * which is the kind of half-broken that only shows up in someone else's browser.
+ */
+export const faviconPath = z.union([
+  z.literal(""),
+  z
+    .string()
+    .trim()
+    .refine(isSiteImagePath, "Must be an uploaded file or a valid http(s) URL.")
+    .refine(
+      (v) => pathWithoutQuery(v).toLowerCase().endsWith(".ico"),
+      "The favicon must be a .ico file — upload an .ico, or point this at one."
     ),
 ]);
 

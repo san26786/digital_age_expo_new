@@ -2,11 +2,12 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { CACHE_TAGS, revalidateContent } from "@/lib/cache";
 import { requireCpPermission, CP_PERMISSIONS } from "@/lib/cp/rbac";
 import { updateBranding } from "@/lib/cp/settings/domainRepository";
 import { setSettings } from "@/lib/cp/settings/settingsRepository";
 import { BRANDING_TEXT_FIELDS, BRANDING_LOGO_FIELDS } from "./fields";
-import { optionalText, optionalImagePath, firstZodIssue } from "../_lib/validation";
+import { optionalText, optionalImagePath, faviconPath, firstZodIssue } from "../_lib/validation";
 import type { SettingsActionState } from "../_components/SettingsForm";
 
 const brandingSchema = z.object({
@@ -15,7 +16,7 @@ const brandingSchema = z.object({
   partner_logo: optionalText(255),
   partner_url: optionalText(255),
   domain_loader: optionalText(255),
-  fav: optionalImagePath,
+  fav: faviconPath,
   cp_branding_primary_logo: optionalImagePath,
   cp_branding_secondary_logo: optionalImagePath,
   cp_branding_mobile_logo: optionalImagePath,
@@ -62,5 +63,10 @@ export async function saveBrandingAction(
   });
 
   revalidatePath("/cp/settings/branding");
+  // The header and footer read these logos through an unstable_cache entry tagged `domain`
+  // (getBrandAssets()), and they render in the root layout — both need busting, or a new logo
+  // would not appear until the cache window expired.
+  revalidatePath("/", "layout");
+  revalidateContent(CACHE_TAGS.domain);
   return { success: true, message: "Settings updated successfully." };
 }

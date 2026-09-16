@@ -435,57 +435,124 @@ function isPoolAcquireTimeout(error: unknown): boolean {
   return typeof message === "string" && /timeout exceeded when trying to connect/i.test(message);
 }
 
+/**
+ * ===========================================================================
+ *  ADMISSION CONTROL — queue queries in here, not in the pool
+ * ===========================================================================
+ *
+ *  What "Database is out of connections" actually means in this app: a single
+ *  page asks for more connections AT ONCE than the pool owns. getHomePageData()
+ *  fires ten service calls through Promise.all and several of those fan out
+ *  again (getHomeCounters alone runs four counts), while the Header and Footer
+ *  are running their own queries for the same request — comfortably past
+ *  DATABASE_POOL_SIZE. Whoever loses that race waits the full acquire timeout
+ *  and is thrown as an outage, which is what the home page reported.
+ *
+ *  Raising the pool is not always available: this is a pooled Postgres endpoint
+ *  with its own per-plan ceiling, and asking for more connections than the
+ *  server allows trades this error for "too many connections".
+ *
+ *  So queries queue HERE instead. At most MAX_IN_FLIGHT_QUERIES are handed to
+ *  the pool at a time and the rest wait in a FIFO in this process. The total
+ *  work is identical and the wait is the same wait — the difference is that a
+ *  waiter in this queue is not also burning the pool's acquire timeout, so a
+ *  burst comes out slightly slower instead of failing outright.
+ *
+ *  Safe to serialise: nothing in this codebase uses an interactive
+ *  $transaction (the only reference is the mock client above), so a query can
+ *  never be waiting here while holding a connection something else needs.
+ */
+const MAX_IN_FLIGHT_QUERIES = Math.max(
+  1,
+  Number(process.env.DATABASE_MAX_CONCURRENT_QUERIES) || Number(process.env.DATABASE_POOL_SIZE) || 25
+);
+
+let inFlightQueries = 0;
+const queryWaiters: (() => void)[] = [];
+let queueWarnedAt = 0;
+
+async function admit<T>(run: () => Promise<T>): Promise<T> {
+  if (inFlightQueries >= MAX_IN_FLIGHT_QUERIES) {
+    // Only worth saying when the queue is genuinely deep, and at most once every 10s — this runs
+    // on every query and a log line per wait would be its own performance problem.
+    if (queryWaiters.length >= MAX_IN_FLIGHT_QUERIES && Date.now() - queueWarnedAt > 10_000) {
+      queueWarnedAt = Date.now();
+      console.warn(
+        `[prisma] ${queryWaiters.length} queries are queued behind ${MAX_IN_FLIGHT_QUERIES} ` +
+          `connection(s). Pages will be slow but will not fail. Raise DATABASE_POOL_SIZE if the ` +
+          `database allows more connections, or reduce how many queries a page runs in parallel.`
+      );
+    }
+    await new Promise<void>((resolve) => queryWaiters.push(resolve));
+  }
+
+  inFlightQueries += 1;
+  try {
+    return await run();
+  } finally {
+    inFlightQueries -= 1;
+    const next = queryWaiters.shift();
+    if (next) next();
+  }
+}
+
+/** The stale-connection retry loop, unchanged — just lifted out so admit() can wrap it. */
+async function runWithStaleConnectionRetry({ operation, args, query }: any): Promise<any> {
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < READ_ATTEMPTS; attempt += 1) {
+  try {
+    return await query(args);
+  } catch (error) {
+    lastError = error;
+
+    /*
+     * Only reads, ever. A write that appears to fail may still have committed — the
+     * connection can die after the server applied it but before the result came back —
+     * so retrying one risks a duplicate order, a double-charged invoice, a second spot.
+     * RETRYABLE_READ_OPERATIONS is the guard for exactly that.
+     */
+    if (isPoolAcquireTimeout(error)) {
+      console.warn(
+        `[prisma] ${operation} waited the full acquire timeout for a connection and got ` +
+          `none. The pool is empty, not broken: either every connection is busy ` +
+          `(raise DATABASE_POOL_SIZE, currently ${process.env.DATABASE_POOL_SIZE ?? "25"}) ` +
+          `or the server is not answering (check the endpoint in DATABASE_URL). ` +
+          `Not retried — another waiter would only lengthen the queue.`
+      );
+      throw error;
+    }
+
+    if (!RETRYABLE_READ_OPERATIONS.has(operation) || !isDeadConnectionError(error)) {
+      throw error;
+    }
+    if (attempt === READ_ATTEMPTS - 1) break;
+
+    const wait = RETRY_DELAYS_MS[attempt] ?? RETRY_DELAYS_MS[RETRY_DELAYS_MS.length - 1];
+    console.warn(
+      `[prisma] stale connection on ${operation} (attempt ${attempt + 1}/${READ_ATTEMPTS}); ` +
+        `retrying in ${wait}ms.`
+    );
+
+    // The point of the retry. Without this the next attempt is handed the next dead
+    // socket out of the same pool and fails identically - which is exactly what was
+    // happening on $queryRaw.
+      await evictIdleConnections();
+      await sleep(wait);
+    }
+  }
+
+  throw lastError;
+}
+
 function withStaleConnectionRetry(client: any): any {
   if (typeof client?.$extends !== "function") return client;
   try {
     return client.$extends({
       query: {
-        async $allOperations({ operation, args, query }: any) {
-          let lastError: unknown;
-
-          for (let attempt = 0; attempt < READ_ATTEMPTS; attempt += 1) {
-            try {
-              return await query(args);
-            } catch (error) {
-              lastError = error;
-
-              /*
-               * Only reads, ever. A write that appears to fail may still have committed — the
-               * connection can die after the server applied it but before the result came back —
-               * so retrying one risks a duplicate order, a double-charged invoice, a second spot.
-               * RETRYABLE_READ_OPERATIONS is the guard for exactly that.
-               */
-              if (isPoolAcquireTimeout(error)) {
-                console.warn(
-                  `[prisma] ${operation} waited the full acquire timeout for a connection and got ` +
-                    `none. The pool is empty, not broken: either every connection is busy ` +
-                    `(raise DATABASE_POOL_SIZE, currently ${process.env.DATABASE_POOL_SIZE ?? "25"}) ` +
-                    `or the server is not answering (check the endpoint in DATABASE_URL). ` +
-                    `Not retried — another waiter would only lengthen the queue.`
-                );
-                throw error;
-              }
-
-              if (!RETRYABLE_READ_OPERATIONS.has(operation) || !isDeadConnectionError(error)) {
-                throw error;
-              }
-              if (attempt === READ_ATTEMPTS - 1) break;
-
-              const wait = RETRY_DELAYS_MS[attempt] ?? RETRY_DELAYS_MS[RETRY_DELAYS_MS.length - 1];
-              console.warn(
-                `[prisma] stale connection on ${operation} (attempt ${attempt + 1}/${READ_ATTEMPTS}); ` +
-                  `retrying in ${wait}ms.`
-              );
-
-              // The point of the retry. Without this the next attempt is handed the next dead
-              // socket out of the same pool and fails identically - which is exactly what was
-              // happening on $queryRaw.
-              await evictIdleConnections();
-              await sleep(wait);
-            }
-          }
-
-          throw lastError;
+        async $allOperations(params: any) {
+          // Wait for a slot BEFORE touching the pool — see admit() above.
+          return admit(() => runWithStaleConnectionRetry(params));
         },
       },
     });

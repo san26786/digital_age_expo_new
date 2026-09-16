@@ -3,16 +3,19 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/options";
 import { getDomain } from "@/lib/services/domain";
 import { getMenu } from "@/lib/services/menu";
+import { getBrandAssets } from "@/lib/services/branding";
 import { getEventById, getEventDateRange } from "@/lib/services/events";
 import { safeQuery } from "@/lib/db-errors";
 import { formatMonthDayYear } from "@/lib/format";
 import { Navbar } from "@/components/layout/Navbar";
 
 export async function Header() {
-  const [domain, menu, session] = await Promise.all([
+  const [domain, menu, session, brand] = await Promise.all([
     getDomain(),
     getMenu(),
     getServerSession(authOptions),
+    // Settings -> Branding decides these; each falls back to the file Navbar used to hardcode.
+    getBrandAssets(),
   ]);
 
   /*
@@ -47,5 +50,14 @@ export async function Header() {
         }
       : null;
 
-  return <Navbar menu={menu} domainName={domain.name} session={session} eventBar={eventBar} />;
+  return (
+    <Navbar
+      menu={menu}
+      domainName={domain.name}
+      session={session}
+      eventBar={eventBar}
+      primaryLogo={brand.primaryLogo}
+      mobileLogo={brand.mobileLogo}
+    />
+  );
 }

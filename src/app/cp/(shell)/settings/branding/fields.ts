@@ -15,13 +15,68 @@
  * legacy app, distinct from "this site's own logo," so they're kept exactly as they were
  * rather than reinterpreted.
  */
+/**
+ * The asset each slot falls back to when nothing has been uploaded: the files this site is
+ * actually serving today, so the tab shows the real marks instead of six "No image" boxes.
+ *
+ *   /favicon.ico                       src/app/favicon.ico (Next's file convention)
+ *   /images/digitalageexpo_logo.png    the 2172x724 wordmark in Navbar.tsx and Footer.tsx
+ *   /images/logo.png                   the compact 600x141 mark used lower in Navbar.tsx
+ *
+ * Favicons are the one slot with a hard format rule (see faviconPath in ../_lib/validation):
+ * .ico is the only format every browser, crawler and bookmark bar reads without a <link> hint,
+ * which is exactly what a favicon has to survive.
+ */
 export const BRANDING_LOGO_FIELDS = [
-  { key: "fav", slot: "branding_favicon", label: "Favicon", source: "domain", hint: "Square icon shown in browser tabs. PNG or SVG recommended." },
-  { key: "cp_branding_primary_logo", slot: "branding_primary_logo", label: "Primary Logo", source: "setting", hint: "Main header logo shown across the site." },
-  { key: "cp_branding_secondary_logo", slot: "branding_secondary_logo", label: "Secondary Logo", source: "setting", hint: "Alternate logo variant (e.g. for dark/light backgrounds)." },
-  { key: "cp_branding_mobile_logo", slot: "branding_mobile_logo", label: "Mobile Logo", source: "setting", hint: "Compact logo shown on small screens." },
-  { key: "cp_branding_footer_logo", slot: "branding_footer_logo", label: "Footer Logo", source: "setting", hint: "Logo shown in the site footer." },
-  { key: "cp_branding_login_logo", slot: "branding_login_logo", label: "Login Logo", source: "setting", hint: "Logo shown on the CP and member login screens." },
+  {
+    key: "fav",
+    slot: "branding_favicon",
+    label: "Favicon",
+    source: "domain",
+    defaultValue: "/favicon.ico",
+    accept: ".ico,image/x-icon,image/vnd.microsoft.icon",
+    hint: "Square icon shown in browser tabs. Must be a .ico file.",
+  },
+  {
+    key: "cp_branding_primary_logo",
+    slot: "branding_primary_logo",
+    label: "Primary Logo",
+    source: "setting",
+    defaultValue: "/images/digitalageexpo_logo.png",
+    hint: "Main header logo shown across the site.",
+  },
+  {
+    key: "cp_branding_secondary_logo",
+    slot: "branding_secondary_logo",
+    label: "Secondary Logo",
+    source: "setting",
+    defaultValue: "/images/logo.png",
+    hint: "Alternate logo variant (e.g. for dark/light backgrounds).",
+  },
+  {
+    key: "cp_branding_mobile_logo",
+    slot: "branding_mobile_logo",
+    label: "Mobile Logo",
+    source: "setting",
+    defaultValue: "/images/logo.png",
+    hint: "Compact logo shown on small screens.",
+  },
+  {
+    key: "cp_branding_footer_logo",
+    slot: "branding_footer_logo",
+    label: "Footer Logo",
+    source: "setting",
+    defaultValue: "/images/digitalageexpo_logo.png",
+    hint: "Logo shown in the site footer.",
+  },
+  {
+    key: "cp_branding_login_logo",
+    slot: "branding_login_logo",
+    label: "Login Logo",
+    source: "setting",
+    defaultValue: "/images/logo.png",
+    hint: "Logo shown on the CP and member login screens.",
+  },
 ] as const;
 
 export const BRANDING_TEXT_FIELDS = [

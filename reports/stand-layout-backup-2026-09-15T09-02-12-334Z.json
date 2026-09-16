@@ -1,0 +1,1400 @@
+{
+  "createdAt": "2026-09-15T09:02:12.334Z",
+  "eventId": 1474,
+  "layoutId": 2760,
+  "layoutTitle": "Ultra Stand",
+  "exhibitors": [
+    {
+      "id": 154594,
+      "business": "186kloud",
+      "ex_stand_layout_id": 2760,
+      "stand_color_id": null
+    },
+    {
+      "id": 154663,
+      "business": "42 Technology",
+      "ex_stand_layout_id": 2760,
+      "stand_color_id": null
+    },
+    {
+      "id": 154588,
+      "business": "ABA Events",
+      "ex_stand_layout_id": 2760,
+      "stand_color_id": null
+    },
+    {
+      "id": 154647,
+      "business": "Abdominal (Primary) Brain Ltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154703,
+      "business": "Abuelita's Wellbeing CIC",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154730,
+      "business": "Ajuda Ltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154702,
+      "business": "AK Acupunture",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154605,
+      "business": "AKM Advisory",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154583,
+      "business": "Amazon Spring Water",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154368,
+      "business": "Apogee Consultancy",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154708,
+      "business": "Apogee Consultancy",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154652,
+      "business": "Association for Accredited Learning",
+      "ex_stand_layout_id": 2760,
+      "stand_color_id": null
+    },
+    {
+      "id": 154736,
+      "business": "Awaken London",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154381,
+      "business": "B2B",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154382,
+      "business": "B2B",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154678,
+      "business": "BBX Europe Sales Limited",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154651,
+      "business": "BBX EUROPE SALES LTD",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154600,
+      "business": "BBX UK",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154608,
+      "business": "BCP Council",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154667,
+      "business": "Bid and Tender Support",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154628,
+      "business": "Bohem Notes",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154609,
+      "business": "Bournemouth One",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154691,
+      "business": "Bournemouth Rugby",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154569,
+      "business": "bQKCNisxjMwFbFHHOg",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154707,
+      "business": "Brainbridg",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154392,
+      "business": "Brasam Publishing",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154701,
+      "business": "Brasham Publishing",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154711,
+      "business": "Business AI Studio",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154712,
+      "business": "Business In Focus",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154716,
+      "business": "Business Leads",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154646,
+      "business": "Business Wales",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154621,
+      "business": "Cambridge Go To Market",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154629,
+      "business": "Care UK",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154746,
+      "business": "Cartonomy",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154758,
+      "business": "Cash for Kids Southcoast West Sussex and Salsibury",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154615,
+      "business": "Catbird",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154565,
+      "business": "Catbird Ltd",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154641,
+      "business": "Cefn Mably Hotel",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154689,
+      "business": "Coffee Guys",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154643,
+      "business": "Community Alliance",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154760,
+      "business": "Community Massage Project",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154763,
+      "business": "Comply Sense",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154735,
+      "business": "Comply Sense / Vobling",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154625,
+      "business": "Concept Television Studios",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154686,
+      "business": "Connolly Accountants",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154612,
+      "business": "Costo Wholesale",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154660,
+      "business": "Costo Wholesale",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154762,
+      "business": "CREATIVE FABRIK",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154710,
+      "business": "Cyber Resilience Centre for London",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154633,
+      "business": "Decathlon",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154586,
+      "business": "Dental Shaman Holdings Ltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154654,
+      "business": "Department for Business and Trade",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154727,
+      "business": "Des O Connor AI",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154370,
+      "business": "Digital age expo",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154722,
+      "business": "Dorset Coast Radio",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154676,
+      "business": "EB Solar Limited",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154725,
+      "business": "EF Training",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154649,
+      "business": "Emotional First Aid Limited",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154764,
+      "business": "Energy Solutions",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154748,
+      "business": "Energy solutions (ES) LTD",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154384,
+      "business": "eseller",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154755,
+      "business": "Everycatch",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154723,
+      "business": "Evolve Recovery",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154756,
+      "business": "Fleet Evolution",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154733,
+      "business": "Flourish Foundry",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154675,
+      "business": "Flyelectron",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154741,
+      "business": "FSB",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154373,
+      "business": "Geecon",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154375,
+      "business": "Geecon",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154374,
+      "business": "Geecon system",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154377,
+      "business": "Geecon system",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154378,
+      "business": "Geecon system",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154376,
+      "business": "Geeconsystems",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154380,
+      "business": "Geeconsystems",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154624,
+      "business": "Green Gorilla Apps",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154752,
+      "business": "Grow with Ghost",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154700,
+      "business": "Guzel & Co Limited",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154631,
+      "business": "Hammond Rock",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154371,
+      "business": "HARMONYU - London Holistic Clinic",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154372,
+      "business": "HARMONYU - London Holistic Clinic",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154765,
+      "business": "Health Shield",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154718,
+      "business": "Health Shield wellbeing",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154632,
+      "business": "Hellofresh",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154729,
+      "business": "Help to Save",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154602,
+      "business": "Helpful Hounds",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154623,
+      "business": "Helpful Hounds Assistance dogs",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154699,
+      "business": "HMU Harmonyu",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154745,
+      "business": "Holland & Barratt",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154766,
+      "business": "Holland & Barrett",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154579,
+      "business": "Hollow Rocks",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154587,
+      "business": "Horeb limited",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154698,
+      "business": "HR Habitat",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154574,
+      "business": "IhFxMKqfaTbiaWyy",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154637,
+      "business": "Impact Academy Milton Keynes",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154685,
+      "business": "Inquilab Group Limited",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154626,
+      "business": "Integrate Security",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154636,
+      "business": "Intellectual Property Office",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154595,
+      "business": "International Exit Strategy LTD",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154604,
+      "business": "International Tree Foundation",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154580,
+      "business": "Invest Automated Trading",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154599,
+      "business": "Investors in People",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154709,
+      "business": "IT Logix Ltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154713,
+      "business": "IT LOGIX Ltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154388,
+      "business": "IT-LOGIX LTD",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154575,
+      "business": "IUzJgnpWboHtbAFvYBpMYApX",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154697,
+      "business": "JASK Properties LTD",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154681,
+      "business": "Jo Davies Photography",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154673,
+      "business": "k-osvisuals limited",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154671,
+      "business": "K2 Solution",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154753,
+      "business": "K4group",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154767,
+      "business": "KN Comms",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154668,
+      "business": "KN Communication Ltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154664,
+      "business": "KVLS Mental health services",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154585,
+      "business": "Lanthorn Clinic",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154573,
+      "business": "Lavana Medical Aesthetics",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154387,
+      "business": "LegalVision",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154724,
+      "business": "LegalVision",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154661,
+      "business": "Leilah Mirza Coaching",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154696,
+      "business": "Lenira Health Ltd.",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154645,
+      "business": "Levy",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154619,
+      "business": "London Business Journal",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154577,
+      "business": "Loomie London",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154706,
+      "business": "Louise Slattery Coaching",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154570,
+      "business": "MacroKinetic Mediatech Limited",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154386,
+      "business": "Margo",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154750,
+      "business": "Mastering Diversity",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154768,
+      "business": "Mastering Diversity CIC",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154581,
+      "business": "Matplus Chartered Accountant",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154369,
+      "business": "Mavelon Studio",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154365,
+      "business": "MAVELON STUDIO LTD",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154655,
+      "business": "Mavelon Studio Ltd.",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154644,
+      "business": "Mental Health and Me",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154367,
+      "business": "Mike's Online Academy",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154385,
+      "business": "Mike's Online Academy",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154642,
+      "business": "Mikes Online Academy",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154669,
+      "business": "Miro Art Energy",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154648,
+      "business": "MM leadershipltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154757,
+      "business": "Modern Woman",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154728,
+      "business": "Montagna Ltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154684,
+      "business": "MSA Focus International Ltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154572,
+      "business": "MsgRqnyTAbjIsFGPspz",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154739,
+      "business": "My B2B Cloud",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154650,
+      "business": "Neurodivergence Project",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154769,
+      "business": "NFON UK",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154749,
+      "business": "Nfon UK/ Jellyfish",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154761,
+      "business": "NICK BLATCHLEY COPY WRITING",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154747,
+      "business": "Nine & Nico ltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154683,
+      "business": "Not Just Bags",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154627,
+      "business": "Nova Locks Ltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154670,
+      "business": "Obsessed 2 Success",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154715,
+      "business": "OpenSight",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154720,
+      "business": "Optimum Health Screening",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154584,
+      "business": "Orangutan",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154566,
+      "business": "pakistan paradise schooling system",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154592,
+      "business": "PBS Group",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154634,
+      "business": "personal strengths coaching",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154589,
+      "business": "Pinevox",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154611,
+      "business": "PlankStand",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154622,
+      "business": "PM  Baked Goods",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154571,
+      "business": "pnCwgMONJeLStpsj",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154704,
+      "business": "Poole Military Tattoo",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154598,
+      "business": "Popcorn CRM",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154714,
+      "business": "Porsche Bournemouth",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154731,
+      "business": "Posterity Global",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154759,
+      "business": "Primo Dialler",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154737,
+      "business": "Property CEO",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154657,
+      "business": "Propva",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154568,
+      "business": "PUSH DIGITS ACCOUNTING & TAX CONSULTANT LTD",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154607,
+      "business": "Push Digits Accounting & Tax Consultant LTD",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154682,
+      "business": "QPQ Media",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154616,
+      "business": "Ranath Media",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154391,
+      "business": "RecQuest",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154751,
+      "business": "Recquest",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154732,
+      "business": "Recruit & Manage",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154635,
+      "business": "Regal Booths",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154744,
+      "business": "Reiki Chia Ltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154674,
+      "business": "Safe Space Consultancy",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154603,
+      "business": "Sam Gavins Photgraphy",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154383,
+      "business": "Sana",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154738,
+      "business": "Scaramanga Marketing",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154590,
+      "business": "SDH Crisis Management Ltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154606,
+      "business": "SentientPro",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154705,
+      "business": "Show Time London Limited",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154721,
+      "business": "Signature D Ltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154658,
+      "business": "Skill Assess",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154593,
+      "business": "Skills for Business",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154379,
+      "business": "Slip and Fall Claims Ltd",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154734,
+      "business": "SMART PARKING",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154754,
+      "business": "Social Supermarket",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154679,
+      "business": "Softy Ltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154630,
+      "business": "Solent LEP",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154680,
+      "business": "Soutwestern railway",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154620,
+      "business": "Speed Biz",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154726,
+      "business": "Squires and Duran Plumbing and Heating Ltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154665,
+      "business": "Stanbury Chameleon",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154688,
+      "business": "Sun-X (UK) Ltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154742,
+      "business": "Syltex limited",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154677,
+      "business": "Tappable",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154638,
+      "business": "Tavistock protect",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154567,
+      "business": "TCXItkdgHtHgjMHTqTlx",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154656,
+      "business": "Techplus",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154743,
+      "business": "Techsol",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154617,
+      "business": "The Access Group",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154610,
+      "business": "The Circle of Fame Events",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154640,
+      "business": "The Circle of Fame Events",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154591,
+      "business": "The Maltings Document Storage Solutions Limited",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154390,
+      "business": "The Neurodivergence Project",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154719,
+      "business": "Theatre Workout",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154662,
+      "business": "Thefullev",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154695,
+      "business": "Therapybookings",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154639,
+      "business": "Timeless IMS",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154582,
+      "business": "Tip Top window and exterior cleaning Ltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154618,
+      "business": "TMW Resilience",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154666,
+      "business": "Unity101 Community Radio Station",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154672,
+      "business": "University Of Derby",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154653,
+      "business": "Urban shelf",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154740,
+      "business": "Vermont Systems Ltd",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154694,
+      "business": "Voice Dart",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154596,
+      "business": "Voice FM",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154389,
+      "business": "Voice FM Ltd",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154614,
+      "business": "Voy Design",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154601,
+      "business": "W- Wellness",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154693,
+      "business": "Wellfinite",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154659,
+      "business": "Welsh ICE",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154578,
+      "business": "White Arrow Technology",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154576,
+      "business": "Wize Guyz Pizza & Pasta",
+      "ex_stand_layout_id": 0,
+      "stand_color_id": null
+    },
+    {
+      "id": 154613,
+      "business": "Worldentire",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154717,
+      "business": "Worldpay",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154687,
+      "business": "WWF",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154692,
+      "business": "Yield Initiatives",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154597,
+      "business": "Zappit",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    },
+    {
+      "id": 154690,
+      "business": "Zeddipass",
+      "ex_stand_layout_id": null,
+      "stand_color_id": null
+    }
+  ]
+}

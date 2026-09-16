@@ -35,6 +35,11 @@ const EXTENSION_BY_MIME: Record<string, string> = {
   "image/png": "png",
   "image/webp": "webp",
   "image/svg+xml": "svg",
+  // Favicons must be .ico (see faviconPath in the settings validation), so the uploader has to
+  // accept one. Browsers disagree on the MIME type they report for .ico files — x-icon is the
+  // de-facto one, vnd.microsoft.icon is the registered one, and some send neither.
+  "image/x-icon": "ico",
+  "image/vnd.microsoft.icon": "ico",
 };
 const ALLOWED_MIME_TYPES = Object.keys(EXTENSION_BY_MIME);
 const MAX_UPLOAD_BYTES = 3 * 1024 * 1024; // 3MB — logos/favicons/social-card images, not photos.
@@ -56,7 +61,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unrecognised upload slot." }, { status: 400 });
   }
   if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-    return NextResponse.json({ error: "Only PNG, JPG, WEBP, or SVG images are allowed." }, { status: 400 });
+    return NextResponse.json({ error: "Only PNG, JPG, WEBP, SVG, or ICO images are allowed." }, { status: 400 });
   }
   if (file.size > MAX_UPLOAD_BYTES) {
     return NextResponse.json({ error: "Image must be 3MB or smaller." }, { status: 400 });

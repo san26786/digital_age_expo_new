@@ -11,9 +11,15 @@ import {
   getLobbyFooterMenu,
   getExhibitorMenuExtras,
 } from "@/lib/services/publicLobby";
-import { getEventExhibitorDirectory } from "@/lib/services/exhibitors";
+import { getEventExhibitorDirectory, getExhibitionZoneName } from "@/lib/services/exhibitors";
+import { ZoneStandsView } from "@/components/virtual-event/ZoneStandsView";
+import {
+  getExhibitionZoneScene,
+  zoneSceneIsRenderable,
+} from "@/lib/services/publicExhibitionZone";
+import { ZoneHallView } from "@/components/virtual-event/ZoneHallView";
 import { getEventSchedule } from "@/lib/services/schedule";
-import { isLobbyVideoAsset, lobbyAssetUrl, staticAssetUrl } from "@/lib/assets";
+import { exhibitorLogoUrl, isLobbyVideoAsset, lobbyAssetUrl, staticAssetUrl } from "@/lib/assets";
 import { LobbyTopBar } from "@/components/virtual-event/LobbyTopBar";
 import { LobbyHotspots, type HotspotWithMenu } from "@/components/virtual-event/LobbyHotspots";
 import { LobbyFooterNav, type FooterItem } from "@/components/virtual-event/LobbyFooterNav";
@@ -182,6 +188,68 @@ export default async function VirtualEventLobbyPage({
   }
 
   /*
+   * Exhibition-zone mode.
+   *
+   * getAuditoriumScene() matches by EXCLUSION and deliberately leaves out layout_type
+   * "exhibition" — so every zone link in the lobby's hotspot menus ("Business Services Zone 1"
+   * and the rest) resolved to nothing and this route quietly re-rendered the lobby. To a visitor
+   * that is a dead link: the menu names a room, clicking it appears to do nothing.
+   *
+   * The zone's stands are the missing room. They come out of the directory already loaded above,
+   * so this costs one extra query for the zone's name and nothing else.
+   */
+  if (zoneId && !auditorium) {
+    /*
+     * The room first: the hall artwork with each allocated stand on it, which is what the live
+     * site shows and what a visitor expects after clicking a hall. The scene supplies both its
+     * own fallbacks now — the shipped hall render when the zone row carries no artwork, and the
+     * render's own booth panels when no spot was ever positioned — so the only thing that can
+     * still fail is nobody being allocated here. zoneSceneIsRenderable() tests exactly that, and
+     * that case alone falls through to the card view below.
+     */
+    const scene = await guard(() => getExhibitionZoneScene(event.id, zoneId), null);
+
+    if (scene && zoneSceneIsRenderable(scene)) {
+      return (
+        <div className="relative min-h-screen w-full bg-zinc-950 text-white">
+          <ZoneHallView scene={scene} eventSlug={slug} />
+
+          <LobbyFooterNav
+            items={footerItems}
+            exhibitors={exhibitorDirectory}
+            scheduleDays={scheduleDays}
+            eventTitle={event.title}
+            eventSlug={slug}
+          />
+        </div>
+      );
+    }
+
+    const zoneName = scene?.title ?? (await guard(() => getExhibitionZoneName(zoneId), null));
+    const zoneExhibitors = exhibitorDirectory.filter((e) => e.zoneId === zoneId);
+
+    if (zoneName || zoneExhibitors.length > 0) {
+      return (
+        <div className="relative min-h-screen w-full bg-zinc-950 text-white">
+          <ZoneStandsView
+            zoneName={zoneName || "Exhibition Zone"}
+            exhibitors={zoneExhibitors}
+            eventSlug={slug}
+          />
+
+          <LobbyFooterNav
+            items={footerItems}
+            exhibitors={exhibitorDirectory}
+            scheduleDays={scheduleDays}
+            eventTitle={event.title}
+            eventSlug={slug}
+          />
+        </div>
+      );
+    }
+  }
+
+  /*
    * Booth mode.
    *
    * `mybooth=1` with no ex_id means "my own booth", which is the exhibitor's own stand — the
@@ -232,12 +300,49 @@ export default async function VirtualEventLobbyPage({
       }
 
       const src = spot.gallery?.[0]?.asset_url ? exhibitorAssetUrl(spot.gallery[0].asset_url) : undefined;
-      // Anything the exhibitor can act on — the legacy stand marks these by asset type, and the
-      // meeting/chat/video/sales tiles are exactly the ones that carry no uploaded image.
-      const assetType = String(spot.asset?.asset_type ?? "").toUpperCase();
-      const interactive = !src && ["MEETING", "CHAT", "VIDEO", "SALES", "TEAM"].some((k) => assetType.includes(k));
 
-      return { id: spot.id, title: spot.title, x, y, width, height, src, interactive };
+      /*
+       * WHICH action tile this is — not merely that it is one.
+       *
+       * Asset type was the only signal here, and on the Ultra Stand there is no asset row for
+       * these at all: the four tiles are plain `layout` spots named "Sales Info", "Chat",
+       * "Video Call" and "Schedule Meeting". So nothing matched, no markers were drawn, and the
+       * Sales Team tile could be seen in the artwork but never clicked. The spot's own TITLE is
+       * the reliable signal; asset type stays as the fallback for stands that carry one.
+       *
+       * The patterns are deliberately narrow. "VIDEO CALL" rather than "VIDEO", because a stand
+       * also has a "Video" spot that is the wall screen playing the exhibitor's own footage —
+       * turning that into a button would put a dot over their showreel.
+       */
+      const assetType = String(spot.asset?.asset_type ?? "").toUpperCase();
+      const title = String(spot.title ?? "").toUpperCase();
+      const haystack = `${assetType} ${title}`;
+      const action = /SALES|SALES TEAM/.test(haystack)
+        ? ("sales" as const)
+        : /MEETING|SCHEDULE/.test(haystack)
+          ? ("meeting" as const)
+          : /VIDEO CALL/.test(haystack)
+            ? ("video" as const)
+            : /\bCHAT\b/.test(haystack)
+              ? ("chat" as const)
+              : undefined;
+
+      const interactive = !src && !!action;
+
+      /*
+       * These spots store a point and no size — the legacy drops a small marker on the tile and
+       * the tile itself is painted into the stand artwork. A point cannot be clicked, so an
+       * interactive spot with no stored box gets one the size of a tile: the stand's own
+       * "Schedule Meeting" row is the only one that DOES carry a size, and the tiles are ~7.5%
+       * apart, so a box of this size sits inside its own tile without reaching the next.
+       */
+      const sized = spot.width != null && spot.height != null && width > 0 && height > 0;
+      if (interactive && !sized) {
+        width = 6;
+        height = 12;
+      }
+
+      return { id: spot.id, title: spot.title, x, y, width, height, src, interactive, action };
     });
 
     const slotSpots: BoothSpot[] = templateSlots
@@ -277,7 +382,21 @@ export default async function VirtualEventLobbyPage({
           spots={[...artworkSpots, ...slotSpots]}
           previousBooth={previousBooth ? { id: previousBooth.id, business: previousBooth.business } : null}
           nextBooth={nextBooth ? { id: nextBooth.id, business: nextBooth.business } : null}
+          exhibitorId={exhibitor.id}
           boothUrl={`/virtual-event/${slug}?mybooth=1&ex_id=${exhibitor.id}`}
+          contact={{
+            // The person on the stand, not the company: the legacy's Sales Team card shows the
+            // registered contact. `name` is the fallback because older rows filled that single
+            // column instead of the first/last pair.
+            name:
+              [exhibitor.first_name, exhibitor.last_name].filter(Boolean).join(" ").trim() ||
+              exhibitor.name ||
+              null,
+            position: exhibitor.position || null,
+            email: exhibitor.email || null,
+            phone: exhibitor.phone || exhibitor.work_phone || null,
+            avatarUrl: exhibitorLogoUrl(exhibitor.profile_pic || exhibitor.logo) ?? null,
+          }}
           dealsUrl={
             exhibitor.website
               ? exhibitor.website.startsWith("http")

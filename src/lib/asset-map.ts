@@ -77,7 +77,24 @@ export const PLACEHOLDER_IMAGE = "/images/image-placeholder.png";
  * which are handled by the absolute-url branch above and still map to the
  * mirror — so listing `/files/feeds/` here does not break legacy assets.
  */
-const LOCAL_FILE_PREFIXES = ["/files/settings/", "/files/feeds/", "/files/exhibitor/"];
+/*
+ * Paths under `public/files/` that are OURS — real files this app writes, not legacy uploads to
+ * be redirected at the `/images/external` mirror.
+ *
+ * Note the two exhibitor image folders. "/files/exhibitor/" does NOT cover them: the character
+ * after "exhibitor" is an underscore, not a slash, so "/files/exhibitor_profile_images/..." fell
+ * past this list, was treated as a legacy upload path, and came back as
+ * "/images/external/exhibitor_profile_images/...". Nothing was ever mirrored there, so every
+ * logo scripts/import-exhibitor-logos.ts had written to public/files/exhibitor_profile_images/
+ * 404'd and the directory showed initials for exhibitors that had a perfectly good logo on disk.
+ */
+const LOCAL_FILE_PREFIXES = [
+  "/files/settings/",
+  "/files/feeds/",
+  "/files/exhibitor/",
+  "/files/exhibitor_profile_images/",
+  "/files/exhibitor_stand_logo/",
+];
 
 /** Anything already living under one of these is a real file in `public/`. */
 const LOCAL_ROOT_PREFIXES = ["/images/", "/_next/", "/assets/", "/fonts/", "/videos/"];

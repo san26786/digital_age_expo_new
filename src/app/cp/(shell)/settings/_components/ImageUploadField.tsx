@@ -26,12 +26,15 @@ export function ImageUploadField({
   label,
   initialUrl,
   hint,
+  accept = "image/png,image/jpeg,image/webp,image/svg+xml",
 }: {
   name: string;
   slot: string;
   label: string;
   initialUrl: string | null;
   hint?: string;
+  /** Narrows the file picker for slots with a format rule — the favicon only takes .ico. */
+  accept?: string;
 }) {
   const [url, setUrl] = useState(initialUrl ?? "");
   const [uploading, setUploading] = useState(false);
@@ -105,7 +108,7 @@ export function ImageUploadField({
       <input
         ref={inputRef}
         type="file"
-        accept="image/png,image/jpeg,image/webp,image/svg+xml"
+        accept={accept}
         className="hidden"
         aria-label={`Upload ${label}`}
         onChange={(e) => {

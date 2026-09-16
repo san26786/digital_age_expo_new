@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev -p 3000 -H 0.0.0.0",
     "build": "next build",
+    "build:mem": "node --max-old-space-size=6144 node_modules/next/dist/bin/next build",
+    "build:webpack": "node --max-old-space-size=6144 node_modules/next/dist/bin/next build --webpack",
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",
@@ -20,7 +22,11 @@
     "db:industries": "tsx scripts/seed-industries.ts",
     "db:engagement-report": "tsx scripts/create-engagement-report-table.ts",
     "menu:check": "tsx scripts/check-lobby-menu.ts",
-    "cp:grant-admin": "tsx scripts/grant-cp-admin.ts"
+    "cp:grant-admin": "tsx scripts/grant-cp-admin.ts",
+    "exhibitors:allocate": "tsx scripts/allocate-exhibitor-stands.ts",
+    "stands:artwork": "tsx scripts/generate-stand-artwork.ts",
+    "exhibitors:logos": "tsx scripts/import-exhibitor-logos.ts",
+    "exhibitors:stand-layout": "tsx scripts/set-exhibitor-stand-layout.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

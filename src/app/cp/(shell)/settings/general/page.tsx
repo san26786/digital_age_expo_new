@@ -1,6 +1,8 @@
 import { getSettingsGroup, defineSetting } from "@/lib/cp/settings/settingsRepository";
 import { listUpcomingEventsForDropdown, getActiveEventId } from "@/lib/cp/events/eventsRepository";
-import { GENERAL_SETTINGS_FIELDS } from "./fields";
+import { getDomainSettings } from "@/lib/cp/settings/domainRepository";
+import { getEventForEdit } from "@/lib/cp/events/eventsRepository";
+import { GENERAL_SETTINGS_FIELDS, buildGeneralDefaults } from "./fields";
 import { saveGeneralSettingsAction } from "./actions";
 import { SettingsForm } from "../_components/SettingsForm";
 import { FIELD_CLASS, LABEL_CLASS, HINT_CLASS } from "../_components/styles";
@@ -18,22 +20,43 @@ import { FIELD_CLASS, LABEL_CLASS, HINT_CLASS } from "../_components/styles";
  * src/lib/services/domain.ts's getDomain() resolves for the entire public/member site.
  */
 export default async function GeneralSettingsPage() {
+  const [domain, activeEventId] = await Promise.all([getDomainSettings(), getActiveEventId()]);
+  const activeEvent = activeEventId ? await getEventForEdit(activeEventId) : null;
+
+  // Everything this page can know from the database — site name, title, tagline, description
+  // and URL — rather than eleven empty boxes. See buildGeneralDefaults() in ./fields.
+  const suggested = buildGeneralDefaults({
+    siteName: domain.name,
+    brandName: domain.brand,
+    shortDescription: domain.short_description,
+    link: domain.link,
+    eventTitle: activeEvent?.title ?? null,
+    eventSubtitle: activeEvent?.subtitle ?? null,
+    eventDescription: activeEvent?.description_short ?? null,
+    location: activeEvent?.location ?? null,
+    dateStart: activeEvent?.date_start ?? null,
+    dateEnd: activeEvent?.date_end ?? null,
+  });
+
   // Idempotent: only inserts a row the very first time a field is loaded on this domain.
   for (const field of GENERAL_SETTINGS_FIELDS) {
     await defineSetting({
       varname: field.varname,
       grouptitle: "general",
-      value: field.defaultValue,
+      value: suggested[field.varname] ?? field.defaultValue,
       optioncodeType: field.type === "textarea" ? "textarea" : "text",
     });
   }
 
-  const [rows, upcomingEvents, activeEventId] = await Promise.all([
+  const [rows, upcomingEvents] = await Promise.all([
     getSettingsGroup("general"),
     listUpcomingEventsForDropdown(),
-    getActiveEventId(),
   ]);
   const valueByVarname = new Map(rows.map((r) => [r.varname, r.value ?? ""]));
+
+  /** Saved value wins; an empty row falls back to the suggestion. */
+  const displayValue = (varname: string) =>
+    valueByVarname.get(varname) || suggested[varname] || "";
 
   return (
     <div className="space-y-6">
@@ -51,9 +74,7 @@ export default async function GeneralSettingsPage() {
         /* The Event dropdown below is deliberately left out of the defaults: "no active event"
            is not a sensible thing to hand an admin, and it is not a find_settings general
            field in the first place. Restoring defaults leaves the active event untouched. */
-        defaults={Object.fromEntries(
-          GENERAL_SETTINGS_FIELDS.map((field) => [field.varname, field.defaultValue])
-        )}
+        defaults={suggested}
       >
         {GENERAL_SETTINGS_FIELDS.map((field) => (
           <div key={field.varname} className="space-y-2">
@@ -64,7 +85,8 @@ export default async function GeneralSettingsPage() {
               <textarea
                 id={field.varname}
                 name={field.varname}
-                defaultValue={valueByVarname.get(field.varname) ?? field.defaultValue}
+                defaultValue={displayValue(field.varname)}
+                placeholder={(field as { placeholder?: string }).placeholder}
                 rows={4}
                 className={FIELD_CLASS}
               />
@@ -72,7 +94,9 @@ export default async function GeneralSettingsPage() {
               <input
                 id={field.varname}
                 name={field.varname}
-                defaultValue={valueByVarname.get(field.varname) ?? field.defaultValue}
+                defaultValue={displayValue(field.varname)}
+                placeholder={(field as { placeholder?: string }).placeholder}
+                maxLength={(field as { maxLength?: number }).maxLength}
                 className={FIELD_CLASS}
               />
             )}

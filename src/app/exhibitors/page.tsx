@@ -14,11 +14,16 @@ const PAGE_SIZE = 20;
 export default async function ExhibitorsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; zone?: string }>;
+  searchParams: Promise<{ page?: string; zone?: string; letter?: string }>;
 }) {
-  const { page: pageParam, zone: zoneParam } = await searchParams;
+  const { page: pageParam, zone: zoneParam, letter: letterParam } = await searchParams;
   const page = Math.max(1, Number(pageParam) || 1);
   const zoneId = zoneParam ? Number(zoneParam) || undefined : undefined;
+
+  // Only a single A-Z letter or the 0-9 bucket is honoured; anything else is treated as "All"
+  // rather than 404ing, because this value arrives straight off the query string.
+  const rawLetter = (letterParam ?? "").trim().toUpperCase();
+  const letter = rawLetter === "0-9" || /^[A-Z]$/.test(rawLetter) ? rawLetter : "";
 
   const domain = await getDomain();
 
@@ -29,15 +34,16 @@ export default async function ExhibitorsPage({
   const collector = createOutageCollector();
   const guard = collector.guard;
 
-  const [{ exhibitors, total }, zoneName] = await Promise.all([
+  const [{ exhibitors, total, initials }, zoneName] = await Promise.all([
     domain.event_id
-      ? guard(() => getEventExhibitorsPaged(domain.event_id, page, PAGE_SIZE, zoneId), {
+      ? guard(() => getEventExhibitorsPaged(domain.event_id, page, PAGE_SIZE, zoneId, letter), {
           exhibitors: [] as Awaited<ReturnType<typeof getEventExhibitorsPaged>>["exhibitors"],
           total: 0,
           page,
           pageSize: PAGE_SIZE,
+          initials: [] as string[],
         })
-      : Promise.resolve({ exhibitors: [], total: 0, page, pageSize: PAGE_SIZE }),
+      : Promise.resolve({ exhibitors: [], total: 0, page, pageSize: PAGE_SIZE, initials: [] as string[] }),
     zoneId ? guard(() => getExhibitionZoneName(zoneId), null) : Promise.resolve(null),
   ]);
 
@@ -56,6 +62,8 @@ export default async function ExhibitorsPage({
       totalPages={totalPages}
       zoneId={zoneId}
       zoneName={zoneName}
+      letter={letter}
+      initials={initials}
     />
   );
 }

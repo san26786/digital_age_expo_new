@@ -2,7 +2,6 @@
 "use client";
 
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import {
   ChevronDown,
@@ -17,6 +16,8 @@ import {
 
 import { MenuItem } from "@/lib/services/menu";
 import { LogoutButton } from "@/components/member/LogoutButton";
+import { BrandLogo } from "@/components/layout/BrandLogo";
+import { DEFAULT_BRAND_ASSETS } from "@/lib/constants/brandAssets";
 
 interface NavbarProps {
   menu: MenuItem[];
@@ -305,7 +306,11 @@ export function Navbar({
   domainName,
   session,
   eventBar = null,
-}: NavbarProps) {
+  // Defaults keep this component renderable on its own (and identical to before) if a caller
+  // hasn't been updated to pass the CP-managed assets.
+  primaryLogo = DEFAULT_BRAND_ASSETS.primaryLogo,
+  mobileLogo = DEFAULT_BRAND_ASSETS.mobileLogo,
+}: NavbarProps & { primaryLogo?: string; mobileLogo?: string }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [openMobileSubmenu, setOpenMobileSubmenu] =
     useState<number | null>(null);
@@ -401,8 +406,8 @@ export function Navbar({
             (3:1), so the reserved box was the wrong shape and the row shifted once the
             image decoded. 576x192 is the same 3:1 and ~3x the largest rendered width.
           */}
-          <Image
-            src="/images/digitalageexpo_logo.png"
+          <BrandLogo
+            src={primaryLogo}
             alt={domainName}
             width={576}
             height={192}
@@ -549,9 +554,9 @@ export function Navbar({
                   setDrawerOpen(false)
                 }
               >
-                {/* logo.png is 600x141 (4.255:1) — declared at its intrinsic size. */}
-                <Image
-                  src="/images/logo.png"
+                {/* 600x141 (4.255:1) — the bundled default's intrinsic size. */}
+                <BrandLogo
+                  src={mobileLogo}
                   alt={domainName}
                   width={600}
                   height={141}

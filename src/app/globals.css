@@ -354,6 +354,30 @@ textarea:focus {
   box-shadow: 0 0 0 2px rgb(var(--color-brand-pink-rgb) / 0.3) !important;
 }
 
+/*
+ * The booth chat panel is a LIGHT surface on a dark app.
+ *
+ * The rule above forces every textarea to a dark background and white text with `!important`,
+ * which is right everywhere else and wrong inside this white panel — it painted white text on a
+ * white sheet, so a visitor could not see what they were typing. `!important` cannot be beaten by
+ * a utility class, so the override has to live here, scoped to the panel.
+ */
+.booth-chat textarea {
+  background-color: #ffffff !important;
+  color: #18181b !important;
+  border-color: #d4d4d8 !important;
+}
+
+.booth-chat textarea::placeholder {
+  color: #9ca3af !important;
+  opacity: 1;
+}
+
+.booth-chat textarea:focus {
+  border-color: #1f6fd0 !important;
+  box-shadow: 0 0 0 2px rgba(31, 111, 208, 0.25) !important;
+}
+
 /* Custom Scrollbar for sleek dark look */
 ::-webkit-scrollbar {
   width: 8px;

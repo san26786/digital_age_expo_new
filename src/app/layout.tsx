@@ -24,7 +24,22 @@ export default function RootLayout({
       lang="en"
       className="h-full antialiased dark"
     >
-      <body className="flex min-h-full flex-col font-sans main-glow-bg text-white">
+      {/*
+        suppressHydrationWarning is here for ONE specific, unavoidable case: browser extensions
+        that write attributes onto <body> before React hydrates. The reported mismatch was
+        `cz-shortcut-listen="true"`, which ColorZilla adds — it exists in the browser's DOM and
+        can never exist in the server's HTML, so React reports a mismatch on every page load for
+        anyone with that extension installed.
+
+        It is deliberately on <body> and nowhere else, and it is NOT a blanket silencer: React
+        only skips the attribute/text diff for THIS element, so a genuine mismatch inside the app
+        (a Date.now() in a client component, a locale-formatted date, mis-nested tags) is still
+        reported exactly as before.
+      */}
+      <body
+        suppressHydrationWarning
+        className="flex min-h-full flex-col font-sans main-glow-bg text-white"
+      >
         <AuthProvider>
           <ChromeGate>
             <Header />

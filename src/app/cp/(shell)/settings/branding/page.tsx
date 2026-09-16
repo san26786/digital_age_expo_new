@@ -9,7 +9,14 @@ import { FIELD_CLASS, LABEL_CLASS, HINT_CLASS, SECTION_TITLE_CLASS, CHECKBOX_ROW
 export default async function BrandingPage() {
   const newLogoFields = BRANDING_LOGO_FIELDS.filter((f) => f.source === "setting");
   for (const field of newLogoFields) {
-    await defineSetting({ varname: field.key, grouptitle: "branding", value: "", optioncodeType: "text" });
+    // Seeded with the asset the site already serves for that slot, so a fresh install starts
+    // with its real marks rather than six empty boxes. See BRANDING_LOGO_FIELDS in ./fields.
+    await defineSetting({
+      varname: field.key,
+      grouptitle: "branding",
+      value: field.defaultValue,
+      optioncodeType: "text",
+    });
   }
 
   const [domain, settingRows] = await Promise.all([getDomainSettings(), getSettingsGroup("branding")]);
@@ -23,9 +30,10 @@ export default async function BrandingPage() {
     domain_loader: domain.domain_loader ?? "",
   };
 
+  /** Saved value wins; an empty slot shows the asset the live site is using for it today. */
   function logoValue(field: (typeof BRANDING_LOGO_FIELDS)[number]): string | null {
-    if (field.source === "domain") return domain.fav ?? null;
-    return settingByVarname.get(field.key) || null;
+    const saved = field.source === "domain" ? domain.fav : settingByVarname.get(field.key);
+    return (saved || "").trim() || field.defaultValue || null;
   }
 
   return (
@@ -50,6 +58,7 @@ export default async function BrandingPage() {
                 label={field.label}
                 initialUrl={logoValue(field)}
                 hint={field.hint}
+                accept={(field as { accept?: string }).accept}
               />
             ))}
           </div>

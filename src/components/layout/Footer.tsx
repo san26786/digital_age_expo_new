@@ -1,8 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { getDomain } from "@/lib/services/domain";
 import { getPublicSocialLinks } from "@/lib/services/social";
 import { getFooterContent } from "@/lib/services/footer";
+import { getBrandAssets } from "@/lib/services/branding";
+import { BrandLogo } from "@/components/layout/BrandLogo";
 import { NewsletterForm } from "@/components/layout/NewsletterForm";
 import {
   Mail,
@@ -41,10 +42,11 @@ export async function Footer() {
   // Description, contact block, copyright line and legal links all come from Settings ->
   // Footer, each falling back to the wording this component shipped with when nothing has been
   // saved (see getFooterContent()), so the page looks identical until an admin changes it.
-  const [domain, socialLinks, footer] = await Promise.all([
+  const [domain, socialLinks, footer, brand] = await Promise.all([
     getDomain(),
     getPublicSocialLinks(),
     getFooterContent(),
+    getBrandAssets(),
   ]);
 
   const currentYear = new Date().getFullYear();
@@ -97,8 +99,8 @@ export async function Footer() {
                   (3:1), so Next reserved a box of the wrong shape. 576x192 is the same
                   3:1 ratio at ~3x the largest rendered width.
                 */}
-                <Image
-                  src="/images/digitalageexpo_logo.png"
+                <BrandLogo
+                  src={brand.footerLogo}
                   alt={domain.name}
                   width={576}
                   height={192}
