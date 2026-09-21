@@ -42,17 +42,31 @@ export function CountdownTimer({ targetDate, className }: Props) {
     { label: "seconds", value: remaining.seconds },
   ].filter((u): u is { label: string; value: number } => u !== null);
 
+  /*
+   * UI ONLY. The timer logic, the hydration-safe initial state, the interval and the conditional
+   * "weeks" unit are untouched — only the tiles were restyled.
+   *
+   * The unit count is variable (four normally, five while the event is more than a week out), so
+   * the row stays a flex-wrap rather than becoming a fixed four-column grid: a five-item grid
+   * would leave a lone orphaned tile on the second line at most widths.
+   */
   return (
-    <div className={`flex flex-wrap justify-center gap-3 sm:gap-4 ${className ?? ""}`}>
+    <div className={`flex flex-wrap justify-center gap-2.5 sm:gap-4 lg:justify-start ${className ?? ""}`}>
       {units.map((unit) => (
         <div
           key={unit.label}
-          className="min-w-[4.5rem] rounded-lg bg-white/10 px-4 py-3 text-center backdrop-blur-sm"
+          className="group relative min-w-[4.25rem] flex-1 basis-[4.25rem] overflow-hidden rounded-2xl border border-white/12 bg-[#14152F]/70 px-3 py-3.5 text-center backdrop-blur-md transition-all duration-300 hover:border-[#8B3DFF]/50 sm:min-w-[5.25rem] sm:basis-[5.25rem] sm:px-5 sm:py-4"
         >
-          <div className="text-3xl font-extrabold text-white sm:text-4xl">
+          {/* Inner glow, brightening on hover. Decorative only. */}
+          <div className="pointer-events-none absolute inset-x-0 -top-10 h-16 bg-[#6C2BFF]/30 blur-2xl transition-opacity duration-300 group-hover:bg-[#F020A8]/30" />
+          <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-[#8B3DFF]/70 to-transparent" />
+
+          <div className="relative text-2xl font-black tabular-nums tracking-tight text-white sm:text-4xl">
             {String(unit.value).padStart(2, "0")}
           </div>
-          <div className="text-xs uppercase tracking-wide text-white/70">{unit.label}</div>
+          <div className="relative mt-1 text-[9px] font-bold uppercase tracking-[0.18em] text-[#A5A6C5] sm:text-[10px]">
+            {unit.label}
+          </div>
         </div>
       ))}
     </div>
