@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { getBrand } from "@/lib/brand";
-import { assetUrl, staticAssetUrl } from "@/lib/assets";
+import { assetUrl } from "@/lib/assets";
 import { formatDayRange, formatMonthDayYear } from "@/lib/format";
+
+/** Local stage photograph used when the event has configured no image of its own. */
+const ABOUT_FALLBACK_IMAGE = "/images/about_event.jpg";
 
 interface Props {
   sectionTitle?: string | null;
@@ -43,8 +46,14 @@ export async function AboutEvent({
   dateStart,
   dateEnd,
 }: Props) {
-  const bgImage =
-    assetUrl(backgroundImage) || staticAssetUrl("https://digitalageexpo.com/files/listing_pages/817601-banner1.jpg");
+  /*
+   * The DYNAMIC value still wins. This only changes what is shown when the event has no image of
+   * its own configured, and the old fallback was a remote legacy banner that is byte-for-byte the
+   * same file the hero uses — so About and the hero rendered the identical washed-out crowd shot
+   * one after the other. A local stage photograph gives the section its own picture without
+   * touching `opportunity_images`, which the CP still controls.
+   */
+  const bgImage = assetUrl(backgroundImage) || ABOUT_FALLBACK_IMAGE;
 
   const title = sectionTitle || "About The Event";
   const defaultDesc =
@@ -86,7 +95,7 @@ export async function AboutEvent({
               <img
                 src={bgImage}
                 alt={title}
-                className="h-full w-full rounded-[1.35rem] object-cover"
+                className="aspect-[3/2] h-full w-full rounded-[1.35rem] object-cover"
                 loading="lazy"
               />
             </div>
@@ -114,7 +123,7 @@ export async function AboutEvent({
           </h2>
 
           <div
-            className="mt-5 text-sm leading-relaxed text-[#A5A6C5] sm:text-base [&_a]:text-[#00C8FF] [&_a]:underline"
+            className="mt-5 text-sm leading-relaxed text-[#A5A6C5] sm:text-base [&_a]:text-white [&_a]:underline"
             dangerouslySetInnerHTML={{ __html: desc }}
           />
 

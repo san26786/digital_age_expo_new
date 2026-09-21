@@ -1,71 +1,135 @@
 'use client';
 
 import React from 'react';
-import { Cpu, ShieldCheck, Coins, TrendingUp } from 'lucide-react';
+import { Cpu, ShieldCheck, Coins, TrendingUp, type LucideIcon } from 'lucide-react';
+
+interface Zone {
+  id: string;
+  name: string;
+  description: string;
+  icon: LucideIcon;
+  /** Card wash + icon accent. Presentational only. */
+  from: string;
+  to: string;
+  accent: string;
+}
+
+/**
+ * UI-ONLY REDESIGN. Zone names, descriptions and icons are untouched — only the card treatment
+ * changed. Two things were actually wrong before, not merely plain:
+ *
+ * 1. `h-64` with `justify-between` forced every card to a fixed height and then pushed the icon
+ *    to the top and the text to the bottom, leaving a large dead gap in the middle of each one.
+ *    Cards now size to their content and a grid row stretches them to match each other, so they
+ *    stay aligned without anyone declaring a height.
+ *
+ * 2. All four cards were the same flat `bg-slate-950`, so the row read as one long dark band. A
+ *    per-zone wash makes them legible as four distinct areas — which is the entire point of a
+ *    section about zones.
+ *
+ * The washes are low-opacity gradients over a dark base rather than saturated fills: at full
+ * strength the white body copy on top of them drops below a comfortable contrast ratio.
+ */
+const ZONES: Zone[] = [
+  {
+    id: 'z-ai',
+    name: 'Artificial Intelligence Zone',
+    description:
+      'Explore the bleeding-edge of machine learning, neural accelerators, generative transformers, and cognitive automation.',
+    icon: Cpu,
+    from: '#6C2BFF',
+    to: '#8B3DFF',
+    accent: '#B08CFF',
+  },
+  {
+    id: 'z-cyber',
+    name: 'Cyber Security & Trust',
+    description:
+      'Hardening enterprise postures with post-quantum cryptography, zero-trust architectures, and seamless audit logs.',
+    icon: ShieldCheck,
+    from: '#246BFD',
+    to: '#00C8FF',
+    accent: '#5FD8FF',
+  },
+  {
+    id: 'z-fin',
+    name: 'FinTech & Digital Assets',
+    description:
+      'Pioneering the future of instant corporate clearing, decentralised accounting ledgers, and secure financial assets.',
+    icon: Coins,
+    from: '#00C8FF',
+    to: '#246BFD',
+    accent: '#7FE0FF',
+  },
+  {
+    id: 'z-cloud',
+    name: 'Cloud & Scaling Operations',
+    description:
+      'Harnessing serverless infrastructure, global content orchestration, and real-time edge processing for modern web apps.',
+    icon: TrendingUp,
+    from: '#F020A8',
+    to: '#8B3DFF',
+    accent: '#FF7ACF',
+  },
+];
 
 export function EventZones() {
-  const zones = [
-    {
-      id: 'z-ai',
-      name: "Artificial Intelligence Zone",
-      description: "Explore the bleeding-edge of machine learning, neural accelerators, generative transformers, and cognitive automation.",
-      icon: Cpu,
-    },
-    {
-      id: 'z-cyber',
-      name: "Cyber Security & Trust",
-      description: "Hardening enterprise postures with post-quantum cryptography, zero-trust architectures, and seamless audit logs.",
-      icon: ShieldCheck,
-    },
-    {
-      id: 'z-fin',
-      name: "FinTech & Digital Assets",
-      description: "Pioneering the future of instant corporate clearing, decentralised accounting ledgers, and secure financial assets.",
-      icon: Coins,
-    },
-    {
-      id: 'z-cloud',
-      name: "Cloud & Scaling Operations",
-      description: "Harnessing serverless infrastructure, global content orchestration, and real-time edge processing for modern web apps.",
-      icon: TrendingUp,
-    }
-  ];
-
   return (
-    <section className="bg-slate-900 px-6 py-20 text-white border-y border-slate-800">
-      <div className="mx-auto max-w-6xl space-y-12">
-        <div className="text-center max-w-2xl mx-auto space-y-4">
-          <span className="text-xs font-bold font-mono text-fuchsia-400 uppercase tracking-widest block">
-            THE ARCHITECTURE OF INNOVATION
+    <section className="relative overflow-hidden border-y border-white/[0.06] bg-[#0B0C20] px-5 py-16 text-white sm:px-6 sm:py-20">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(108,43,255,0.18),transparent_60%)]" />
+
+      <div className="relative z-10 mx-auto max-w-7xl">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#F020A8] sm:text-xs">
+            The Architecture Of Innovation
           </span>
-          <h2 className="text-3xl font-black uppercase tracking-tight text-white sm:text-5xl">
+          <h2 className="mt-3 text-2xl font-black uppercase tracking-tight text-white sm:text-4xl">
             Specialised Trade Zones
           </h2>
-          <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-            Structured virtual environments to keep exhibition halls organized and perfectly navigated.
+          <p className="mt-3 text-sm text-[#A5A6C5] sm:text-base">
+            Structured virtual environments to keep exhibition halls organized and perfectly
+            navigated.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {zones.map((zone) => {
+        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
+          {ZONES.map((zone) => {
             const Icon = zone.icon;
             return (
-              <div 
-                key={zone.id} 
-                className="group relative rounded-2xl bg-slate-950 p-6 flex flex-col justify-between h-64 border border-slate-800/80 hover:border-fuchsia-500/30 transition-all duration-300"
+              <div
+                key={zone.id}
                 id={`event-zone-${zone.id}`}
+                className="group relative flex flex-col items-center overflow-hidden rounded-2xl border border-white/[0.1] bg-[#10112A] p-6 text-center transition-all duration-300 hover:-translate-y-1.5 hover:border-white/25"
               >
-                <div className="p-3 bg-fuchsia-500/10 border border-fuchsia-500/20 w-fit rounded-xl text-fuchsia-400 group-hover:bg-fuchsia-500/20 transition-all">
-                  <Icon className="w-6 h-6" />
-                </div>
-                <div className="space-y-2 mt-6">
-                  <h4 className="font-extrabold text-white text-sm uppercase tracking-wider">
-                    {zone.name}
-                  </h4>
-                  <p className="text-slate-400 text-xs leading-relaxed">
-                    {zone.description}
-                  </p>
-                </div>
+                {/* Per-zone wash. Kept low so the copy above it stays readable. */}
+                <div
+                  className="pointer-events-none absolute inset-0 opacity-70 transition-opacity duration-300 group-hover:opacity-100"
+                  style={{ backgroundImage: `linear-gradient(150deg, ${zone.from}38, ${zone.to}12 65%, transparent)` }}
+                />
+                {/* Top hairline in the zone's own colour. */}
+                <div
+                  className="pointer-events-none absolute inset-x-8 top-0 h-px"
+                  style={{ background: `linear-gradient(90deg, transparent, ${zone.accent}, transparent)` }}
+                />
+
+                <span
+                  className="relative flex h-14 w-14 items-center justify-center rounded-2xl border transition-transform duration-300 group-hover:scale-110"
+                  style={{
+                    borderColor: `${zone.accent}55`,
+                    backgroundColor: `${zone.from}22`,
+                    boxShadow: `0 0 26px -10px ${zone.accent}`,
+                  }}
+                >
+                  <Icon className="h-7 w-7" style={{ color: zone.accent }} aria-hidden="true" />
+                </span>
+
+                <h4 className="relative mt-5 text-sm font-black uppercase leading-snug tracking-wide text-white sm:text-[0.95rem]">
+                  {zone.name}
+                </h4>
+
+                <p className="relative mt-2.5 text-xs leading-relaxed text-[#A5A6C5] sm:text-[0.8rem]">
+                  {zone.description}
+                </p>
               </div>
             );
           })}

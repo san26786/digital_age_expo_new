@@ -102,7 +102,7 @@ export function HeroSection({ title, label, dateStart, dateEnd, venue }: Props) 
           </h1>
 
           {label && (
-            <h2 className="mt-2 text-xl font-black uppercase leading-tight tracking-tight text-[#00C8FF] sm:text-3xl lg:text-[2.6rem]">
+            <h2 className="mt-2 text-xl font-black uppercase leading-tight tracking-tight text-white sm:text-3xl lg:text-[2.6rem]">
               {label}
             </h2>
           )}

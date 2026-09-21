@@ -72,9 +72,9 @@ export function B2BGrowthFlywheel() {
 
           <h2 className="mt-4 text-2xl font-black uppercase leading-[1.12] tracking-tight text-white sm:text-4xl lg:text-[2.7rem]">
             A System Where{' '}
-            <span className="text-[#00C8FF]">Every Part</span>{' '}
+            <span className="text-white">Every Part</span>{' '}
             <span className="text-[#F020A8]">Feeds</span>{' '}
-            <span className="text-[#00C8FF]">The Next</span>
+            <span className="text-white">The Next</span>
           </h2>
 
           <p className="mt-5 max-w-xl text-sm leading-relaxed text-[#A5A6C5] sm:text-base">
@@ -88,8 +88,8 @@ export function B2BGrowthFlywheel() {
                 key={benefit}
                 className="flex items-center gap-3 border-b border-white/[0.07] py-3 last:border-b-0"
               >
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#246BFD] to-[#00C8FF] shadow-[0_0_14px_rgba(36,107,253,0.55)]">
-                  <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} aria-hidden="true" />
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white shadow-[0_0_14px_rgba(255,255,255,0.35)]">
+                  <Check className="h-3.5 w-3.5 text-[#0B0C20]" strokeWidth={3} aria-hidden="true" />
                 </span>
                 <span className="text-sm font-semibold text-[#EDEDF8] sm:text-base">{benefit}</span>
               </li>
