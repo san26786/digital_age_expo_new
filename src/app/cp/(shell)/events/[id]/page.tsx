@@ -3,6 +3,9 @@ import { requireCpPermission, CP_PERMISSIONS } from "@/lib/cp/rbac";
 import { getEventForEdit, getActiveEventId } from "@/lib/cp/events/eventsRepository";
 import { updateEventAction, setEventStatusAction, setActiveEventAction } from "../actions";
 import { DuplicateEventForm } from "./DuplicateEventForm";
+import { listEventOrganisers } from "@/lib/cp/events/organisersRepository";
+import { revokeOrganiserAction } from "../organiserActions";
+import { OrganiserGrantForm } from "@/components/cp/OrganiserGrantForm";
 
 const FIELD_CLASS =
   "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-zinc-600 focus:border-brand-pink focus:outline-none transition-colors";
@@ -18,7 +21,11 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
   const { id } = await params;
   const eventId = Number(id);
 
-  const [event, activeEventId] = await Promise.all([getEventForEdit(eventId), getActiveEventId()]);
+  const [event, activeEventId, organisers] = await Promise.all([
+    getEventForEdit(eventId),
+    getActiveEventId(),
+    listEventOrganisers(eventId),
+  ]);
   if (!event) notFound();
 
   const updateWithId = updateEventAction.bind(null, eventId);
@@ -153,6 +160,56 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
           </button>
         </form>
       )}
+
+      <section className="space-y-4 rounded-2xl border border-white/10 bg-zinc-900/40 p-6">
+        <div>
+          <h2 className="text-sm font-black uppercase tracking-wider text-zinc-300">Organisers</h2>
+          <p className="mt-1 max-w-2xl text-xs text-zinc-500">
+            Who the member portal treats as an organiser of this event — these accounts get the
+            organiser view at <code className="text-zinc-400">/members/user_event_summary</code> instead
+            of the visitor one. The owner comes from <code className="text-zinc-400">find_events.user_id</code>{" "}
+            and can&apos;t be removed here; everyone else is a team row and can.
+          </p>
+        </div>
+
+        <ul className="divide-y divide-white/5 rounded-xl border border-white/10">
+          {organisers.length === 0 && (
+            <li className="px-4 py-6 text-center text-xs text-zinc-600">
+              No organisers yet — this event has no owner and no organiser team rows.
+            </li>
+          )}
+          {organisers.map((o) => (
+            <li key={`${o.userId}-${o.memberRowId ?? "owner"}`} className="flex items-center gap-4 px-4 py-3">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-bold text-white">{o.name}</p>
+                <p className="truncate text-xs text-zinc-500">
+                  {o.email || "—"} &middot; find_users.id={o.userId}
+                </p>
+              </div>
+              {o.isOwner ? (
+                <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase text-amber-400">
+                  Owner
+                </span>
+              ) : (
+                <>
+                  <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase text-emerald-400">
+                    {o.joiningStatus ?? "Active"}
+                  </span>
+                  {canEdit && (
+                    <form action={revokeOrganiserAction.bind(null, eventId, o.userId)}>
+                      <button type="submit" className="text-xs font-bold text-zinc-400 hover:text-white">
+                        Revoke
+                      </button>
+                    </form>
+                  )}
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+
+        {canEdit && <OrganiserGrantForm eventId={eventId} />}
+      </section>
 
       {canEdit && <DuplicateEventForm sourceEventId={eventId} />}
     </div>
