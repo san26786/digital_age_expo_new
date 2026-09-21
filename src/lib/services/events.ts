@@ -121,3 +121,35 @@ export async function isEventOrganiser(eventId: number, userId: number) {
   });
   return Boolean(teamMember);
 }
+
+/**
+ * Is this person an organiser of ANY event?
+ *
+ * Deliberately kept next to isEventOrganiser() and written as the same two lookups minus the
+ * event_id constraint, because the two must agree on what "organiser" means. If one is ever
+ * tightened — say to require signatory_organiser and stop honouring member_type — the other has
+ * to move with it, and that is far likelier to happen when they are adjacent.
+ *
+ * Used by getHubAccess() in src/lib/hub/access.ts, which asks a per-PERSON question and so has
+ * no event to scope to.
+ */
+export async function isOrganiserOfAnyEvent(userId: number): Promise<boolean> {
+  if (userId === -30) return true;
+  if (!Number.isFinite(userId) || userId <= 0) return false;
+
+  const owned = await prisma.find_events.findFirst({
+    where: { user_id: userId },
+    select: { id: true },
+  });
+  if (owned) return true;
+
+  const teamMember = await prisma.find_event_member.findFirst({
+    where: {
+      member_user_id: userId,
+      OR: [{ signatory_organiser: 1 }, { member_type: { equals: "Organiser", mode: "insensitive" } }],
+      NOT: { joining_status: "Pending" },
+    },
+    select: { id: true },
+  });
+  return Boolean(teamMember);
+}

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { safeQuery } from "@/lib/db-errors";
 import { resolveSiteId } from "@/lib/tenant";
 import { DOMAIN_ID } from "@/lib/site-config";
+import { isOrganiserOfAnyEvent } from "@/lib/services/events";
 
 /**
  * ===========================================================================
@@ -55,7 +56,7 @@ import { DOMAIN_ID } from "@/lib/site-config";
  */
 
 export type HubAccess =
-  | { ok: true; userId: number | null; email: string | null; reason: "allowlist" | "user_role" | "dev" }
+  | { ok: true; userId: number | null; email: string | null; reason: "allowlist" | "user_role" | "organiser" | "dev" }
   | { ok: false; reason: "no-session" | "not-superadmin" | "not-configured" | "not-parent-site" };
 
 /** Matches "superadmin", "super admin", "super_admin", "Super-Admin". */
@@ -99,6 +100,32 @@ export async function getHubAccess(): Promise<HubAccess> {
     if (user?.user_role && SUPERADMIN_ROLE.test(user.user_role.trim())) {
       return { ok: true, userId, email: email ?? user.user_email ?? null, reason: "user_role" };
     }
+  }
+
+  /*
+   * THIRD WAY IN: being an organiser of any event.
+   *
+   * Added because the Event Member Area is meant to give an organiser every tab it shows, and
+   * these screens were the only ones an organiser could see listed and not open. It sits AFTER
+   * the two superadmin checks so those keep their own `reason` (which the Hub's own pages
+   * report on screen), and BEFORE the development bypass so the real path is what runs locally
+   * too — otherwise this branch would only ever be exercised in production.
+   *
+   * BE CLEAR ABOUT WHAT THIS GRANTS, because it is broader than it looks. Organiser is now
+   * grantable from the CP (see src/lib/cp/events/organisersRepository.ts), an event may have
+   * any number of them, and this asks about ANY event — so anyone made an organiser of one
+   * event reaches the Hub's screens for the site they are signed in to, including Site
+   * Settings. Combined with getSitesHubAccess() below, on the PARENT site that also means
+   * creating and deleting sites. The narrower shape, if this ever needs winding back, is to
+   * admit organisers to Email Templates / Send Queue / Site Settings and keep Hub: Sites on the
+   * superadmin tests alone.
+   *
+   * safeQuery is deliberately absent: isOrganiserOfAnyEvent throwing should not be swallowed
+   * into a silent grant. It is two indexed findFirst calls and the caller already handles the
+   * request failing.
+   */
+  if (userId && Number.isFinite(userId) && (await isOrganiserOfAnyEvent(userId))) {
+    return { ok: true, userId, email, reason: "organiser" };
   }
 
   if (isDev) {
