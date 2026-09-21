@@ -1,35 +1,24 @@
 'use client';
 
-import React from 'react';
-import { Cpu, ShieldCheck, Coins, TrendingUp, type LucideIcon } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import {
+  Cpu,
+  ShieldCheck,
+  Coins,
+  TrendingUp,
+  type LucideIcon,
+} from 'lucide-react';
 
 interface Zone {
   id: string;
   name: string;
   description: string;
   icon: LucideIcon;
-  /** Card wash + icon accent. Presentational only. */
   from: string;
   to: string;
   accent: string;
 }
 
-/**
- * UI-ONLY REDESIGN. Zone names, descriptions and icons are untouched — only the card treatment
- * changed. Two things were actually wrong before, not merely plain:
- *
- * 1. `h-64` with `justify-between` forced every card to a fixed height and then pushed the icon
- *    to the top and the text to the bottom, leaving a large dead gap in the middle of each one.
- *    Cards now size to their content and a grid row stretches them to match each other, so they
- *    stay aligned without anyone declaring a height.
- *
- * 2. All four cards were the same flat `bg-slate-950`, so the row read as one long dark band. A
- *    per-zone wash makes them legible as four distinct areas — which is the entire point of a
- *    section about zones.
- *
- * The washes are low-opacity gradients over a dark base rather than saturated fills: at full
- * strength the white body copy on top of them drops below a comfortable contrast ratio.
- */
 const ZONES: Zone[] = [
   {
     id: 'z-ai',
@@ -74,62 +63,448 @@ const ZONES: Zone[] = [
 ];
 
 export function EventZones() {
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [visibleCards, setVisibleCards] = useState<Set<string>>(new Set());
+  const [isHeadingVisible, setIsHeadingVisible] = useState(false);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+
+    if (!section) return;
+
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    /*
+     * Accessibility:
+     * If the user has requested reduced motion,
+     * show everything immediately.
+     */
+    if (prefersReducedMotion) {
+      setIsHeadingVisible(true);
+      setVisibleCards(new Set(ZONES.map((zone) => zone.id)));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const target = entry.target as HTMLElement;
+          const type = target.dataset.animation;
+          const id = target.dataset.zoneId;
+
+          if (entry.isIntersecting) {
+            if (type === 'heading') {
+              setIsHeadingVisible(true);
+            }
+
+            if (type === 'card' && id) {
+              setVisibleCards((previous) => {
+                const next = new Set(previous);
+                next.add(id);
+                return next;
+              });
+            }
+          } else {
+            /*
+             * Remove the animation state when the element leaves
+             * the viewport so the animation can play again when
+             * scrolling back up.
+             */
+            if (type === 'heading') {
+              setIsHeadingVisible(false);
+            }
+
+            if (type === 'card' && id) {
+              setVisibleCards((previous) => {
+                const next = new Set(previous);
+                next.delete(id);
+                return next;
+              });
+            }
+          }
+        });
+      },
+      {
+        threshold: 0.15,
+        rootMargin: '0px 0px -80px 0px',
+      }
+    );
+
+    const animatedElements = section.querySelectorAll(
+      '[data-animation]'
+    );
+
+    animatedElements.forEach((element) => observer.observe(element));
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
   return (
-    <section className="relative overflow-hidden border-y border-white/[0.06] bg-[#0B0C20] px-5 py-16 text-white sm:px-6 sm:py-20">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(108,43,255,0.18),transparent_60%)]" />
+    <section
+      ref={sectionRef}
+      className="
+        relative
+        overflow-hidden
+        border-y
+        border-white/[0.06]
+        bg-[#0B0C20]
+        px-5
+        py-16
+        text-white
+        sm:px-6
+        sm:py-20
+      "
+    >
+      {/* Background ambient glow */}
+      <div
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          bg-[radial-gradient(ellipse_at_50%_0%,rgba(108,43,255,0.18),transparent_60%)]
+        "
+      />
+
+      {/* Animated background glow */}
+      <div
+        className="
+          pointer-events-none
+          absolute
+          -left-32
+          top-1/3
+          h-72
+          w-72
+          rounded-full
+          bg-[#6C2BFF]/10
+          blur-3xl
+          animate-[pulse_5s_ease-in-out_infinite]
+        "
+      />
+
+      <div
+        className="
+          pointer-events-none
+          absolute
+          -right-32
+          bottom-0
+          h-72
+          w-72
+          rounded-full
+          bg-[#F020A8]/10
+          blur-3xl
+          animate-[pulse_6s_ease-in-out_infinite]
+        "
+      />
 
       <div className="relative z-10 mx-auto max-w-7xl">
-        <div className="mx-auto max-w-2xl text-center">
-          <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#F020A8] sm:text-xs">
+        {/* SECTION HEADING */}
+        <div
+          data-animation="heading"
+          className={`
+            mx-auto
+            max-w-2xl
+            text-center
+            transition-all
+            duration-1000
+            ease-[cubic-bezier(0.22,1,0.36,1)]
+            ${
+              isHeadingVisible
+                ? 'translate-y-0 opacity-100'
+                : 'translate-y-10 opacity-0'
+            }
+          `}
+        >
+          {/* Eyebrow */}
+          <span
+            className="
+              inline-block
+              text-[11px]
+              font-black
+              uppercase
+              tracking-[0.3em]
+              text-[#F020A8]
+              sm:text-xs
+            "
+          >
             The Architecture Of Innovation
           </span>
-          <h2 className="mt-3 text-2xl font-black uppercase tracking-tight text-white sm:text-4xl">
+
+          {/* Heading */}
+          <h2
+            className="
+              mt-3
+              text-2xl
+              font-black
+              uppercase
+              tracking-tight
+              text-white
+              sm:text-4xl
+            "
+          >
             Specialised Trade Zones
           </h2>
-          <p className="mt-3 text-sm text-[#A5A6C5] sm:text-base">
-            Structured virtual environments to keep exhibition halls organized and perfectly
-            navigated.
+
+          {/* Description */}
+          <p
+            className="
+              mt-3
+              text-sm
+              leading-relaxed
+              text-[#A5A6C5]
+              sm:text-base
+            "
+          >
+            Structured virtual environments to keep exhibition halls
+            organized and perfectly navigated.
           </p>
+
+          {/* Animated underline */}
+          <div
+            className={`
+              mx-auto
+              mt-6
+              h-px
+              bg-gradient-to-r
+              from-transparent
+              via-[#F020A8]
+              to-transparent
+              transition-all
+              duration-1000
+              ${
+                isHeadingVisible
+                  ? 'w-32 opacity-100'
+                  : 'w-0 opacity-0'
+              }
+            `}
+          />
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
-          {ZONES.map((zone) => {
+        {/* ZONE CARDS */}
+        <div
+          className="
+            mt-12
+            grid
+            grid-cols-1
+            gap-4
+            sm:grid-cols-2
+            sm:gap-5
+            lg:grid-cols-4
+          "
+        >
+          {ZONES.map((zone, index) => {
             const Icon = zone.icon;
+            const isVisible = visibleCards.has(zone.id);
+
             return (
               <div
                 key={zone.id}
                 id={`event-zone-${zone.id}`}
-                className="group relative flex flex-col items-center overflow-hidden rounded-2xl border border-white/[0.1] bg-[#10112A] p-6 text-center transition-all duration-300 hover:-translate-y-1.5 hover:border-white/25"
+                data-animation="card"
+                data-zone-id={zone.id}
+                className={`
+                  group
+                  relative
+                  flex
+                  flex-col
+                  items-center
+                  overflow-hidden
+                  rounded-2xl
+                  border
+                  border-white/[0.1]
+                  bg-[#10112A]
+                  p-6
+                  text-center
+
+                  transition-all
+                  duration-700
+                  ease-[cubic-bezier(0.22,1,0.36,1)]
+
+                  ${
+                    isVisible
+                      ? 'translate-y-0 scale-100 opacity-100'
+                      : 'translate-y-16 scale-[0.96] opacity-0'
+                  }
+
+                  hover:-translate-y-2
+                  hover:scale-[1.015]
+                  hover:border-white/25
+                  hover:shadow-[0_20px_60px_-25px_rgba(108,43,255,0.6)]
+                `}
+                style={{
+                  transitionDelay: isVisible
+                    ? `${index * 120}ms`
+                    : '0ms',
+                }}
               >
-                {/* Per-zone wash. Kept low so the copy above it stays readable. */}
+                {/* Per-zone gradient wash */}
                 <div
-                  className="pointer-events-none absolute inset-0 opacity-70 transition-opacity duration-300 group-hover:opacity-100"
-                  style={{ backgroundImage: `linear-gradient(150deg, ${zone.from}38, ${zone.to}12 65%, transparent)` }}
-                />
-                {/* Top hairline in the zone's own colour. */}
-                <div
-                  className="pointer-events-none absolute inset-x-8 top-0 h-px"
-                  style={{ background: `linear-gradient(90deg, transparent, ${zone.accent}, transparent)` }}
+                  className="
+                    pointer-events-none
+                    absolute
+                    inset-0
+                    opacity-70
+                    transition-all
+                    duration-700
+                    group-hover:scale-110
+                    group-hover:opacity-100
+                  "
+                  style={{
+                    backgroundImage: `
+                      linear-gradient(
+                        150deg,
+                        ${zone.from}38,
+                        ${zone.to}12 65%,
+                        transparent
+                      )
+                    `,
+                  }}
                 />
 
+                {/* Animated radial glow */}
+                <div
+                  className="
+                    pointer-events-none
+                    absolute
+                    -right-10
+                    -top-10
+                    h-28
+                    w-28
+                    rounded-full
+                    opacity-20
+                    blur-2xl
+                    transition-all
+                    duration-700
+                    group-hover:scale-150
+                    group-hover:opacity-40
+                  "
+                  style={{
+                    backgroundColor: zone.accent,
+                  }}
+                />
+
+                {/* Top glowing line */}
+                <div
+                  className="
+                    pointer-events-none
+                    absolute
+                    inset-x-8
+                    top-0
+                    h-px
+                    opacity-70
+                    transition-all
+                    duration-500
+                    group-hover:inset-x-4
+                    group-hover:opacity-100
+                  "
+                  style={{
+                    background: `
+                      linear-gradient(
+                        90deg,
+                        transparent,
+                        ${zone.accent},
+                        transparent
+                      )
+                    `,
+                  }}
+                />
+
+                {/* ICON */}
                 <span
-                  className="relative flex h-14 w-14 items-center justify-center rounded-2xl border transition-transform duration-300 group-hover:scale-110"
+                  className="
+                    relative
+                    flex
+                    h-14
+                    w-14
+                    items-center
+                    justify-center
+                    rounded-2xl
+                    border
+                    transition-all
+                    duration-500
+                    ease-out
+                    group-hover:scale-110
+                    group-hover:rotate-3
+                  "
                   style={{
                     borderColor: `${zone.accent}55`,
                     backgroundColor: `${zone.from}22`,
                     boxShadow: `0 0 26px -10px ${zone.accent}`,
                   }}
                 >
-                  <Icon className="h-7 w-7" style={{ color: zone.accent }} aria-hidden="true" />
+                  <Icon
+                    className="
+                      h-7
+                      w-7
+                      transition-all
+                      duration-500
+                      group-hover:scale-110
+                    "
+                    style={{
+                      color: zone.accent,
+                    }}
+                    aria-hidden="true"
+                  />
                 </span>
 
-                <h4 className="relative mt-5 text-sm font-black uppercase leading-snug tracking-wide text-white sm:text-[0.95rem]">
+                {/* TITLE */}
+                <h4
+                  className="
+                    relative
+                    mt-5
+                    text-sm
+                    font-black
+                    uppercase
+                    leading-snug
+                    tracking-wide
+                    text-white
+                    transition-all
+                    duration-300
+                    group-hover:tracking-wider
+                    sm:text-[0.95rem]
+                  "
+                >
                   {zone.name}
                 </h4>
 
-                <p className="relative mt-2.5 text-xs leading-relaxed text-[#A5A6C5] sm:text-[0.8rem]">
+                {/* DESCRIPTION */}
+                <p
+                  className="
+                    relative
+                    mt-2.5
+                    text-xs
+                    leading-relaxed
+                    text-[#A5A6C5]
+                    transition-colors
+                    duration-300
+                    group-hover:text-[#C5C6DD]
+                    sm:text-[0.8rem]
+                  "
+                >
                   {zone.description}
                 </p>
+
+                {/* Bottom accent */}
+                <div
+                  className="
+                    relative
+                    mt-5
+                    h-px
+                    w-0
+                    opacity-0
+                    transition-all
+                    duration-500
+                    group-hover:w-16
+                    group-hover:opacity-100
+                  "
+                  style={{
+                    backgroundColor: zone.accent,
+                    boxShadow: `0 0 12px ${zone.accent}`,
+                  }}
+                />
               </div>
             );
           })}
