@@ -5,6 +5,25 @@ import { generateSalt, hashPassword } from "@/lib/auth/password";
 const PAGE_SIZE = 25;
 
 /**
+ * Domain scope for every find_users READ in this module — `{ in: [DOMAIN_ID, 0] }`, never a
+ * bare `DOMAIN_ID`.
+ *
+ * DOMAIN_ID is a find_domains.id (150). find_users.domain_id is a different column, and the
+ * MySQL -> Postgres migration left it at 0 on all 1,677 imported rows, so a strict
+ * `domain_id: 150` filter matches NOTHING — which is exactly why this list rendered
+ * "0 account(s) found" / "No users match this search." on a database full of users.
+ *
+ * findUserForLogin() in src/lib/services/member.ts and verifyCpCredentials() in
+ * src/lib/cp/auth/authRepository.ts already hit this and already allow both values; the same
+ * reasoning is spelled out there. Kept identical here so the list, the edit page and the two
+ * logins can never disagree about which rows exist.
+ *
+ * 0 means "unscoped legacy row" rather than dropping the filter altogether, so accounts this
+ * CP creates (createUser below WRITES DOMAIN_ID, deliberately unchanged) stay scoped as intended.
+ */
+const USER_DOMAIN_SCOPE = { in: [DOMAIN_ID, 0] };
+
+/**
  * "Search in <field> for <keyword>" dropdown options — mirrors admin_users.php's own
  * $users_search_fields list field-for-field, minus the dynamic custom_N profile fields (those
  * come from a legacy find_fields/find_fields_groups metadata system this rebuild hasn't ported
@@ -112,7 +131,7 @@ export async function listUsers(params: {
   }
 
   const where = {
-    domain_id: DOMAIN_ID,
+    domain_id: USER_DOMAIN_SCOPE,
     ...buildSearchWhere(params.field, params.keyword?.trim()),
     ...(groupFilterIds ? { id: { in: groupFilterIds } } : {}),
   };
@@ -196,7 +215,7 @@ export async function listUsers(params: {
 
 export async function getUserForEdit(id: number) {
   const user = await prisma.find_users.findFirst({
-    where: { id, domain_id: DOMAIN_ID },
+    where: { id, domain_id: USER_DOMAIN_SCOPE },
     select: {
       id: true,
       login: true,
@@ -391,7 +410,7 @@ export async function createUser(input: CreateUserInput): Promise<number> {
 
 export async function findRegistrationConflict(login: string, email: string): Promise<"login_taken" | "email_taken" | null> {
   const existing = await prisma.find_users.findFirst({
-    where: { domain_id: DOMAIN_ID, OR: [{ login }, { user_email: email }] },
+    where: { domain_id: USER_DOMAIN_SCOPE, OR: [{ login }, { user_email: email }] },
     select: { login: true, user_email: true },
   });
   if (!existing) return null;
