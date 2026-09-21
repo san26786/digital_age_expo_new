@@ -136,12 +136,12 @@ export default async function WhyJoinExhibitPage() {
       >
         <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 h-96 w-96 rounded-full bg-fuchsia-600/30 blur-3xl" />
         
-        <div className="relative z-10 max-w-4xl mx-auto">
+        <div data-reveal className="relative z-10 max-w-4xl mx-auto">
           <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-fuchsia-400">
             <Brand /> Virtual Exhibition
           </p>
           <h1 className="mt-3 text-3xl sm:text-6xl font-black uppercase tracking-tight text-white drop-shadow-md">
-            Why You Should <span className="brand-gradient-text">Join & Exhibit</span>
+            Why You Should Join & Exhibit
           </h1>
           <p className="mt-6 text-base sm:text-lg text-slate-200 font-medium leading-relaxed max-w-3xl mx-auto drop-shadow-sm">
             Exhibiting at this Business Show puts your business face to face with hundreds of SME owners and senior decision makers looking for innovative products and services to maximize revenue.
@@ -166,7 +166,7 @@ export default async function WhyJoinExhibitPage() {
 
       {/* Feature Cards Showcase */}
       <section className="py-20 px-6 max-w-7xl mx-auto">
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <div data-reveal className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-white">
             Event Highlights & Experiences
           </h2>
@@ -179,6 +179,8 @@ export default async function WhyJoinExhibitPage() {
           {features.map((feat, index) => (
             <div
               key={index}
+              data-reveal
+              style={{ transitionDelay: `${index * 90}ms` }}
               className="group relative flex flex-col overflow-hidden rounded-2xl bg-slate-900/80 border border-slate-800 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:border-fuchsia-500/50 hover:shadow-2xl hover:shadow-fuchsia-950/50"
             >
               <div className="aspect-[4/3] w-full overflow-hidden bg-slate-950 relative">
@@ -209,7 +211,7 @@ export default async function WhyJoinExhibitPage() {
         <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-96 max-w-5xl bg-purple-600/10 blur-3xl rounded-full" />
 
         <div className="max-w-6xl mx-auto relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div data-reveal className="text-center max-w-3xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-fuchsia-100 to-pink-200">
               {sectionHeading}
             </h2>
@@ -224,6 +226,8 @@ export default async function WhyJoinExhibitPage() {
               return (
                 <div
                   key={idx}
+                  data-reveal
+                  style={{ transitionDelay: `${(idx % 3) * 90}ms` }}
                   className="group relative flex flex-col justify-between rounded-2xl bg-slate-950 p-8 border border-white/10 backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:border-fuchsia-500/40 hover:shadow-2xl hover:shadow-purple-950/60"
                 >
                   <div>
@@ -263,7 +267,7 @@ export default async function WhyJoinExhibitPage() {
       {/* Virtual Exhibition Stand How It Works Section */}
       <section className="py-20 px-6 max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div>
+          <div data-reveal="left">
             <span className="text-xs font-bold uppercase tracking-widest text-fuchsia-400">
               Interactive Booth Technology
             </span>
@@ -305,7 +309,7 @@ export default async function WhyJoinExhibitPage() {
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div data-reveal="right" className="space-y-6">
             <div className="overflow-hidden rounded-2xl border border-white/15 bg-slate-900 p-2 shadow-2xl">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -329,7 +333,7 @@ export default async function WhyJoinExhibitPage() {
 
       {/* Bottom CTA Banner */}
       <section className="py-16 px-6 bg-gradient-to-r from-indigo-950 via-purple-900 to-fuchsia-950 border-t border-white/10 text-center">
-        <div className="max-w-4xl mx-auto">
+        <div data-reveal="scale" className="max-w-4xl mx-auto">
           <Video className="w-12 h-12 text-fuchsia-300 mx-auto mb-4 animate-bounce" />
           <h2 className="text-3xl sm:text-5xl font-black uppercase text-white">
             Step Up For Organic Business Growth

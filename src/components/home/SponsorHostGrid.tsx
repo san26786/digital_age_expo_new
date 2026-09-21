@@ -61,7 +61,7 @@ export function SponsorHostGrid({ items }: { items?: Item[] }) {
 
       <div className="relative z-10 mx-auto max-w-6xl">
         {/* Section label with the reference's flanking rules. */}
-        <div className="flex items-center justify-center gap-4">
+        <div data-reveal className="flex items-center justify-center gap-4">
           <span className="h-px w-8 bg-gradient-to-r from-transparent to-[#F020A8] sm:w-12" />
           <h2 className="text-center text-base font-black uppercase tracking-[0.12em] text-white sm:text-xl">
             Our Partners &amp; Sponsors
@@ -69,7 +69,7 @@ export function SponsorHostGrid({ items }: { items?: Item[] }) {
           <span className="h-px w-8 bg-gradient-to-l from-transparent to-[#F020A8] sm:w-12" />
         </div>
 
-        <div className="mt-8 flex flex-wrap items-stretch justify-center gap-4 sm:mt-10 sm:gap-5">
+        <div data-reveal style={{ transitionDelay: "120ms" }} className="mt-8 flex flex-wrap items-stretch justify-center gap-4 sm:mt-10 sm:gap-5">
           {displayItems.map((item) => {
             const img = assetUrl(item.opportunity_images);
 

@@ -57,7 +57,7 @@ export default async function EventZonesPage() {
 
   return (
     <div className="bg-zinc-950 min-h-screen pb-24 text-white">
-      <div className="main-glow-bg px-6 py-20 text-center border-b border-white/5">
+      <div data-reveal className="main-glow-bg px-6 py-20 text-center border-b border-white/5">
         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-pink">Explore The Show Floor</p>
         <h1 className="mt-3 text-3xl sm:text-5xl font-black uppercase tracking-tight">
           Event <span className="brand-gradient-text">Zones</span>
@@ -70,7 +70,7 @@ export default async function EventZonesPage() {
       <div className="max-w-6xl mx-auto px-6 py-16">
         <EventZonesGrid zones={zones} accent={accent} />
 
-        <div className="mt-16 glass-panel rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div data-reveal="scale" className="mt-16 glass-panel rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
             <h3 className="text-xl font-black uppercase tracking-tight text-white">Want to host a stand in a specific zone?</h3>
             <p className="text-sm text-zinc-400 mt-1">

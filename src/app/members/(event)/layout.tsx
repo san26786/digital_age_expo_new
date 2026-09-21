@@ -59,7 +59,8 @@ export default async function MembersEventLayout({ children }: { children: React
         </div>
       </div>
 
-      <div className="glass-panel rounded-2xl p-4 sm:p-6 shadow-2xl mb-8 border border-white/10">
+      {/* The navbar carries its own card frame — see EventAdminNavbar. */}
+      <div className="mb-8">
         <EventAdminNavbar
           eventId={eventId}
           eventSlug={event?.friendly_url}

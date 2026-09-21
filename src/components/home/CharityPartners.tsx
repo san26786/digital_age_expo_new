@@ -209,7 +209,7 @@ export function CharityPartners({
             RIGHT CONTENT
         ==================================================== */}
 
-        <div className="flex flex-col items-center gap-6 lg:flex-row lg:justify-end lg:gap-8">
+        <div data-reveal="right" className="flex flex-col items-center gap-6 lg:flex-row lg:justify-end lg:gap-8">
           {/* =================================================
               PARTNER LOGOS
           ================================================== */}

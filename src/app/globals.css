@@ -522,3 +522,54 @@ textarea:focus {
   background: rgb(var(--color-brand-pink-rgb) / 0.7);
 }
 
+/* ===========================================================================
+ *  SCROLL REVEAL
+ * ===========================================================================
+ *
+ *  Paired with <ScrollReveal /> in the root layout, which toggles `.is-revealed`
+ *  via IntersectionObserver. Add `data-reveal` to any element on any page:
+ *
+ *    data-reveal          -> rises from below (the default)
+ *    data-reveal="left"   -> slides in from the left
+ *    data-reveal="right"  -> slides in from the right
+ *    data-reveal="scale"  -> settles from slightly small
+ *
+ *  Stagger a group with an inline `transitionDelay`.
+ *
+ *  The resting state is genuinely hidden, so ScrollReveal reveals everything on
+ *  any failure path rather than leaving a blank page. The reduced-motion block
+ *  below is the CSS half of that same promise.
+ * ======================================================================== */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(34px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+[data-reveal="left"] {
+  transform: translateX(-42px);
+}
+
+[data-reveal="right"] {
+  transform: translateX(42px);
+}
+
+[data-reveal="scale"] {
+  transform: scale(0.94);
+}
+
+[data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}

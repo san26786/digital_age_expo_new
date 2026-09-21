@@ -122,7 +122,7 @@ export default function EventFeaturesPage() {
       >
         <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 h-96 w-96 rounded-full bg-fuchsia-600/30 blur-3xl" />
 
-        <div className="relative z-10 max-w-4xl mx-auto">
+        <div data-reveal className="relative z-10 max-w-4xl mx-auto">
           <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-fuchsia-400">
             Interactive Platform Capabilities
           </p>
@@ -153,7 +153,7 @@ export default function EventFeaturesPage() {
       {/* Intro Video & Value Checklist */}
       <section className="py-16 px-6 max-w-6xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-white/15 bg-slate-900 shadow-2xl">
+          <div data-reveal="left" className="relative aspect-video w-full rounded-2xl overflow-hidden border border-white/15 bg-slate-900 shadow-2xl">
             <iframe
               className="w-full h-full"
               src="https://www.youtube.com/embed/TX17TH2HGqw"
@@ -163,7 +163,7 @@ export default function EventFeaturesPage() {
             />
           </div>
 
-          <div className="space-y-6">
+          <div data-reveal="right" className="space-y-6">
             <div>
               <span className="text-xs font-bold uppercase tracking-widest text-fuchsia-400">
                 Why Participate?
@@ -198,7 +198,7 @@ export default function EventFeaturesPage() {
       {/* Virtual World Zones Detailed Section */}
       <section className="py-20 px-6 bg-slate-900/40 border-y border-white/10">
         <div className="max-w-6xl mx-auto space-y-20">
-          <div className="text-center max-w-3xl mx-auto">
+          <div data-reveal className="text-center max-w-3xl mx-auto">
             <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-fuchsia-100 to-pink-200">
               What Can <Brand /> Do For Your Business?
             </h2>
@@ -213,6 +213,9 @@ export default function EventFeaturesPage() {
               return (
                 <div
                   key={idx}
+                  // Matches the alternating layout: the panel arrives from whichever side its
+                  // copy column occupies, so the motion follows the reading order down the page.
+                  data-reveal={isEven ? "left" : "right"}
                   className={`grid grid-cols-1 lg:grid-cols-2 gap-10 items-center rounded-3xl border border-white/10 bg-slate-900/80 p-8 sm:p-12 shadow-2xl backdrop-blur-md ${
                     isEven ? "" : "lg:grid-flow-dense"
                   }`}
@@ -267,7 +270,7 @@ export default function EventFeaturesPage() {
 
       {/* Bottom Exhibitor Discovery Call Banner */}
       <section className="relative overflow-hidden py-20 px-6 bg-gradient-to-r from-indigo-950 via-purple-900 to-fuchsia-950 border-t border-white/10 text-center">
-        <div className="relative z-10 max-w-4xl mx-auto space-y-6">
+        <div data-reveal="scale" className="relative z-10 max-w-4xl mx-auto space-y-6">
           <Sparkles className="w-12 h-12 text-fuchsia-300 mx-auto animate-pulse" />
           <h2 className="text-3xl sm:text-5xl font-black uppercase text-white leading-tight">
             All Virtual Platforms Are FREE Included With Your Exhibition Stand

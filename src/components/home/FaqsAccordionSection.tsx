@@ -240,7 +240,7 @@ export function FaqsAccordionSection() {
             RIGHT: ACCORDION
         ==================================================== */}
 
-        <div className="space-y-3">
+        <div data-reveal="right" className="space-y-3">
           {faqs.map((faq, index) => {
             const isOpen = activeFaqId === faq.id;
 

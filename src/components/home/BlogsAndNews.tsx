@@ -188,7 +188,7 @@ export function BlogsAndNews() {
             HEADER
         ======================================================== */}
 
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div data-reveal className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           {/* Heading */}
           <div
             className={`transition-all duration-1000 ease-out ${

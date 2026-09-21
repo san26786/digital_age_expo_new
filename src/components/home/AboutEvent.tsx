@@ -38,16 +38,12 @@ interface Props {
  *    icon badge, bold title, supporting line — is used instead for the two facts this section
  *    genuinely holds, which is what the old layout showed in that slot too.
  *
- * 4. SCROLL ANIMATION, KEPT IN THIS ONE FILE. `AboutEvent` stays an async Server Component (it
- *    awaits `getBrand()`), so it can't hold `useState`/`useEffect` itself — those only work in a
- *    Client Component. Rather than splitting a second file out for that, the reveal is done with
- *    plain CSS transitions (`.ae-reveal*` classes, defined in the inline `<style>` below) plus a
- *    small vanilla-JS `<script>`, also inlined below, that toggles an `.ae-reveal--visible` class
- *    via `IntersectionObserver`. Nothing here needs React state. The class is toggled both ways
- *    (added AND removed) as elements cross the viewport edge, so the animation replays whether
- *    you're scrolling down into the section or back up past it, per the "scroll up and down" ask.
- *    `window.__aeRevealInit` guards against the observer being wired up twice if this section
- *    re-renders on the client without a full page reload.
+ * 4. SCROLL ANIMATION IS NOT THIS FILE'S JOB. It used to be: an inline <style> plus an inline
+ *    <script> lived here, because this is an async Server Component and cannot hold
+ *    useEffect. React never executes a <script> rendered by a component, so it warned on
+ *    every render and did nothing at all on client-side navigation. Both blocks are gone.
+ *    The elements below just carry `data-reveal`; the CSS is in globals.css and the observer
+ *    is <ScrollReveal /> in the root layout, which covers every page rather than this one.
  */
 export async function AboutEvent({
   sectionTitle,
@@ -90,45 +86,13 @@ export async function AboutEvent({
       id="about-event-section"
       className="relative overflow-hidden bg-[#0B0C20] px-5 py-16 text-white sm:px-6 sm:py-24"
     >
-      {/*
-        Reveal-on-scroll CSS. `.ae-reveal` is the hidden state; each direction modifier sets the
-        starting offset; `.ae-reveal--visible` (toggled by the script below) animates both back to
-        their resting position. `dangerouslySetInnerHTML` avoids the whitespace hydration warnings
-        Next.js gives for a literal `<style>{...}</style>` child.
-      */}
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-            #about-event-section .ae-reveal {
-              opacity: 0;
-              transition: opacity 0.7s ease-out, transform 0.7s ease-out;
-              will-change: opacity, transform;
-            }
-            #about-event-section .ae-reveal-left { transform: translateX(-40px); }
-            #about-event-section .ae-reveal-right { transform: translateX(40px); }
-            #about-event-section .ae-reveal-up { transform: translateY(40px); }
-            #about-event-section .ae-reveal--visible {
-              opacity: 1;
-              transform: translate(0, 0);
-            }
-            @media (prefers-reduced-motion: reduce) {
-              #about-event-section .ae-reveal {
-                opacity: 1 !important;
-                transform: none !important;
-                transition: none !important;
-              }
-            }
-          `,
-        }}
-      />
-
       {/* Decorative field. All non-interactive. */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_10%_15%,rgba(108,43,255,0.20),transparent_55%),radial-gradient(ellipse_at_90%_85%,rgba(36,107,253,0.16),transparent_55%)]" />
       <div className="pointer-events-none absolute -left-32 top-1/4 h-[26rem] w-[26rem] rounded-full bg-[#F020A8]/12 blur-[130px]" />
 
       <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2 lg:gap-16">
         {/* ---------------- Left: framed visual ---------------- */}
-        <div className="ae-reveal ae-reveal-left relative">
+        <div data-reveal="left" className="relative">
           {/* Outer bloom */}
           <div className="pointer-events-none absolute -inset-6 rounded-[2.5rem] bg-gradient-to-br from-[#F020A8]/35 via-[#6C2BFF]/25 to-[#00C8FF]/30 blur-3xl" />
 
@@ -153,7 +117,7 @@ export async function AboutEvent({
         </div>
 
         {/* ---------------- Right: copy ---------------- */}
-        <div className="ae-reveal ae-reveal-right" style={{ transitionDelay: "100ms" }}>
+        <div data-reveal="right" style={{ transitionDelay: "100ms" }}>
           {showEyebrow && (
             <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#F020A8] sm:text-xs">
               About The Event
@@ -175,7 +139,7 @@ export async function AboutEvent({
 
           {/* -------- Fact tiles: the reference's highlight row, carrying real values -------- */}
           <div className="mt-8 grid gap-3 sm:grid-cols-2 sm:gap-4">
-            <div className="ae-reveal ae-reveal-up" style={{ transitionDelay: "150ms" }}>
+            <div data-reveal style={{ transitionDelay: "150ms" }}>
               <div className="h-full rounded-2xl border border-white/[0.09] bg-[#10112A]/80 p-5 backdrop-blur-sm transition-colors duration-300 hover:border-[#F020A8]/40">
                 <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#F020A8]/35 bg-[#F020A8]/10">
                   <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
@@ -196,7 +160,7 @@ export async function AboutEvent({
               </div>
             </div>
 
-            <div className="ae-reveal ae-reveal-up" style={{ transitionDelay: "250ms" }}>
+            <div data-reveal style={{ transitionDelay: "250ms" }}>
               <div className="h-full rounded-2xl border border-white/[0.09] bg-[#10112A]/80 p-5 backdrop-blur-sm transition-colors duration-300 hover:border-[#00C8FF]/40">
                 <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#00C8FF]/35 bg-[#00C8FF]/10">
                   <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
@@ -254,57 +218,6 @@ export async function AboutEvent({
         </div>
       </div>
 
-      {/*
-        Wires up the reveal: toggles `.ae-reveal--visible` on every `.ae-reveal` element as it
-        crosses the viewport, in both directions, so the animation plays on the way down AND
-        replays on the way back up. Plain DOM/IntersectionObserver — no framework hooks needed,
-        which is what lets this stay in a Server Component instead of a separate client file.
-        `window.__aeRevealInit` stops a second observer being attached if this section re-renders
-        on the client (e.g. client-side navigation) without a full page reload.
-      */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            (function () {
-              if (typeof window === "undefined" || window.__aeRevealInit) return;
-              window.__aeRevealInit = true;
-
-              function init() {
-                var reduceMotion =
-                  window.matchMedia &&
-                  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-                var els = document.querySelectorAll("#about-event-section .ae-reveal");
-
-                if (reduceMotion || !("IntersectionObserver" in window)) {
-                  els.forEach(function (el) {
-                    el.classList.add("ae-reveal--visible");
-                  });
-                  return;
-                }
-
-                var observer = new IntersectionObserver(
-                  function (entries) {
-                    entries.forEach(function (entry) {
-                      entry.target.classList.toggle("ae-reveal--visible", entry.isIntersecting);
-                    });
-                  },
-                  { threshold: 0.2, rootMargin: "-10% 0px -10% 0px" }
-                );
-
-                els.forEach(function (el) {
-                  observer.observe(el);
-                });
-              }
-
-              if (document.readyState === "loading") {
-                document.addEventListener("DOMContentLoaded", init);
-              } else {
-                init();
-              }
-            })();
-          `,
-        }}
-      />
     </section>
   );
 }

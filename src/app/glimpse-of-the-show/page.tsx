@@ -79,7 +79,7 @@ export default function GlimpseOfTheShowPage() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           {/* Left Hero Text */}
-          <div className="lg:col-span-7 space-y-4 text-center lg:text-left">
+          <div data-reveal="left" className="lg:col-span-7 space-y-4 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 rounded-full bg-fuchsia-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-fuchsia-300 backdrop-blur-md border border-fuchsia-500/30">
               <Sparkles className="w-4 h-4" />
               <span><BrandText /> Virtual Experience</span>
@@ -218,7 +218,12 @@ export default function GlimpseOfTheShowPage() {
               link: "b2bgrowthhub.com",
             },
           ].map((s, i) => (
-            <div key={i} className="space-y-3 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+            <div
+              key={i}
+              data-reveal
+              style={{ transitionDelay: `${i * 80}ms` }}
+              className="space-y-3 p-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm"
+            >
               <h3 className="text-slate-300 text-xs font-bold uppercase tracking-wider">{s.title}</h3>
               <div className="h-16 flex items-center justify-center">
                 <img src={s.img} alt={s.title} className="max-h-12 max-w-[200px] object-contain mx-auto" />
@@ -240,7 +245,7 @@ export default function GlimpseOfTheShowPage() {
 
       {/* Glimpse of the Show Grid */}
       <section className="max-w-6xl mx-auto px-6 pt-16 space-y-12">
-        <div className="text-center max-w-3xl mx-auto space-y-3">
+        <div data-reveal className="text-center max-w-3xl mx-auto space-y-3">
           <h1 className="text-3xl sm:text-5xl font-black text-fuchsia-400 uppercase tracking-tight">
             GLIMPSE OF THE SHOW
           </h1>
@@ -268,7 +273,12 @@ export default function GlimpseOfTheShowPage() {
               img: staticAssetUrl("/images/speaker_hall.png"),
             },
           ].map((item, i) => (
-            <div key={i} className="space-y-3 group">
+            <div
+              key={i}
+              data-reveal
+              style={{ transitionDelay: `${Math.floor(i / 2) * 90}ms` }}
+              className="space-y-3 group"
+            >
               <h2 className="text-center text-xl sm:text-2xl font-black uppercase text-white tracking-wide group-hover:text-fuchsia-300 transition-colors">
                 {item.title}
               </h2>
@@ -286,7 +296,7 @@ export default function GlimpseOfTheShowPage() {
         </div>
 
         {/* CTA Banner */}
-        <div className="text-center pt-10 pb-6 rounded-3xl border border-white/10 bg-gradient-to-r from-purple-950/80 via-slate-900/90 to-indigo-950/80 p-8 sm:p-12 shadow-2xl backdrop-blur-md space-y-6 max-w-4xl mx-auto">
+        <div data-reveal="scale" className="text-center pt-10 pb-6 rounded-3xl border border-white/10 bg-gradient-to-r from-purple-950/80 via-slate-900/90 to-indigo-950/80 p-8 sm:p-12 shadow-2xl backdrop-blur-md space-y-6 max-w-4xl mx-auto">
           <h2 className="text-2xl sm:text-4xl font-black text-white uppercase tracking-tight">
             Want to exhibit your business ?
           </h2>

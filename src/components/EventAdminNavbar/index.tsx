@@ -68,6 +68,7 @@ import {
   Languages,
   PenTool,
   ChevronDown,
+  ChevronRight,
   ChevronsDown,
   type LucideIcon,
   Handshake,
@@ -900,52 +901,84 @@ export default function EventAdminNavbar({
     tabs.find((tab) => tab.code === activeTab) ??
     tabs[0];
 
+  /**
+   * Per-family presentation tokens.
+   *
+   * The tab-code -> family mapping is unchanged. What changed is how the family is SPENT.
+   *
+   * Previously every token in this table was applied to every tab at rest, so with seven of the
+   * eleven tabs landing in the pink default branch the strip rendered as a wall of pink icons —
+   * colour that varies almost never carries no information, and the one tab that mattered (the
+   * selected one) had no more visual weight than the rest. The family colour is now used only
+   * where it means something: on the ACTIVE tab, on hover, and throughout the open panel. Tabs
+   * at rest are neutral.
+   *
+   * Flat fills, not gradients: see the note above `.btn-brand-gradient` in globals.css, where the
+   * purple -> pink sweep was deliberately removed from primary surfaces. --color-brand-purple is
+   * #4B0082, dark enough that a sweep reads as a smudge rather than a highlight.
+   */
   const getTabColors = (code: string) => {
     switch (code) {
       case "LGT_ONBOARD":
         return {
-          activeBg: "bg-indigo-600 text-white border-indigo-600",
+          activeBg: "bg-indigo-600",
+          glow: "shadow-[0_6px_20px_-6px_rgba(79,70,229,0.65)]",
           hoverBg: "hover:bg-indigo-600/20 hover:text-white",
           textColor: "text-indigo-400",
-          badgeBg: "bg-indigo-600/20 text-white border-indigo-600/30",
-          cardHover: "hover:border-indigo-600/50 hover:bg-white/5 hover:text-white",
-          cardActive: "bg-indigo-600/30 text-white border-indigo-600/50 ring-1 ring-indigo-600/30 font-bold",
           iconColor: "text-indigo-400",
+          iconHover: "group-hover:text-indigo-400",
+          badgeBg: "border-indigo-500/30 bg-indigo-500/15 text-indigo-300",
+          rail: "bg-indigo-500",
+          cardHover: "hover:border-indigo-500/40 hover:bg-white/[0.06] hover:text-white",
+          cardActive:
+            "border-indigo-500/45 bg-indigo-500/15 text-white ring-1 ring-indigo-500/30 font-bold shadow-lg",
         };
       case "LGTS":
       case "LGTCL":
       case "LGTBUY":
         return {
-          activeBg: "bg-brand-purple text-white border-brand-purple",
+          activeBg: "bg-brand-purple",
+          glow: "shadow-[0_6px_20px_-6px_rgba(75,0,130,0.9)]",
           hoverBg: "hover:bg-brand-purple/20 hover:text-white",
           textColor: "text-brand-purple",
-          badgeBg: "bg-brand-purple/20 text-white border-brand-purple/30",
-          cardHover: "hover:border-brand-purple/50 hover:bg-white/5 hover:text-white",
-          cardActive: "bg-brand-purple/30 text-white border-brand-purple/50 ring-1 ring-brand-purple/30 font-bold",
-          iconColor: "text-brand-purple",
+          iconColor: "text-violet-300",
+          iconHover: "group-hover:text-violet-300",
+          badgeBg: "border-brand-purple/40 bg-brand-purple/25 text-violet-200",
+          rail: "bg-violet-400",
+          cardHover: "hover:border-brand-purple/50 hover:bg-white/[0.06] hover:text-white",
+          cardActive:
+            "border-violet-400/45 bg-brand-purple/35 text-white ring-1 ring-violet-400/30 font-bold shadow-lg",
         };
       case "LTGMVB":
         return {
-          activeBg: "bg-zinc-900 text-white border-zinc-800",
+          activeBg: "bg-zinc-700",
+          glow: "shadow-[0_6px_20px_-6px_rgba(0,0,0,0.8)]",
           hoverBg: "hover:bg-white/10 hover:text-white",
           textColor: "text-zinc-300",
-          badgeBg: "bg-zinc-800 text-zinc-300 border-zinc-700",
-          cardHover: "hover:border-zinc-700 hover:bg-white/5 hover:text-white",
-          cardActive: "bg-zinc-800 text-white border-zinc-700 font-bold",
-          iconColor: "text-zinc-400",
+          iconColor: "text-zinc-300",
+          iconHover: "group-hover:text-zinc-200",
+          badgeBg: "border-white/15 bg-white/10 text-zinc-200",
+          rail: "bg-zinc-400",
+          cardHover: "hover:border-white/20 hover:bg-white/[0.06] hover:text-white",
+          cardActive:
+            "border-white/25 bg-white/[0.12] text-white ring-1 ring-white/20 font-bold shadow-lg",
         };
       case "LGTMM":
       case "LGTME":
       case "LTGDO":
       default:
         return {
-          activeBg: "bg-brand-pink text-white border-brand-pink",
+          activeBg: "bg-brand-pink",
+          glow: "shadow-[0_6px_20px_-6px_rgba(199,21,133,0.65)]",
           hoverBg: "hover:bg-brand-pink/20 hover:text-white",
           textColor: "text-brand-pink",
-          badgeBg: "bg-brand-pink/20 text-white border-brand-pink/30",
-          cardHover: "hover:border-brand-pink/50 hover:bg-white/5 hover:text-white",
-          cardActive: "bg-brand-pink/30 text-white border-brand-pink/50 ring-1 ring-brand-pink/30 font-bold",
-          iconColor: "text-brand-pink",
+          iconColor: "text-pink-300",
+          iconHover: "group-hover:text-pink-300",
+          badgeBg: "border-brand-pink/35 bg-brand-pink/20 text-pink-200",
+          rail: "bg-brand-pink",
+          cardHover: "hover:border-brand-pink/50 hover:bg-white/[0.06] hover:text-white",
+          cardActive:
+            "border-brand-pink/50 bg-brand-pink/20 text-white ring-1 ring-brand-pink/35 font-bold shadow-lg",
         };
     }
   };
@@ -978,173 +1011,218 @@ export default function EventAdminNavbar({
     document.getElementById(`event-admin-tab-${code}`)?.focus();
   };
 
+  const CurrentIcon = current.icon;
+
   return (
     <div className="w-full">
       {/* =====================================================
-          TOP TAB / PILL BAR
+          TABBED CARD — strip and panel in ONE container
 
-          Tabs size to their own label and WRAP to a second row when they run out of width.
-          The previous `flex-1 basis-[120px]` + `truncate` forced all seven into a single row,
-          which is what produced "VIEW EVENT SUMM...", "CONFIGURE VIRTUA..." and
-          "MANAGE VIRTUAL B..." — a menu you cannot read is not a menu. `whitespace-nowrap`
-          keeps each label on one line; the flex container handles the overflow by wrapping.
+          They used to be two separately bordered boxes with a gap between them, so nothing in the
+          markup said the panel belonged to the selected tab; it read as a second, unrelated
+          widget that happened to sit underneath. One container, a darker ground under the strip
+          and a hairline divider make the relationship visible.
+
+          Tabs still size to their own label and WRAP to a second row rather than truncating —
+          "VIEW EVENT SUMM...", "CONFIGURE VIRTUA...", "MANAGE VIRTUAL B..." A menu you cannot
+          read is not a menu.
       ====================================================== */}
-      <div
-        role="tablist"
-        aria-label="Event admin sections"
-        className="flex flex-wrap gap-1.5 rounded-2xl border border-white/10 bg-black/40 p-1.5 shadow-2xl backdrop-blur-md"
-      >
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = tab.code === activeTab;
-          const tabStyle = getTabColors(tab.code);
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/25 shadow-[0_24px_60px_-30px_rgba(0,0,0,0.95)] backdrop-blur-xl">
+        <div
+          role="tablist"
+          aria-label="Event admin sections"
+          className="flex flex-wrap gap-2 border-b border-white/[0.07] bg-black/30 p-3"
+        >
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = tab.code === activeTab;
+            const tabStyle = getTabColors(tab.code);
 
-          return (
-            <button
-              key={tab.code}
-              id={`event-admin-tab-${tab.code}`}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              aria-controls={`event-admin-panel-${tab.code}`}
-              tabIndex={isActive ? 0 : -1}
-              onClick={() => setActiveTab(tab.code)}
-              onKeyDown={onTabKeyDown}
-              className={`
-                inline-flex flex-none items-center gap-2 whitespace-nowrap
-                rounded-xl px-4 py-2.5
-                text-[11px] font-bold uppercase leading-none tracking-wide
-                transition-all duration-200
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40
-                ${
-                  isActive
-                    ? `${tabStyle.activeBg} font-black shadow-lg`
-                    : `text-zinc-400 ${tabStyle.hoverBg}`
-                }
-              `}
-            >
-              <Icon
-                size={14}
-                className={`shrink-0 ${isActive ? "text-white" : tabStyle.iconColor}`}
-              />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* =====================================================
-          SUB ITEM PANEL
-      ====================================================== */}
-      <div
-        id={`event-admin-panel-${current.code}`}
-        role="tabpanel"
-        aria-labelledby={`event-admin-tab-${current.code}`}
-        className="mt-5 rounded-2xl border border-white/10 bg-white/5 p-5 shadow-2xl backdrop-blur-lg sm:p-6"
-      >
-        {/* Panel Header */}
-        <div className="mb-5 flex flex-wrap items-center gap-3 border-b border-white/10 pb-4">
-          <span
-            className={`inline-flex items-center rounded-full border px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest ${currentTabColors.badgeBg}`}
-          >
-            {current.label}
-          </span>
-          <span className="text-xs font-medium text-zinc-500">
-            {current.items.length} {current.items.length === 1 ? "option" : "options"} available
-          </span>
+            return (
+              <button
+                key={tab.code}
+                id={`event-admin-tab-${tab.code}`}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                aria-controls={`event-admin-panel-${tab.code}`}
+                tabIndex={isActive ? 0 : -1}
+                onClick={() => setActiveTab(tab.code)}
+                onKeyDown={onTabKeyDown}
+                className={`
+                  group inline-flex flex-none items-center gap-2 whitespace-nowrap
+                  rounded-xl border px-3.5 py-2.5
+                  text-[11px] font-bold uppercase leading-none tracking-wide
+                  transition-all duration-200
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50
+                  ${
+                    isActive
+                      ? `border-transparent ${tabStyle.activeBg} ${tabStyle.glow} font-black text-white`
+                      : "border-white/[0.07] bg-white/[0.03] text-zinc-400 hover:-translate-y-px hover:border-white/15 hover:bg-white/[0.07] hover:text-white"
+                  }
+                `}
+              >
+                {/*
+                  Inactive icons are neutral and pick up their family colour on hover. Tinting all
+                  eleven at rest is what turned the strip into a block of pink.
+                */}
+                <Icon
+                  size={14}
+                  className={`shrink-0 transition-colors ${
+                    isActive ? "text-white" : `text-zinc-500 ${tabStyle.iconHover}`
+                  }`}
+                />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
         </div>
 
-        {current.items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <span className="text-sm font-medium italic text-zinc-500">
-              No options available in this section yet.
+        {/* =====================================================
+            SUB ITEM PANEL
+        ====================================================== */}
+        <div
+          id={`event-admin-panel-${current.code}`}
+          role="tabpanel"
+          aria-labelledby={`event-admin-tab-${current.code}`}
+          className="p-4 sm:p-6"
+        >
+          {/* Panel header. The section name was a small pill sitting beside grey helper text at
+              the same size, so the panel had no title — just two labels. Icon tile plus heading
+              gives it one. */}
+          <div className="mb-5 flex items-center gap-3 border-b border-white/[0.07] pb-4">
+            <span
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${currentTabColors.badgeBg}`}
+            >
+              <CurrentIcon size={18} />
             </span>
+            <div className="min-w-0">
+              <h3 className="truncate text-xs font-black uppercase tracking-[0.2em] text-white">
+                {current.label}
+              </h3>
+              <p className="mt-0.5 text-[11px] font-medium text-zinc-500">
+                {current.items.length}{" "}
+                {current.items.length === 1 ? "option" : "options"} available
+              </p>
+            </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {current.items.map((item) => {
-              const Icon = item.icon;
-              const isCurrentPage = !item.modal && pathOf(item.href) === pathname;
-              /*
-               * Titles WRAP rather than truncate. "Manage Speaker Questionnaire",
-               * "Configure Lobby Welcome Tour" and "Download Purchase Order PDF" do not fit on
-               * one line in a four-column grid at any sensible font size, and a clipped label
-               * is the same failure as a clipped tab. `min-h` keeps the rows aligned once some
-               * titles run to two lines.
-               */
-              const classes = `
-                group flex min-h-[68px] w-full items-center gap-3
-                rounded-xl border px-4 py-3.5 text-left
-                text-[13px] font-semibold leading-snug tracking-normal
-                shadow-lg transition-all duration-200
-                hover:-translate-y-0.5 hover:shadow-brand-purple/10
-                focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40
-                ${
-                  isCurrentPage
-                    ? currentTabColors.cardActive
-                    : `border-white/10 bg-zinc-900/50 text-zinc-300 ${currentTabColors.cardHover}`
-                }
-              `;
 
-              const iconBox = (
-                <span
-                  className={`
-                    flex h-9 w-9 shrink-0 items-center justify-center rounded-lg
-                    border border-white/10 bg-white/5 transition-colors
-                    ${isCurrentPage ? "text-white" : currentTabColors.iconColor}
-                  `}
-                >
-                  <Icon size={16} />
-                </span>
-              );
+          {current.items.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <span className="text-sm font-medium italic text-zinc-500">
+                No options available in this section yet.
+              </span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {current.items.map((item) => {
+                const Icon = item.icon;
+                const isCurrentPage = !item.modal && pathOf(item.href) === pathname;
+                /*
+                 * Titles WRAP rather than truncate. "Manage Speaker Questionnaire",
+                 * "Configure Lobby Welcome Tour" and "Download Purchase Order PDF" do not fit on
+                 * one line in a four-column grid at any sensible font size, and a clipped label
+                 * is the same failure as a clipped tab. `min-h` keeps the rows aligned once some
+                 * titles run to two lines.
+                 */
+                const classes = `
+                  group relative flex min-h-[64px] w-full items-center gap-3
+                  overflow-hidden rounded-xl border py-3 pl-5 pr-3.5 text-left
+                  text-[13px] font-semibold leading-snug
+                  transition-all duration-200
+                  hover:-translate-y-0.5 hover:shadow-lg
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-white/50
+                  ${
+                    isCurrentPage
+                      ? currentTabColors.cardActive
+                      : `border-white/[0.07] bg-white/[0.025] text-zinc-300 ${currentTabColors.cardHover}`
+                  }
+                `;
 
-              // Modal trigger item (like Copy Event)
-              if (item.modal) {
-                return (
-                  <button
-                    key={item.title}
-                    type="button"
-                    onClick={() => openModal(item.modal!)}
-                    className={classes}
-                  >
-                    {iconBox}
-                    <span className="min-w-0">{item.title}</span>
-                  </button>
+                const body = (
+                  <>
+                    {/*
+                      Accent rail — full height on the page you are on, and it grows from the
+                      centre on hover. The old "current page" style was a flat /30 tint which,
+                      against cards already sitting on a light-on-dark wash, landed DARKER than
+                      its neighbours: the page you were on looked disabled rather than selected.
+                      A rail reads as selection at any tint.
+                    */}
+                    <span
+                      className={`absolute left-0 top-0 h-full w-[3px] origin-center transition-transform duration-200 ${
+                        currentTabColors.rail
+                      } ${isCurrentPage ? "scale-y-100" : "scale-y-0 group-hover:scale-y-100"}`}
+                      aria-hidden="true"
+                    />
+
+                    <span
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors ${
+                        isCurrentPage
+                          ? "border-white/20 bg-white/15 text-white"
+                          : `border-white/[0.07] bg-white/[0.04] ${currentTabColors.iconColor} group-hover:bg-white/10`
+                      }`}
+                    >
+                      <Icon size={16} />
+                    </span>
+
+                    <span className="min-w-0 flex-1">{item.title}</span>
+
+                    <ChevronRight
+                      className={`h-4 w-4 shrink-0 transition-all duration-200 ${
+                        isCurrentPage
+                          ? "translate-x-0 opacity-70"
+                          : "-translate-x-1 opacity-0 group-hover:translate-x-0 group-hover:opacity-60"
+                      }`}
+                      aria-hidden="true"
+                    />
+                  </>
                 );
-              }
 
-              // External URL
-              const isExternal = item.href.startsWith("http");
-              if (isExternal) {
+                // Modal trigger item (like Copy Event)
+                if (item.modal) {
+                  return (
+                    <button
+                      key={item.title}
+                      type="button"
+                      onClick={() => openModal(item.modal!)}
+                      className={classes}
+                    >
+                      {body}
+                    </button>
+                  );
+                }
+
+                // External URL
+                const isExternal = item.href.startsWith("http");
+                if (isExternal) {
+                  return (
+                    <a
+                      key={item.title}
+                      href={item.href}
+                      className={classes}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {body}
+                    </a>
+                  );
+                }
+
+                // Internal Next.js Link
                 return (
-                  <a
+                  <Link
                     key={item.title}
                     href={item.href}
+                    aria-current={isCurrentPage ? "page" : undefined}
                     className={classes}
-                    target="_blank"
-                    rel="noreferrer"
                   >
-                    {iconBox}
-                    <span className="min-w-0">{item.title}</span>
-                  </a>
+                    {body}
+                  </Link>
                 );
-              }
-
-              // Internal Next.js Link
-              return (
-                <Link
-                  key={item.title}
-                  href={item.href}
-                  aria-current={isCurrentPage ? "page" : undefined}
-                  className={classes}
-                >
-                  {iconBox}
-                  <span className="min-w-0">{item.title}</span>
-                </Link>
-              );
-            })}
-          </div>
-        )}
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
       <CopyEventModal

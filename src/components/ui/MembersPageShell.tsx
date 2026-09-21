@@ -98,18 +98,20 @@ export function MembersPageHeader({
 }: Omit<MembersPageShellProps, "children" | "bare" | "breadcrumbLabel" | "eventId">) {
   return (
     <div className={PAGE_HEADER_ROW}>
-      <div className="flex items-center gap-4">
+      <div className="flex min-w-0 items-center gap-4">
         <div className={PAGE_HEADER_ICON}>
           <Icon className="h-6 w-6 text-white" />
         </div>
-        <div>
+        {/* min-w-0 on both the row and this column is what lets a long title wrap instead of
+            pushing the pill and actions off the right edge of the panel. */}
+        <div className="min-w-0">
           <h1 className={PAGE_TITLE}>{title}</h1>
           {description ? <p className={PAGE_SUBTITLE}>{description}</p> : null}
         </div>
       </div>
 
       {(actions || pill) && (
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto sm:justify-end">
           {actions}
           {pill ? (
             <span className={PAGE_HEADER_PILL}>
@@ -146,6 +148,12 @@ export function MembersPageShell({
     />
   );
 
+  /*
+   * `data-reveal` opts the panel into the site-wide scroll-reveal driver mounted in the root
+   * layout (src/components/common/ScrollReveal.tsx) rather than introducing a second animation
+   * mechanism here. It also means the surrounding <section> is skipped by that driver's
+   * auto-tagging, so the page animates once, at panel level, instead of twice.
+   */
   return (
     <div className={PAGE_SHELL}>
       <MembersBreadcrumb label={breadcrumbLabel ?? title} eventId={eventId} />
@@ -154,11 +162,16 @@ export function MembersPageShell({
         <>
           {/* `bare` keeps the header on the same glass surface as the reference, but lets the
               page lay its own panels out on the background instead of nesting them. */}
-          <div className="glass-panel rounded-2xl p-8 shadow-2xl border border-white/10">{header}</div>
+          <div
+            data-reveal
+            className="glass-panel rounded-2xl border border-white/10 p-6 shadow-[0_18px_50px_-24px_rgba(0,0,0,0.9)] sm:p-8"
+          >
+            {header}
+          </div>
           {children}
         </>
       ) : (
-        <div className={PANEL}>
+        <div data-reveal className={PANEL}>
           {header}
           {children}
         </div>

@@ -3,6 +3,7 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ChromeGate } from "@/components/layout/ChromeGate";
+import { ScrollReveal } from "@/components/common/ScrollReveal";
 import { SitePreviewBanner } from "@/components/layout/SitePreviewBanner";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { getDomain } from "@/lib/services/domain";
@@ -122,6 +123,8 @@ export default async function RootLayout({
             <ChromeGate>
               <Header />
             </ChromeGate>
+            {/* Site-wide scroll-reveal driver. Renders nothing; observes [data-reveal]. */}
+            <ScrollReveal />
             <main className="flex-1">{children}</main>
             <ChromeGate>
               <Footer />

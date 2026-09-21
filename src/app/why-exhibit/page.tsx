@@ -81,7 +81,7 @@ export default async function WhyExhibitPage() {
           backgroundImage: `linear-gradient(to bottom, rgb(var(--color-slate-900-rgb) / 0.9), rgb(var(--color-violet-900-rgb) / 0.85)), url('${staticAssetUrl("https://digitalageexpo.com/files/listing_pages/818073-dae_index_top_banner.jpg")}')`,
         }}
       >
-        <div className="relative z-10 max-w-4xl mx-auto">
+        <div data-reveal className="relative z-10 max-w-4xl mx-auto">
           <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-fuchsia-400">
             <Brand />
           </p>
@@ -111,6 +111,8 @@ export default async function WhyExhibitPage() {
           {stats.map((st, idx) => (
             <div
               key={idx}
+              data-reveal
+              style={{ transitionDelay: `${idx * 80}ms` }}
               className="rounded-2xl border border-white/10 bg-white/5 p-6 text-center backdrop-blur-md transition-transform duration-300 hover:scale-105"
             >
               <div className="text-3xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-fuchsia-300 via-pink-200 to-rose-300 mb-1">
@@ -125,7 +127,7 @@ export default async function WhyExhibitPage() {
 
         {/* Benefits Breakdown Grid */}
         <div>
-          <div className="text-center max-w-2xl mx-auto mb-12">
+          <div data-reveal className="text-center max-w-2xl mx-auto mb-12">
             <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-white">
               Key Advantages of Exhibiting
             </h2>
@@ -140,6 +142,10 @@ export default async function WhyExhibitPage() {
               return (
                 <div
                   key={idx}
+                  // Two-column grid, so cards enter from the side they sit on rather than all
+                  // sliding the same way across the gap between them.
+                  data-reveal={idx % 2 === 0 ? "left" : "right"}
+                  style={{ transitionDelay: `${Math.floor(idx / 2) * 90}ms` }}
                   className="group rounded-2xl border border-white/10 bg-slate-900/80 p-8 transition-all duration-300 hover:-translate-y-1 hover:border-fuchsia-500/40 hover:shadow-xl hover:shadow-fuchsia-950/40"
                 >
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-fuchsia-600 to-purple-600 text-white flex items-center justify-center mb-6 shadow-md group-hover:scale-110 transition-transform">
@@ -159,7 +165,7 @@ export default async function WhyExhibitPage() {
 
         {/* Exhibition Stand Showcase */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center rounded-3xl border border-white/10 bg-slate-900/60 p-8 sm:p-12 backdrop-blur-md">
-          <div className="space-y-4">
+          <div data-reveal="left" className="space-y-4">
             <span className="text-xs font-bold uppercase tracking-widest text-fuchsia-400">
               Virtual Stand Features
             </span>
@@ -194,7 +200,7 @@ export default async function WhyExhibitPage() {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-white/20 bg-slate-950 p-2 shadow-2xl">
+          <div data-reveal="right" className="overflow-hidden rounded-2xl border border-white/20 bg-slate-950 p-2 shadow-2xl">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={staticAssetUrl("/images/exhibitor.jpg")}
@@ -205,7 +211,7 @@ export default async function WhyExhibitPage() {
         </div>
 
         {/* Call to action */}
-        <div className="text-center bg-gradient-to-r from-purple-950 via-slate-900 to-fuchsia-950 border border-white/10 rounded-3xl p-10 shadow-2xl">
+        <div data-reveal="scale" className="text-center bg-gradient-to-r from-purple-950 via-slate-900 to-fuchsia-950 border border-white/10 rounded-3xl p-10 shadow-2xl">
           <Sparkles className="w-10 h-10 text-fuchsia-400 mx-auto mb-3" />
           <h3 className="text-2xl sm:text-3xl font-black uppercase text-white mb-2">
             Book Your Stand In Under 3 Minutes
