@@ -1,3 +1,6 @@
+import { Brand } from "@/components/brand/Brand";
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import {
   Radio,
   Mic,
@@ -14,11 +17,16 @@ import { getDomain } from "@/lib/services/domain";
 import { getWhyJoinExhibitContent } from "@/lib/services/exhibitors";
 import { assetUrl, staticAssetUrl } from "@/lib/assets";
 
-export const metadata = {
-  title: "Why Join & Exhibit | Digital Age Expo",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Why Join & Exhibit | ${brand}`,
   description:
-    "Discover why participating as an exhibitor at Digital Age Expo accelerates your growth, generates high-value leads, and elevates your brand.",
+    `Discover why participating as an exhibitor at ${brand} accelerates your growth, generates high-value leads, and elevates your brand.`,
 };
+}
 
 const REASON_ICONS = [Radio, Mic, BarChart3, Sparkles, Database, Camera];
 const REASON_COLORS = [
@@ -130,7 +138,7 @@ export default async function WhyJoinExhibitPage() {
         
         <div className="relative z-10 max-w-4xl mx-auto">
           <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-fuchsia-400">
-            Digital Age Expo Virtual Exhibition
+            <Brand /> Virtual Exhibition
           </p>
           <h1 className="mt-3 text-3xl sm:text-6xl font-black uppercase tracking-tight text-white drop-shadow-md">
             Why You Should <span className="brand-gradient-text">Join & Exhibit</span>
@@ -163,7 +171,7 @@ export default async function WhyJoinExhibitPage() {
             Event Highlights & Experiences
           </h2>
           <p className="mt-3 text-slate-300 text-sm sm:text-base font-medium">
-            Discover how Digital Age Expo empowers entrepreneurs and companies worldwide
+            Discover how <Brand /> empowers entrepreneurs and companies worldwide
           </p>
         </div>
 

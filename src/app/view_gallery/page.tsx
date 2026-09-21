@@ -1,11 +1,18 @@
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import { getDomain } from "@/lib/services/domain";
 import { getEventGallery } from "@/lib/services/gallery";
 import { Image as ImageIcon, PlayCircle } from "lucide-react";
 
-export const metadata = {
-  title: "Event Gallery | Digital Age Expo",
-  description: "Browse photo galleries, floorplans, and visual highlights from Digital Age Expo.",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Event Gallery | ${brand}`,
+  description: `Browse photo galleries, floorplans, and visual highlights from ${brand}.`,
 };
+}
 
 export default async function ViewGalleryPage() {
   const domain = await getDomain();

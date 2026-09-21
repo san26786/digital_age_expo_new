@@ -1,13 +1,20 @@
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import { getDomain } from "@/lib/services/domain";
 import { getEventById } from "@/lib/services/events";
 import { getSponsorshipTiers } from "@/lib/services/sponsors";
 import { Check } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Sponsorship Options & Opportunities | Digital Age Expo",
-  description: "Explore headline, zone, lounge, and workshop sponsorship opportunities at Digital Age Expo.",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Sponsorship Options & Opportunities | ${brand}`,
+  description: `Explore headline, zone, lounge, and workshop sponsorship opportunities at ${brand}.`,
 };
+}
 
 export default async function SponsorOpportunityPage() {
   const domain = await getDomain();

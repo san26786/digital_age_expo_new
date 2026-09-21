@@ -1,12 +1,20 @@
+import { Brand } from "@/components/brand/Brand";
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import { getDomain } from "@/lib/services/domain";
 import { getEventAddonServices } from "@/lib/services/eventServices";
 import { UserCheck, FileText, Target, Share2, Palette, Sparkles, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Services | Digital Age Expo",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Services | ${brand}`,
   description: "Explore professional exhibition services including man-a-stand, leaflet drop, lead generation, social media marketing, and graphic design.",
 };
+}
 
 const FALLBACK_ICONS = [UserCheck, FileText, Target, Share2, Palette];
 
@@ -21,7 +29,7 @@ export default async function EventServicesPage() {
         <div className="max-w-4xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full bg-fuchsia-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-fuchsia-300 border border-fuchsia-500/30">
             <Sparkles className="w-4 h-4" />
-            <span>Digital Age Expo Addons</span>
+            <span><Brand /> Addons</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tight text-white">

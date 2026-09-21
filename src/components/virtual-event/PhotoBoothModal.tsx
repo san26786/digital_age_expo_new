@@ -1,4 +1,5 @@
 "use client";
+import { BrandText } from "@/components/brand/BrandText";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { X, Camera, ArrowLeft, Download, Share2, RefreshCw, AlertTriangle } from "lucide-react";
@@ -354,7 +355,7 @@ export function PhotoBoothModal({
               </div>
 
               <span className="pointer-events-none absolute bottom-5 left-6 rounded-lg bg-black/55 px-3 py-1.5 text-[11px] font-black uppercase tracking-widest text-white">
-                Digital Age Expo
+                <BrandText />
               </span>
             </div>
 

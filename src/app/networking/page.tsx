@@ -1,3 +1,6 @@
+import { Brand } from "@/components/brand/Brand";
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import { getDomain } from "@/lib/services/domain";
 import { createOutageCollector } from "@/lib/db-errors";
 import { getEventById } from "@/lib/services/events";
@@ -5,10 +8,15 @@ import { getEventSchedule } from "@/lib/services/schedule";
 import { EventDaysTabSection } from "@/components/events/EventDaysTabSection";
 import { Sparkles } from "lucide-react";
 
-export const metadata = {
-  title: "Speed Networking | Digital Age Expo",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Speed Networking | ${brand}`,
   description: "Connect 1-on-1 with industry peers, buyers, and partners in our virtual speed networking lounge.",
 };
+}
 
 export default async function NetworkingPage() {
   const domain = await getDomain();
@@ -28,7 +36,7 @@ export default async function NetworkingPage() {
         <div className="max-w-4xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full bg-fuchsia-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-fuchsia-300 border border-fuchsia-500/30">
             <Sparkles className="w-4 h-4" />
-            <span>Digital Age Expo 2026</span>
+            <span><Brand /> 2026</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-white">

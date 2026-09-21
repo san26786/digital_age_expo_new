@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { getBrand } from "@/lib/brand";
 import { assetUrl, staticAssetUrl } from "@/lib/assets";
 import { formatDayRange, formatMonthDayYear } from "@/lib/format";
 
@@ -11,7 +12,7 @@ interface Props {
   dateEnd?: Date | null;
 }
 
-export function AboutEvent({
+export async function AboutEvent({
   sectionTitle,
   sectionDescription,
   additionalInfo,
@@ -27,7 +28,16 @@ export function AboutEvent({
     "For over 3 years our events have connected thousands of savvy business owners and budding entrepreneurs, sharing a wealth of knowledge, skills and advice in the United Kingdom and British Isles. B2B Growth Hub Limited holds a portfolio of some of the biggest events in Isle of Man and some counties of the United Kingdom. We are business connectors and act as a catalyst within the industry. Our ambition is to bring UK and British Isles businesses back on track after the covid pandemic, therefore B2B Growth Hub is bringing this virtual exhibition to provide an opportunity for businesses to increase their visibility, generate new leads and connect with like-minded business owners. Being held on a virtual platform, our shows couldn’t be better connected to all the businesses in the UK and British Isles. We are thankful to our technology partner Visualytes Limited to offer us a powerful virtual exhibition platform powered by Tillu.";
   
   const desc = sectionDescription || defaultDesc;
-  const whereText = additionalInfo || "digitalageexpo.com\nPowered by TILLU-Virtual Exhibition";
+  /*
+   * The site's own address, not a hardcoded one.
+   *
+   * This line is the "WHERE" of the About block, and it was the literal string
+   * "digitalageexpo.com" — so every site served by this deployment told visitors to go to
+   * Digital Age Expo. `additionalInfo` still wins when the event has its own text; this is only
+   * what shows when it does not, which for a newly created site is always.
+   */
+  const brand = await getBrand();
+  const whereText = additionalInfo || `${brand.host}\nPowered by TILLU-Virtual Exhibition`;
 
   return (
     <section

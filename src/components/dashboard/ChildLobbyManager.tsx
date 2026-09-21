@@ -33,6 +33,7 @@ import { TablePagination } from "@/components/dashboard/TablePagination";
 import { assetUrl } from "@/lib/assets";
 
 import { ModalPortal } from "@/components/ui/ModalPortal";
+import { CopyZonesModal } from "@/components/dashboard/CopyZonesModal";
 const PAGE_SIZE = 15;
 
 const FIELD_CLASS =
@@ -444,6 +445,8 @@ export function ChildLobbyManager({
     router.refresh();
   }
 
+  const [copyZonesOpen, setCopyZonesOpen] = useState(false);
+
   async function remove(id: number) {
     if (!window.confirm("Delete this child lobby? This action cannot be undone.")) return;
     setPendingId(id);
@@ -507,6 +510,14 @@ export function ChildLobbyManager({
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setCopyZonesOpen(true)}
+            title="Bring another event's halls, stand layouts and booth positions onto this one"
+            className="flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-xs font-extrabold uppercase tracking-wider text-zinc-300 transition hover:bg-white/10 hover:text-white"
+          >
+            <Copy className="h-4 w-4" />
+            Copy From Event
+          </button>
           <button
             onClick={() => setModalRow("new")}
             className="btn-sophisticated flex items-center justify-center gap-2 rounded-xl px-6 py-2.5 text-xs font-extrabold uppercase tracking-wider text-white transition-all shadow-lg"
@@ -699,6 +710,14 @@ export function ChildLobbyManager({
           eventId={eventId}
           onClose={() => setModalRow(null)}
           onSaved={handleSaved}
+        />
+      )}
+
+      {copyZonesOpen && (
+        <CopyZonesModal
+          eventId={eventId}
+          onClose={() => setCopyZonesOpen(false)}
+          onCopied={() => router.refresh()}
         />
       )}
     </div>

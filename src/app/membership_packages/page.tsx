@@ -1,12 +1,19 @@
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import { getDomain } from "@/lib/services/domain";
 import { getStandPackages } from "@/lib/services/exhibitors";
 import { Check, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Stands & Packages | Digital Age Expo",
-  description: "Explore virtual booth stand packages and membership options for Digital Age Expo exhibitors.",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Stands & Packages | ${brand}`,
+  description: `Explore virtual booth stand packages and membership options for ${brand} exhibitors.`,
 };
+}
 
 const PERIOD_LABELS: Record<string, string> = {
   month: "month",

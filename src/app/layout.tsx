@@ -3,22 +3,74 @@ import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ChromeGate } from "@/components/layout/ChromeGate";
+import { SitePreviewBanner } from "@/components/layout/SitePreviewBanner";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { getDomain } from "@/lib/services/domain";
+import { getBrandAssets } from "@/lib/services/branding";
+import { getSiteTheme, themeCss } from "@/lib/services/siteTheme";
+import { getSiteSeo } from "@/lib/services/siteSeo";
+import { getBrand, getBrandName } from "@/lib/brand";
+import { BrandProvider } from "@/components/brand/BrandProvider";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const domain = await getDomain();
+  const [domain, brand, seo] = await Promise.all([getDomain(), getBrandAssets(), getSiteSeo()]);
+
+  /*
+   * The site's own SEO, where it has any.
+   *
+   * `cp_seo_*` has been written by the CP's SEO tab for some time and read by nothing — the third
+   * settings page in this codebase wired to the database and not to the site, after the branding
+   * logos and the theme colours. This is the reader.
+   *
+   * Every fallback reproduces exactly what this function returned before, so a site that has set
+   * nothing is byte-identical. Open Graph and Twitter fall back to the meta values rather than to
+   * nothing: a share card with a blank title is worse than one repeating the page's own.
+   */
+  const title = seo.metaTitle || domain.name;
+  const description = seo.metaDescription || `${domain.name} — business expo`;
+
   return {
-    title: domain.name,
-    description: `${domain.name} — business expo`,
+    title,
+    description,
+    keywords: seo.metaKeywords || undefined,
+    alternates: seo.canonicalUrl ? { canonical: seo.canonicalUrl } : undefined,
+    openGraph: {
+      title: seo.ogTitle || title,
+      description: seo.ogDescription || description,
+      images: seo.ogImage ? [seo.ogImage] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: seo.twitterTitle || seo.ogTitle || title,
+      description: seo.twitterDescription || seo.ogDescription || description,
+      images: seo.twitterImage ? [seo.twitterImage] : undefined,
+    },
+    /*
+     * The favicon was whatever happened to sit at /favicon.ico, so every site served by this
+     * deployment showed Digital Age Expo's icon in the browser tab no matter what it had
+     * uploaded. It comes from the site's own branding now, falling back to that same file when
+     * nothing is set — so this site is unchanged and a sub-site gets its own.
+     */
+    icons: { icon: brand.favicon },
   };
 }
 
-export default function RootLayout({
+/**
+ * Async now, which it did not need to be until the palette started depending on which site is
+ * being served. Everything else here is untouched.
+ */
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Resolved once here and handed to the client tree, because client components cannot reach
+  // the database themselves. getDomain() underneath is memoised per request, so this is free.
+  const [theme, brand] = await Promise.all([
+    getSiteTheme().then(themeCss),
+    getBrand(),
+  ]);
+
   return (
     <html
       lang="en"
@@ -40,15 +92,42 @@ export default function RootLayout({
         suppressHydrationWarning
         className="flex min-h-full flex-col font-sans main-glow-bg text-white"
       >
-        <AuthProvider>
-          <ChromeGate>
-            <Header />
-          </ChromeGate>
-          <main className="flex-1">{children}</main>
-          <ChromeGate>
-            <Footer />
-          </ChromeGate>
-        </AuthProvider>
+        {/*
+          This site's colours, when it has chosen any.
+
+          It redefines the same CSS custom properties globals.css sets on :root, so retinting the
+          whole site needs no component changes and no client JavaScript. It wins on document
+          order rather than force: not `!important`, which would make every later override
+          impossible, and not an inline style on <html>, which would lose to globals.css's own
+          `:root` rule on specificity.
+
+          Rendered inside <body> rather than in a hand-written <head>. The App Router asks you not
+          to put a <head> in a root layout, and it does not need one — React hoists <style> into
+          the document head on its own, and a <style> that stays where it is still applies.
+
+          A site with no theme saved emits NOTHING — not the defaults, nothing at all — so Digital
+          Age Expo renders byte-identically to before this existed.
+
+          The string is built only from values that have been through isHexColour(), which matters
+          because this is a <style> tag: an unvalidated value here would be stylesheet injection,
+          not merely a wrong colour.
+        */}
+        {theme && <style dangerouslySetInnerHTML={{ __html: theme }} />}
+
+        {/* Above everything, including the header, so it cannot be mistaken for site chrome. */}
+        <SitePreviewBanner />
+
+        <BrandProvider brand={brand}>
+          <AuthProvider>
+            <ChromeGate>
+              <Header />
+            </ChromeGate>
+            <main className="flex-1">{children}</main>
+            <ChromeGate>
+              <Footer />
+            </ChromeGate>
+          </AuthProvider>
+        </BrandProvider>
       </body>
     </html>
   );

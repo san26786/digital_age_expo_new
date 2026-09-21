@@ -1,4 +1,5 @@
 "use client";
+import { BrandText } from "@/components/brand/BrandText";
 
 import React, { useState } from "react";
 import axios, { isAxiosError } from "axios";
@@ -92,7 +93,7 @@ export function ExhibitorInformationForm() {
           Exhibitor Information Submitted Successfully!
         </h3>
         <p className="text-sm sm:text-base max-w-lg mx-auto font-medium text-emerald-300">
-          Thank you for providing your exhibitor details and booth assets for Digital Age Expo 2026. Our operations team will verify your setup.
+          Thank you for providing your exhibitor details and booth assets for <BrandText /> 2026. Our operations team will verify your setup.
         </p>
         <div className="pt-2">
           <button
@@ -121,7 +122,7 @@ export function ExhibitorInformationForm() {
           Exhibitor Information
         </h2>
         <p className="mt-1 text-sm text-fuchsia-300 font-semibold">
-          Digital Age Expo 2026
+          <BrandText /> 2026
         </p>
       </div>
 

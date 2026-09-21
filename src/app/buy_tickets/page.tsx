@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import { getDomain } from "@/lib/services/domain";
 import { createOutageCollector } from "@/lib/db-errors";
 import { getEventById } from "@/lib/services/events";
@@ -6,10 +8,15 @@ import { TicketUrgency } from "@/components/home/TicketUrgency";
 import { BuyTicketsClient } from "@/components/tickets/BuyTicketsClient";
 import { staticAssetUrl } from "@/lib/assets";
 
-export const metadata = {
-  title: "Buy Tickets | Digital Age Expo",
-  description: "Get your conference pass for Digital Age Expo.",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Buy Tickets | ${brand}`,
+  description: `Get your conference pass for ${brand}.`,
 };
+}
 
 export default async function BuyTicketsPage() {
   const domain = await getDomain();

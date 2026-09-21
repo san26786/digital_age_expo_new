@@ -1,3 +1,6 @@
+import { Brand } from "@/components/brand/Brand";
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import { getDomain } from "@/lib/services/domain";
 import { getEventById } from "@/lib/services/events";
 import { getExhibitorRegistrationContent } from "@/lib/services/exhibitors";
@@ -7,11 +10,16 @@ import { ScrollToSection } from "@/components/exhibitors/ScrollToSection";
 import { Phone, Mail, Sparkles, TrendingUp, Megaphone, Users, Award, CheckCircle2 } from "lucide-react";
 import { assetUrl, staticAssetUrl } from "@/lib/assets";
 
-export const metadata = {
-  title: "Exhibitor Registration | Digital Age Expo",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Exhibitor Registration | ${brand}`,
   description:
-    "Register as an exhibitor for Digital Age Expo 2026. Showcase your products and services to active C-level decision-makers and technology buyers.",
+    `Register as an exhibitor for ${brand} 2026. Showcase your products and services to active C-level decision-makers and technology buyers.`,
 };
+}
 
 const GAIN_ICONS = [TrendingUp, Megaphone, Users, Award];
 
@@ -98,7 +106,7 @@ export default async function ExhibitorRegistrationPage({ searchParams }: Props)
 
         <div className="relative z-10 max-w-4xl mx-auto">
           <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-fuchsia-400">
-            Digital Age Expo 2026
+            <Brand /> 2026
           </p>
           <h1 className="mt-2 text-3xl sm:text-6xl font-black uppercase tracking-tight text-white drop-shadow-md">
             Exhibitor <span className="brand-gradient-text">Registration</span>
@@ -185,7 +193,7 @@ export default async function ExhibitorRegistrationPage({ searchParams }: Props)
         <section className="space-y-8">
           <div className="text-center max-w-3xl mx-auto">
             <h2 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-white">
-              What You Gain From Exhibiting At <span className="brand-gradient-text">The Digital Age Expo</span>
+              What You Gain From Exhibiting At <span className="brand-gradient-text">The <Brand /></span>
             </h2>
             <p className="mt-2 text-sm text-slate-400 font-medium">
               Maximize your commercial potential and industry presence
@@ -236,13 +244,13 @@ export default async function ExhibitorRegistrationPage({ searchParams }: Props)
 
           <div className="space-y-4 text-sm sm:text-base text-slate-200 leading-relaxed font-medium">
             <p>
-              Exhibiting at The Digital Age Expo puts your business face to face with over 10,000+ SME owners and senior decision makers who are looking for the latest innovative products and services to maximize their revenue and take their business to the next level.
+              Exhibiting at The <Brand /> puts your business face to face with over 10,000+ SME owners and senior decision makers who are looking for the latest innovative products and services to maximize their revenue and take their business to the next level.
             </p>
             <p>
               Our team is here the whole way throughout the experience to help in any way we can and guide you through the steps to a successful exhibiting journey for you and your company.
             </p>
             <p className="pt-2">
-              Get in touch today to find out exactly why The Digital Age Expo can benefit your business by contacting our Event Team:
+              Get in touch today to find out exactly why The <Brand /> can benefit your business by contacting our Event Team:
             </p>
           </div>
 

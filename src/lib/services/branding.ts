@@ -1,6 +1,7 @@
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { CACHE_TAGS, cachedRead } from "@/lib/cache";
-import { DOMAIN_ID } from "@/lib/site-config";
+import { resolveSiteId } from "@/lib/tenant";
 import { DEFAULT_BRAND_ASSETS, type BrandAssets } from "@/lib/constants/brandAssets";
 
 /**
@@ -25,15 +26,25 @@ import { DEFAULT_BRAND_ASSETS, type BrandAssets } from "@/lib/constants/brandAss
 
 export { DEFAULT_BRAND_ASSETS, type BrandAssets };
 
+/*
+ * `siteId` IS AN ARGUMENT, AND THAT IS THE WHOLE POINT OF THIS SIGNATURE.
+ *
+ * This read used the DOMAIN_ID constant and took no arguments. cachedRead folds a function's
+ * arguments into its cache key, so a zero-argument cached read has ONE entry shared by every
+ * tenant: whichever site warmed it first would have had its logos served to every other site for
+ * the whole revalidate window. On a single-tenant app that was invisible and harmless. The moment
+ * a second site existed it would have been a brand leaking across brands, presenting as an
+ * intermittent caching oddity rather than as the tenancy bug it is.
+ */
 const readBrandingSettings = cachedRead(
   ["domain", "brandingAssets"],
-  async function readBrandingSettings(): Promise<Record<string, string>> {
+  async function readBrandingSettings(siteId: number): Promise<Record<string, string>> {
     const [rows, domain] = await Promise.all([
       prisma.$queryRaw<{ varname: string; value: string | null }[]>`
         SELECT varname, value FROM find_settings
-        WHERE "DOMAIN" = ${DOMAIN_ID} AND grouptitle = 'branding'
+        WHERE "DOMAIN" = ${siteId} AND grouptitle = 'branding'
       `,
-      prisma.find_domains.findUnique({ where: { id: DOMAIN_ID }, select: { fav: true } }),
+      prisma.find_domains.findUnique({ where: { id: siteId }, select: { fav: true } }),
     ]);
 
     const settings = Object.fromEntries(
@@ -47,10 +58,32 @@ const readBrandingSettings = cachedRead(
   { tags: [CACHE_TAGS.domain] }
 );
 
-export async function getBrandAssets(): Promise<BrandAssets> {
+/**
+ * @param siteId which site's branding to read. Omitted, it resolves from the request's host —
+ *   which is what every caller inside a page render wants. Passed explicitly by the Hub editor,
+ *   which is showing one site's branding while being served by another.
+ *
+ * WRAPPED IN React cache(), AND THAT IS NOT AN OPTIMISATION — IT IS LOAD-BEARING.
+ *
+ * This is called at least twice on every single page: once by generateMetadata() for the favicon
+ * and once by <Header>, both in the ROOT layout. Unmemoised, each call re-resolved the site and
+ * re-read the branding rows, and this app's pool is ten connections wide (DATABASE_POOL_SIZE=10,
+ * set deliberately after a db-ping report). Adding a handful of reads to the root layout is
+ * exactly how a page goes from slow to 500: the admission queue backs up, connections wait out
+ * the 30s acquire timeout, and the whole render fails with "Connection terminated due to
+ * connection timeout".
+ *
+ * cache() is request-scoped and keyed on the argument, so `getBrandAssets()` and
+ * `getBrandAssets(151)` remain correctly separate while each runs once per request.
+ */
+export const getBrandAssets = cache(async function getBrandAssets(
+  siteId?: number
+): Promise<BrandAssets> {
+  const resolved = siteId ?? (await resolveSiteId());
+
   let settings: Record<string, string> = {};
   try {
-    settings = await readBrandingSettings();
+    settings = await readBrandingSettings(resolved);
   } catch (error) {
     console.warn("[branding] could not read brand assets; using the bundled defaults", error);
   }
@@ -65,4 +98,4 @@ export async function getBrandAssets(): Promise<BrandAssets> {
     footerLogo: pick("cp_branding_footer_logo", DEFAULT_BRAND_ASSETS.footerLogo),
     loginLogo: pick("cp_branding_login_logo", DEFAULT_BRAND_ASSETS.loginLogo),
   };
-}
+});

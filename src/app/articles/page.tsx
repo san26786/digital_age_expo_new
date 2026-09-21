@@ -1,11 +1,18 @@
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import Link from "next/link";
 import { BookOpen, Search, Tag, ChevronLeft, ChevronRight, Clock, Sparkles, HelpCircle, ArrowRight } from "lucide-react";
 import { getArticles } from "@/lib/services/articles";
 
-export const metadata = {
-  title: "Knowledge Center | Digital Age Expo",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Knowledge Center | ${brand}`,
   description: "Read industry updates, trade show strategies, marketing optimization, and CRM analytics compiled by exhibitors and expert speakers.",
 };
+}
 
 interface Props {
   searchParams: Promise<{ page?: string; keywords?: string }>;

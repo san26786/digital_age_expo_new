@@ -1,4 +1,5 @@
 "use client";
+import { BrandEmail } from "@/components/brand/BrandText";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -377,7 +378,7 @@ export default function EventExperiencePage() {
               </div>
               <div className="p-4 rounded-xl bg-slate-900 border border-white/10 flex items-center gap-3">
                 <Mail className="w-5 h-5 text-pink-500 shrink-0" />
-                <span>hello@digitalageexpo.com</span>
+                <span><BrandEmail /></span>
               </div>
               <div className="p-4 rounded-xl bg-slate-900 border border-white/10 flex items-center gap-3">
                 <Phone className="w-5 h-5 text-pink-500 shrink-0" />

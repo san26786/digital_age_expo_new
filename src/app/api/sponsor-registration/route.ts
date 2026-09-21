@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getDomain } from "@/lib/services/domain";
+import { sendRegistrationEmail } from "@/lib/email/sendRegistrationEmail";
 import { sponsorRegistrationSchema } from "@/lib/validations/sponsorRegistration";
+
+/** Editable at /hub/email-templates — the wording is the organiser's, not the deploy's. */
+const TEMPLATE_ID = "sponsor_confirmation";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -63,5 +67,11 @@ export async function POST(request: Request) {
     select: { id: true },
   });
 
-  return NextResponse.json({ success: true, id: sponsor.id });
+  const emailed = await sendRegistrationEmail(
+    TEMPLATE_ID,
+    { email, first_name, last_name, business, position },
+    "sponsor-registration"
+  );
+
+  return NextResponse.json({ success: true, id: sponsor.id, emailed });
 }

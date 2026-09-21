@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getBrand } from "@/lib/brand";
 
 export interface FaqItem {
   id: string;
@@ -11,7 +12,13 @@ export interface FaqCategory {
   faqs: FaqItem[];
 }
 
-const faqData: FaqCategory[] = [
+/**
+ * Built per request rather than held as a module constant, because two of these answers print
+ * the show's contact email — and this route is served to every site on this deployment. A
+ * module-level array is evaluated once, so it could only ever carry one site's address.
+ */
+function buildFaqData(brand: { email: string; name: string }): FaqCategory[] {
+  return [
   {
     category: "General",
     faqs: [
@@ -128,7 +135,7 @@ const faqData: FaqCategory[] = [
       {
         id: "collapse243",
         question: "How Can I Get More Information?",
-        answer: "If you have a question that we haven’t covered here or would like to discuss anything in more detail, you can reach us by phone on +(44) 02380 970305 / 01624 666105, or email us at hello@digitalageexpo.com."
+        answer: `If you have a question that we haven’t covered here or would like to discuss anything in more detail, you can reach us by phone on +(44) 02380 970305 / 01624 666105, or email us at ${brand.email}.`
       },
       {
         id: "collapse244",
@@ -198,12 +205,14 @@ const faqData: FaqCategory[] = [
       {
         id: "collapse213",
         question: "Contact Us",
-        answer: "Call us on (+44) 02380 970305 / 01624 666105 or email hello@digitalageexpo.com"
+        answer: `Call us on (+44) 02380 970305 / 01624 666105 or email ${brand.email}`
       }
     ]
   }
-];
+  ];
+}
 
 export async function GET() {
-  return NextResponse.json({ success: true, data: faqData });
+  const brand = await getBrand();
+  return NextResponse.json({ success: true, data: buildFaqData(brand) });
 }

@@ -1,3 +1,4 @@
+import { Brand } from "@/components/brand/Brand";
 import React from "react";
 import Link from "next/link";
 import { Mic, Sparkles } from "lucide-react";
@@ -23,13 +24,13 @@ export function BecomeSpeakerSection() {
 
         <div className="space-y-4 text-xs sm:text-base text-slate-300 font-medium max-w-4xl mx-auto leading-relaxed text-center sm:text-justify pt-2">
           <p>
-            Do you have a story to tell? Join the list of industry leaders and experts to share impactful knowledge with attendees, entrepreneurs, and businesses from all over the world. Digital Age Expo proudly welcomes industry experts from around the world to share their newest findings, strategies, and business practices. The strength of our program is founded on the quality of its research, so we reach out to those who want to share their experiences, their frustrations and their aspirations with this targeted audience.
+            Do you have a story to tell? Join the list of industry leaders and experts to share impactful knowledge with attendees, entrepreneurs, and businesses from all over the world. <Brand /> proudly welcomes industry experts from around the world to share their newest findings, strategies, and business practices. The strength of our program is founded on the quality of its research, so we reach out to those who want to share their experiences, their frustrations and their aspirations with this targeted audience.
           </p>
           <p>
-            Interested in speaking at the Digital Age Expo and virtual conference? Have a great case study, data or insights to share from the worlds of ecommerce, online retail, marketing, advertising or social media? Do you have expertise in the most current, economical, or environmental practices? Are you a leader with new and innovative ideas? Are you a researcher with ground-breaking findings?
+            Interested in speaking at the <Brand /> and virtual conference? Have a great case study, data or insights to share from the worlds of ecommerce, online retail, marketing, advertising or social media? Do you have expertise in the most current, economical, or environmental practices? Are you a leader with new and innovative ideas? Are you a researcher with ground-breaking findings?
           </p>
           <p>
-            In particular we are looking for speakers who represent Innovation, Leadership, Consciousness and Connection and are driven to improve the customer experience in every aspect of their business. Apply to be one of our conference speakers at a Digital Age Expo and participate as one the best in the leadership marketing arena. Get in touch!
+            In particular we are looking for speakers who represent Innovation, Leadership, Consciousness and Connection and are driven to improve the customer experience in every aspect of their business. Apply to be one of our conference speakers at a <Brand /> and participate as one the best in the leadership marketing arena. Get in touch!
           </p>
         </div>
 

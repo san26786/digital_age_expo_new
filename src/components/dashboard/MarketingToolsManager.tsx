@@ -1,4 +1,5 @@
 "use client";
+import { BrandText } from "@/components/brand/BrandText";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -340,10 +341,10 @@ export function MarketingToolsManager({ data: initialData, canManage, eventId }:
             <span className="text-brand-pink font-black">Twitter:</span> Official Hashtag <code className="bg-brand-pink/10 text-brand-pink px-2 py-0.5 rounded font-mono">#TBSUK</code> & <code className="bg-brand-pink/10 text-brand-pink px-2 py-0.5 rounded font-mono">#DigitalAgeExpo</code>
           </p>
           <p className="flex items-center gap-2">
-            <span className="text-brand-pink font-black">Facebook:</span> Digital Age Expo Official Page
+            <span className="text-brand-pink font-black">Facebook:</span> <BrandText /> Official Page
           </p>
           <p className="flex items-center gap-2">
-            <span className="text-brand-pink font-black">LinkedIn:</span> Digital Age Expo Network Group
+            <span className="text-brand-pink font-black">LinkedIn:</span> <BrandText /> Network Group
           </p>
           <p className="text-[11px] font-normal text-zinc-500 pt-1">
             For social media queries, contact: <a href="mailto:pearl.pearcesmith@prysmgroup.co.uk" className="text-brand-pink underline font-semibold">pearl.pearcesmith@prysmgroup.co.uk</a>

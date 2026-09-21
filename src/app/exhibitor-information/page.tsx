@@ -1,12 +1,20 @@
+import { Brand } from "@/components/brand/Brand";
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import { getDomain } from "@/lib/services/domain";
 import { ExhibitorInformationForm } from "@/components/exhibitors/ExhibitorInformationForm";
 import { Sparkles, Calendar, Store } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Exhibitor Information | Digital Age Expo",
-  description: "Digital Age Expo 2026 exhibitor information and booth asset submission form.",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Exhibitor Information | ${brand}`,
+  description: `${brand} 2026 exhibitor information and booth asset submission form.`,
 };
+}
 
 export default async function ExhibitorInformationPage() {
   const domain = await getDomain();
@@ -18,7 +26,7 @@ export default async function ExhibitorInformationPage() {
         <div className="max-w-4xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full bg-fuchsia-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-fuchsia-300 border border-fuchsia-500/30">
             <Sparkles className="w-4 h-4" />
-            <span>Digital Age Expo 2026</span>
+            <span><Brand /> 2026</span>
           </div>
 
           <h1 className="text-4xl sm:text-6xl font-black uppercase tracking-tight text-white">

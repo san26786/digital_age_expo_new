@@ -1,3 +1,6 @@
+import { Brand } from "@/components/brand/Brand";
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import { getDomain } from "@/lib/services/domain";
 import { createOutageCollector } from "@/lib/db-errors";
 import { DatabaseOutageNotice } from "@/components/common/DatabaseOutageNotice";
@@ -15,11 +18,16 @@ import {
   Sparkles,
 } from "lucide-react";
 
-export const metadata = {
-  title: "Exhibitor Guide & Event Magazine | Digital Age Expo",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Exhibitor Guide & Event Magazine | ${brand}`,
   description:
-    "Read and download the official Digital Age Expo show guide, magazine edition, and exhibitor catalog.",
+    `Read and download the official ${brand} show guide, magazine edition, and exhibitor catalog.`,
 };
+}
 
 interface Props {
   searchParams: Promise<{ id?: string }>;
@@ -81,7 +89,7 @@ export default async function MagazinePage({ searchParams }: Props) {
             </h1>
 
             <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base">
-              Explore the official Digital Age Expo publication featuring
+              Explore the official <Brand /> publication featuring
               exhibitors, speakers, event schedules, industry insights, and
               everything you need to make the most of the event.
             </p>
@@ -210,7 +218,7 @@ export default async function MagazinePage({ searchParams }: Props) {
                   </h2>
 
                   <p className="mt-5 text-sm leading-7 text-zinc-400 sm:text-base">
-                    Get a complete overview of Digital Age Expo. Discover
+                    Get a complete overview of <Brand />. Discover
                     exhibitors, connect with speakers, explore the programme,
                     and find the information you need before and during the
                     event.
@@ -311,7 +319,7 @@ export default async function MagazinePage({ searchParams }: Props) {
             <div className="relative flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-center">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.2em] text-purple-400">
-                  Digital Age Expo
+                  <Brand />
                 </p>
 
                 <h3 className="mt-2 text-xl font-bold text-white">

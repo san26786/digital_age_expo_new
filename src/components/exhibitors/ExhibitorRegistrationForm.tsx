@@ -1,4 +1,5 @@
 "use client";
+import { BrandText } from "@/components/brand/BrandText";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -113,7 +114,7 @@ export function ExhibitorRegistrationForm() {
           Application Submitted Successfully!
         </h3>
         <p className="text-sm sm:text-base max-w-lg mx-auto font-medium text-emerald-300">
-          Thank you for registering your interest in exhibiting at Digital Age Expo 2026. Our exhibitor relations team will contact you shortly to finalize your stand placement and package details.
+          Thank you for registering your interest in exhibiting at <BrandText /> 2026. Our exhibitor relations team will contact you shortly to finalize your stand placement and package details.
         </p>
         <div className="pt-4">
           <button
@@ -143,7 +144,7 @@ export function ExhibitorRegistrationForm() {
           Exhibitor Registration
         </h2>
         <p className="mt-1 text-sm text-fuchsia-300 font-semibold">
-          Digital Age Expo 2026
+          <BrandText /> 2026
         </p>
       </div>
 
@@ -359,7 +360,7 @@ export function ExhibitorRegistrationForm() {
       {/* Section 7: Terms Consent & Submit */}
       <div className="space-y-6 pt-4 border-t border-white/10">
         <p className="text-xs text-slate-400 leading-relaxed font-medium">
-          By clicking on Register button you submit the registration form for your interest in exhibiting at Digital Age Expo and consent to the event organisers sending you emails regarding this event.
+          By clicking on Register button you submit the registration form for your interest in exhibiting at <BrandText /> and consent to the event organisers sending you emails regarding this event.
         </p>
 
         <div>

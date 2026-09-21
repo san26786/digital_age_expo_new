@@ -1,4 +1,5 @@
 "use client";
+import { BrandText } from "@/components/brand/BrandText";
 
 import React, { useState } from "react";
 import Link from "next/link";
@@ -81,7 +82,7 @@ export default function GlimpseOfTheShowPage() {
           <div className="lg:col-span-7 space-y-4 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 rounded-full bg-fuchsia-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-fuchsia-300 backdrop-blur-md border border-fuchsia-500/30">
               <Sparkles className="w-4 h-4" />
-              <span>Digital Age Expo Virtual Experience</span>
+              <span><BrandText /> Virtual Experience</span>
             </div>
             <h1 className="text-3xl sm:text-6xl font-black uppercase tracking-tight text-white leading-none">
               Glimpse of <span className="brand-gradient-text">The Show</span>
@@ -244,7 +245,7 @@ export default function GlimpseOfTheShowPage() {
             GLIMPSE OF THE SHOW
           </h1>
           <p className="text-sm sm:text-base text-slate-300 font-medium">
-            Take a tour through key areas of Digital Age Expo including our interactive hall, photo booth, lobby, and welcome lounge.
+            Take a tour through key areas of <BrandText /> including our interactive hall, photo booth, lobby, and welcome lounge.
           </p>
         </div>
 

@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getDomain } from "@/lib/services/domain";
+import { sendRegistrationEmail } from "@/lib/email/sendRegistrationEmail";
 import { speakerRegistrationSchema } from "@/lib/validations/speakerRegistration";
+
+/** Editable at /hub/email-templates — the wording is the organiser's, not the deploy's. */
+const TEMPLATE_ID = "speaker_confirmation";
 
 /** Legacy TIME columns store a time-of-day with no meaningful date part.
  * A real slot gets assigned by an admin once the speaker is scheduled. */
@@ -67,9 +71,23 @@ export async function POST(request: Request) {
     select: { id: true },
   });
 
+  /*
+   * Sent before the questionnaire, deliberately.
+   *
+   * The response redirects to /speaker-questionaire, which many people will not finish in one
+   * sitting. Waiting until the questionnaire is submitted would mean the ones who drop out get
+   * nothing at all, with no record in their inbox that they applied.
+   */
+  const emailed = await sendRegistrationEmail(
+    TEMPLATE_ID,
+    { email, first_name, last_name, business, position },
+    "speaker-registration"
+  );
+
   return NextResponse.json({
     success: true,
     id: speaker.id,
+    emailed,
     nextUrl: `/speaker-questionaire?speaker_id=${speaker.id}`,
   });
 }

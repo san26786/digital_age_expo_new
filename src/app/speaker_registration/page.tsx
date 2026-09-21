@@ -1,13 +1,21 @@
+import { Brand } from "@/components/brand/Brand";
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import { getDomain } from "@/lib/services/domain";
 import { getEventById } from "@/lib/services/events";
 import { formatDateLocation } from "@/lib/format";
 import { SpeakerRegistrationForm } from "@/components/speakers/SpeakerRegistrationForm";
 import { Mic, Calendar, MapPin } from "lucide-react";
 
-export const metadata = {
-  title: "Speaker Registration - Digital Age Expo",
-  description: "Register as a speaker for Digital Age Expo 2026. Share your expertise with over 10,000 SME business leaders.",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Speaker Registration - ${brand}`,
+  description: `Register as a speaker for ${brand} 2026. Share your expertise with over 10,000 SME business leaders.`,
 };
+}
 
 export default async function SpeakerRegistrationPage() {
   const domain = await getDomain();
@@ -20,7 +28,7 @@ export default async function SpeakerRegistrationPage() {
         <div className="max-w-4xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full bg-fuchsia-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-fuchsia-300 border border-fuchsia-500/30">
             <Mic className="w-4 h-4" />
-            <span>Digital Age Expo 2026</span>
+            <span><Brand /> 2026</span>
           </div>
 
           <h1 className="text-3xl sm:text-6xl font-black uppercase tracking-tight text-white leading-none">

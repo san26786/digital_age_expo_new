@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import { getDomain } from "@/lib/services/domain";
 import { createOutageCollector } from "@/lib/db-errors";
 import { DatabaseOutageNotice } from "@/components/common/DatabaseOutageNotice";
@@ -5,10 +7,15 @@ import { getEventById } from "@/lib/services/events";
 import { getEventSchedule } from "@/lib/services/schedule";
 import { EventScheduleClient } from "@/components/schedule/EventScheduleClient";
 
-export const metadata = {
-  title: "Event Schedule - Digital Age Expo",
-  description: "Explore the full event schedule, masterclasses, keynotes, webinars, and workshops across all 3 days at Digital Age Expo 2026.",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Event Schedule - ${brand}`,
+  description: `Explore the full event schedule, masterclasses, keynotes, webinars, and workshops across all 3 days at ${brand} 2026.`,
 };
+}
 
 export default async function EventSchedulePage() {
   const domain = await getDomain();

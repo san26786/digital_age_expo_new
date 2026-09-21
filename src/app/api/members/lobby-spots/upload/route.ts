@@ -68,7 +68,21 @@ export async function POST(request: Request) {
 
   const ext = EXTENSION_BY_MIME[file.type] ?? "jpg";
   const filename = `${id}.${ext}`;
-  const diskPath = path.join(process.cwd(), "public", ...SEGMENTS, filename);
+
+  /*
+   * The path segments are written out literally rather than spread from SEGMENTS.
+   *
+   * Turbopack statically analyses filesystem access so it can trace what a server bundle needs.
+   * `path.join(process.cwd(), "public", ...SEGMENTS, filename)` gives it nothing to fold, so it
+   * widens the expression to a glob — the build reported it matching **10,633 files** — and
+   * traces every one of them into the bundle. That over-bundling is what exhausted the heap
+   * during `next build` ("Zone Allocation failed"). Spelled out, only `filename` is dynamic and
+   * the pattern narrows to this one directory.
+   *
+   * SEGMENTS is still the single source of truth for the public URL below, so the two cannot
+   * drift apart: change one and the other is wrong in an obvious, immediate way.
+   */
+  const diskPath = path.join(process.cwd(), "public", "files", "lobby", "spot", filename);
   const publicUrl = `/${SEGMENTS.join("/")}/${filename}`;
 
   try {

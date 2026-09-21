@@ -1,3 +1,6 @@
+import { Brand } from "@/components/brand/Brand";
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import {
   CheckCircle2,
   Sparkles,
@@ -6,11 +9,16 @@ import {
 import Link from "next/link";
 import { staticAssetUrl } from "@/lib/assets";
 
-export const metadata = {
-  title: "Event Features | Digital Age Expo",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Event Features | ${brand}`,
   description:
-    "Explore the virtual lobby, auditorium, exhibitor stands, photo booth, and networking lounge at Digital Age Expo.",
+    `Explore the virtual lobby, auditorium, exhibitor stands, photo booth, and networking lounge at ${brand}.`,
 };
+}
 
 export default function EventFeaturesPage() {
   const highlightPoints = [
@@ -192,7 +200,7 @@ export default function EventFeaturesPage() {
         <div className="max-w-6xl mx-auto space-y-20">
           <div className="text-center max-w-3xl mx-auto">
             <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-fuchsia-100 to-pink-200">
-              What Can Digital Age Expo Do For Your Business?
+              What Can <Brand /> Do For Your Business?
             </h2>
             <p className="mt-4 text-slate-300 text-sm sm:text-base font-medium">
               Explore our core virtual environments designed to drive engagement, knowledge sharing, and high-value sales.

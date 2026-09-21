@@ -56,7 +56,17 @@ export async function POST(request: Request) {
   const ext = EXTENSION_BY_MIME[file.type] ?? "jpg";
   const segments = kind === "color" ? ["files", "lobby", "template", "child"] : ["files", "lobby", "template"];
   const filename = `${id}.${ext}`;
-  const diskPath = path.join(process.cwd(), "public", ...segments, filename);
+
+  /*
+   * Two fully literal joins rather than one spread — see the note in lobby-spots/upload. The
+   * spread form left Turbopack unable to narrow the path, so it traced 10,633 files into the
+   * bundle and the production build ran out of memory. Written this way each branch is a fixed
+   * directory with a single dynamic filename.
+   */
+  const diskPath =
+    kind === "color"
+      ? path.join(process.cwd(), "public", "files", "lobby", "template", "child", filename)
+      : path.join(process.cwd(), "public", "files", "lobby", "template", filename);
   const publicUrl = `/${segments.join("/")}/${filename}`;
 
   try {

@@ -1,3 +1,4 @@
+import { Brand } from "@/components/brand/Brand";
 interface Props {
   title: string;
   urls: string | null;
@@ -40,7 +41,7 @@ export function SpeakerVideos({ title, urls }: Props) {
 
           <p className="mx-auto mt-4 max-w-2xl text-lg leading-8 text-zinc-400">
             Watch inspiring keynote sessions, expert discussions, and exclusive
-            highlights from Digital Age Expo.
+            highlights from <Brand />.
           </p>
         </div>
 
@@ -72,7 +73,7 @@ export function SpeakerVideos({ title, urls }: Props) {
                   </span>
 
                   <span className="text-xs text-zinc-500">
-                    Digital Age Expo
+                    <Brand />
                   </span>
 
                 </div>

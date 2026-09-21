@@ -1,3 +1,6 @@
+import { Brand } from "@/components/brand/Brand";
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import { getDomain } from "@/lib/services/domain";
 import { createOutageCollector } from "@/lib/db-errors";
 import { getEventById } from "@/lib/services/events";
@@ -6,9 +9,14 @@ import Image from "next/image";
 import { MapPin, Phone, Mail, Clock, Calendar } from "lucide-react";
 import { staticAssetUrl } from "@/lib/assets";
 
-export const metadata = {
-  title: "Contact Us - Digital Age Expo 2026",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Contact Us - ${brand} 2026`,
 };
+}
 
 /**
  * Palette note: this page follows the site chrome rather than Tailwind's default
@@ -53,7 +61,7 @@ export default async function ContactPage() {
             <Calendar className="h-3.5 w-3.5" /> 26th - 28th August 2026
           </div>
           <h1 className="text-2xl font-black uppercase leading-tight tracking-tight text-white sm:text-4xl md:text-5xl">
-            Digital Age Expo 26th - 28th August 2026 |{" "}
+            <Brand /> 26th - 28th August 2026 |{" "}
             <span className="brand-gradient-text">Virtual Event</span>
           </h1>
           <p className="mx-auto max-w-xl text-sm leading-relaxed text-zinc-300 sm:text-lg">
@@ -146,7 +154,7 @@ export default async function ContactPage() {
             <div className="space-y-3 rounded-3xl border border-brand-purple/40 bg-brand-purple/15 p-6 text-xs">
               <h3 className="font-bold uppercase tracking-wide text-purple-300">Fast Resolution</h3>
               <p className="leading-relaxed text-zinc-400">
-                Most enquiries are resolved within 2 hours during normal broadcasting periods. We appreciate your participation in Digital Age Expo 2026.
+                Most enquiries are resolved within 2 hours during normal broadcasting periods. We appreciate your participation in <Brand /> 2026.
               </p>
             </div>
           </div>

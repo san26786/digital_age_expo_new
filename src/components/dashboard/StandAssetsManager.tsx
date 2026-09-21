@@ -664,11 +664,12 @@ export function StandAssetsManager({
         <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 text-zinc-400">
           <Store className="h-7 w-7" />
         </div>
-        <p className="text-base font-black uppercase tracking-tight text-white">No exhibitors for this event</p>
+        <p className="text-base font-black uppercase tracking-tight text-white">No active exhibitors</p>
         <p className="max-w-md text-xs font-medium text-zinc-400">
-          Event #{eventId} has no{" "}
-          <code className="rounded bg-white/10 px-1 py-0.5 text-[11px] text-fuchsia-300">find_event_exhibitor</code>{" "}
-          rows yet, so there is no stand to configure. Register an exhibitor for this event first.
+          Event #{eventId} has no exhibitor with an <strong className="text-zinc-200">Active</strong>{" "}
+          status, so there is no stand to configure. The switcher deliberately leaves out pending
+          exhibitors — set one to Active on the exhibitor list, or register a new one, and it will
+          appear here.
         </p>
       </div>
     );

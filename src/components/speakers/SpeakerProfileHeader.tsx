@@ -1,3 +1,4 @@
+import { Brand } from "@/components/brand/Brand";
 import { assetUrl } from "@/lib/assets";
 import { ExternalLink, Mic2 } from "lucide-react";
 
@@ -85,7 +86,7 @@ export function SpeakerProfileHeader({
 
                 <div className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-6 py-4 backdrop-blur-xl">
                   <span className="text-sm font-medium text-zinc-300">
-                    Digital Age Expo Speaker
+                    <Brand /> Speaker
                   </span>
                 </div>
 

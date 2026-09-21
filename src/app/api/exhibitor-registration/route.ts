@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getDomain } from "@/lib/services/domain";
+import { sendRegistrationEmail } from "@/lib/email/sendRegistrationEmail";
 import { exhibitorRegistrationSchema } from "@/lib/validations/exhibitorRegistration";
+
+/**
+ * The template this form sends. Seeded by ensureDefaultTemplates() with real copy, editable
+ * afterwards at /hub/email-templates — so the wording is the organiser's to change without a
+ * deploy, which is the entire reason the templates table exists.
+ */
+const TEMPLATE_ID = "exhibitor_confirmation";
 
 function generateBatchNumber() {
   return `EXH-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
@@ -47,5 +55,13 @@ export async function POST(request: Request) {
     select: { id: true },
   });
 
-  return NextResponse.json({ success: true, id: exhibitor.id });
+  // Confirmation email. See sendRegistrationEmail for why a mail failure cannot fail the
+  // application, and why the template is seeded lazily rather than on every submission.
+  const emailed = await sendRegistrationEmail(
+    TEMPLATE_ID,
+    { email, first_name, last_name, business, position },
+    "exhibitor-registration"
+  );
+
+  return NextResponse.json({ success: true, id: exhibitor.id, emailed });
 }

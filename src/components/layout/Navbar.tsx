@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ChevronDown,
@@ -49,12 +49,14 @@ function NavItemLink({
   active,
   onEnter,
   onLeave,
+  onToggle,
   align,
 }: {
   item: NavEntry;
   active: boolean;
   onEnter: () => void;
   onLeave: () => void;
+  onToggle: () => void;
   align: "left" | "right";
 }) {
   const hasChildren = !!item.children && item.children.length > 0;
@@ -65,30 +67,58 @@ function NavItemLink({
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
     >
-      <Link
-        href={item.link}
-        target={item.target !== "_self" ? item.target : undefined}
-        className="flex items-center gap-1 whitespace-nowrap rounded-lg px-2.5 py-2 text-xs font-semibold text-zinc-300 transition-all hover:bg-white/5 hover:text-pink-500 xl:px-3 xl:text-sm"
-      >
-        <span>{item.title}</span>
-
-        {hasChildren && (
+      {/*
+        * A parent WITH children is a button, not a link.
+        *
+        * It used to be a <Link href={item.link}> whichever it was, so clicking "Sponsors" started
+        * a navigation: the route changed, the component re-rendered and the panel vanished the
+        * instant it appeared. That is the "opens then immediately closes" — the menu was working,
+        * the click was taking you off the page. Its children are all in the panel, so the parent
+        * itself only ever needs to open it.
+        */}
+      {hasChildren ? (
+        <button
+          type="button"
+          onClick={onToggle}
+          aria-expanded={active}
+          aria-haspopup="true"
+          className="flex items-center gap-1 whitespace-nowrap rounded-lg px-2.5 py-2 text-xs font-semibold text-zinc-300 transition-all hover:bg-white/5 hover:text-pink-500 xl:px-3 xl:text-sm"
+        >
+          <span>{item.title}</span>
           <ChevronDown
             className={`h-3.5 w-3.5 shrink-0 transition-transform duration-300 ${
-              active ? "rotate-180" : "group-hover:rotate-180"
+              active ? "rotate-180" : ""
             }`}
           />
-        )}
-      </Link>
+        </button>
+      ) : (
+        <Link
+          href={item.link}
+          target={item.target !== "_self" ? item.target : undefined}
+          className="flex items-center gap-1 whitespace-nowrap rounded-lg px-2.5 py-2 text-xs font-semibold text-zinc-300 transition-all hover:bg-white/5 hover:text-pink-500 xl:px-3 xl:text-sm"
+        >
+          <span>{item.title}</span>
+        </Link>
+      )}
 
       {hasChildren && (
+        /*
+         * The gap between the trigger and the panel is PADDING ON THIS WRAPPER, never a margin on
+         * the panel.
+         *
+         * With `mt-2` the 8px strip belonged to neither element, so a pointer travelling down from
+         * the label crossed dead ground, `onMouseLeave` fired on the row and the menu shut before
+         * it could be reached. As transparent padding inside the positioned wrapper the strip is
+         * part of the hover target, and the trip from label to panel is unbroken.
+         */
         <div
-          className={`absolute top-full mt-2 w-64 origin-top rounded-2xl border border-white/10 bg-surface-2 p-3 shadow-2xl transition-all duration-300 ${
-            align === "right" ? "right-0" : "left-0"
-          } ${
-            active
-              ? "pointer-events-auto scale-100 opacity-100"
-              : "pointer-events-none scale-95 opacity-0 group-hover:pointer-events-auto group-hover:scale-100 group-hover:opacity-100"
+          className={`absolute top-full pt-2 ${align === "right" ? "right-0" : "left-0"} ${
+            active ? "pointer-events-auto" : "pointer-events-none"
+          }`}
+        >
+        <div
+          className={`w-64 origin-top rounded-2xl border border-white/10 bg-surface-2 p-3 shadow-2xl transition-all duration-200 ${
+            active ? "scale-100 opacity-100" : "scale-95 opacity-0"
           }`}
         >
           <div className="mb-2 border-b border-white/5 px-2.5 pb-2">
@@ -110,6 +140,7 @@ function NavItemLink({
               </Link>
             ))}
           </div>
+        </div>
         </div>
       )}
     </div>
@@ -191,6 +222,7 @@ function DesktopNav({
             item.children && item.children.length > 0 && setActiveDropdown(item.id)
           }
           onLeave={() => setActiveDropdown(null)}
+          onToggle={() => setActiveDropdown(activeDropdown === item.id ? null : item.id)}
           align={index >= visibleItems.length - 2 ? "right" : "left"}
         />
       ))}
@@ -219,11 +251,15 @@ function DesktopNav({
             />
           </button>
 
+          {/* Same dead-gap fix as the item panels above: padding on the positioned wrapper. */}
           <div
-            className={`absolute right-0 top-full mt-2 w-72 origin-top rounded-2xl border border-white/10 bg-surface-2 p-3 shadow-2xl transition-all duration-300 ${
-              activeDropdown === MORE_ID
-                ? "pointer-events-auto scale-100 opacity-100"
-                : "pointer-events-none scale-95 opacity-0 group-hover:pointer-events-auto group-hover:scale-100 group-hover:opacity-100"
+            className={`absolute right-0 top-full pt-2 ${
+              activeDropdown === MORE_ID ? "pointer-events-auto" : "pointer-events-none"
+            }`}
+          >
+          <div
+            className={`w-72 origin-top rounded-2xl border border-white/10 bg-surface-2 p-3 shadow-2xl transition-all duration-200 ${
+              activeDropdown === MORE_ID ? "scale-100 opacity-100" : "scale-95 opacity-0"
             }`}
           >
             <div className="mb-2 border-b border-white/5 px-2.5 pb-2">
@@ -266,6 +302,7 @@ function DesktopNav({
                 );
               })}
             </div>
+          </div>
           </div>
         </div>
       )}
@@ -318,6 +355,36 @@ export function Navbar({
   const [activeDropdown, setActiveDropdown] =
     useState<number | string | null>(null);
 
+  /*
+   * A dropdown opened by CLICK needs a way out that hovering never did: the pointer can leave the
+   * header entirely and the panel would otherwise stay open over the page.
+   *
+   * `pointerdown` rather than `click`, so the menu is gone before whatever was underneath reacts,
+   * and capture so a child that stops propagation cannot trap it open. Bound only while something
+   * is open — a permanent document listener for a menu nobody opened is pure overhead.
+   */
+  const headerRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (activeDropdown === null) return;
+
+    const onPointerDown = (event: PointerEvent) => {
+      const header = headerRef.current;
+      if (header && event.target instanceof Node && header.contains(event.target)) return;
+      setActiveDropdown(null);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setActiveDropdown(null);
+    };
+
+    document.addEventListener("pointerdown", onPointerDown, true);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown, true);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [activeDropdown]);
+
   const toggleMobileSubmenu = (id: number) => {
     setOpenMobileSubmenu(
       openMobileSubmenu === id ? null : id
@@ -326,7 +393,10 @@ export function Navbar({
 
   return (
     <>
-    <header className="sticky top-0 z-50 w-full border-b border-white/5 bg-surface-1/90 backdrop-blur-xl">
+    <header
+      ref={headerRef}
+      className="site-navbar sticky top-0 z-50 w-full border-b border-white/5 backdrop-blur-xl"
+    >
 
       {/* =====================================================
           TOP ANNOUNCEMENT / ROLE BAR
@@ -462,11 +532,16 @@ export function Navbar({
                 />
               </button>
 
+              {/* Same dead-gap fix as the nav panels: the 8px strip is padding on the positioned
+                  wrapper, so travelling from the button to the panel never leaves the hover area. */}
               <div
-                className={`absolute right-0 top-full mt-2 w-60 origin-top rounded-2xl border border-white/10 bg-surface-2 p-3 shadow-2xl transition-all duration-300 ${
-                  activeDropdown === "account"
-                    ? "pointer-events-auto scale-100 opacity-100"
-                    : "pointer-events-none scale-95 opacity-0 group-hover:pointer-events-auto group-hover:scale-100 group-hover:opacity-100"
+                className={`absolute right-0 top-full pt-2 ${
+                  activeDropdown === "account" ? "pointer-events-auto" : "pointer-events-none"
+                }`}
+              >
+              <div
+                className={`w-60 origin-top rounded-2xl border border-white/10 bg-surface-2 p-3 shadow-2xl transition-all duration-200 ${
+                  activeDropdown === "account" ? "scale-100 opacity-100" : "scale-95 opacity-0"
                 }`}
               >
                 <div className="mb-2 border-b border-white/5 px-2.5 pb-2">
@@ -500,6 +575,7 @@ export function Navbar({
                 <div className="mt-2 border-t border-white/5 pt-2">
                   <LogoutButton className="block w-full rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-zinc-300 transition hover:bg-red-500/10 hover:text-red-400" />
                 </div>
+              </div>
               </div>
             </div>
           )}

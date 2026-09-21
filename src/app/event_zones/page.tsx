@@ -1,13 +1,20 @@
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import { getDomain } from "@/lib/services/domain";
 import { getEventById } from "@/lib/services/events";
 import { getEventZones, type EventZoneItem } from "@/lib/services/eventZones";
 import { EventZonesGrid } from "@/components/eventZones/EventZonesGrid";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Event Zones | Digital Age Expo",
-  description: "Navigate the specialized sector zones at Digital Age Expo including AI & Tech, Digital Marketing, Finance & Fintech, E-Commerce, and Cybersecurity.",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Event Zones | ${brand}`,
+  description: `Navigate the specialized sector zones at ${brand} including AI & Tech, Digital Marketing, Finance & Fintech, E-Commerce, and Cybersecurity.`,
 };
+}
 
 /** Shown only if this event has no find_event_lobby_child_layout_manager rows configured yet. */
 const FALLBACK_ZONES: EventZoneItem[] = [

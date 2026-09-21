@@ -1,4 +1,5 @@
 'use client';
+import { BrandText } from "@/components/brand/BrandText";
 
 import React, { useState, useEffect } from 'react';
 import { Sparkles, MapPin, Cpu, Users, Award } from 'lucide-react';
@@ -166,7 +167,7 @@ export function B2BGrowthFlywheel() {
             </h2>
             
             <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
-              Most businesses operate in isolated silos. The Digital Age Expo connects your roadmap, operational systems, commercial ecosystem, and industry authority into one self-reinforcing enterprise engine. When one sector accelerates, your entire business expands.
+              Most businesses operate in isolated silos. The <BrandText /> connects your roadmap, operational systems, commercial ecosystem, and industry authority into one self-reinforcing enterprise engine. When one sector accelerates, your entire business expands.
             </p>
 
             {/* Dynamic Features List */}

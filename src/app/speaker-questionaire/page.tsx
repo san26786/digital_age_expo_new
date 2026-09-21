@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import Link from "next/link";
 import { getDomain } from "@/lib/services/domain";
 import { getEventById } from "@/lib/services/events";
@@ -5,10 +7,15 @@ import { getSpeakerById } from "@/lib/services/speakers";
 import { getActiveAgendaVenues, getEventDateOptions } from "@/lib/services/schedule";
 import { SpeakerQuestionnaireForm } from "@/components/speakers/SpeakerQuestionnaireForm";
 
-export const metadata = {
-  title: "Speaker Questionnaire - Digital Age Expo",
-  description: "Complete your speaking profile, biography, session outline, and preferred slots for Digital Age Expo 2026.",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Speaker Questionnaire - ${brand}`,
+  description: `Complete your speaking profile, biography, session outline, and preferred slots for ${brand} 2026.`,
 };
+}
 
 interface Props {
   searchParams: Promise<{ speaker_id?: string }>;

@@ -1,11 +1,18 @@
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import { Sparkles, ArrowRight, Layout, Info } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Stand Artwork Templates | Digital Age Expo",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Stand Artwork Templates | ${brand}`,
   description:
-    "Comprehensive collection of stand artwork templates, booth specifications, and requirements for virtual exhibition stands at Digital Age Expo.",
+    `Comprehensive collection of stand artwork templates, booth specifications, and requirements for virtual exhibition stands at ${brand}.`,
 };
+}
 
 export default function StandArtworkTemplatesPage() {
   const boothArtworkSpecs = [

@@ -1,3 +1,4 @@
+import { Brand } from "@/components/brand/Brand";
 import React from "react";
 import Link from "next/link";
 import { Award, FileText, Sparkles, Users } from "lucide-react";
@@ -48,7 +49,7 @@ export function WhySponsorSection() {
             </div>
             <h4 className="text-base font-bold text-white uppercase tracking-tight">Market Leadership</h4>
             <p className="text-xs text-slate-300 leading-relaxed">
-              Demonstrate industry authority by co-branding with Digital Age Expo 2026, gaining prominent feature placements across all event communications and marketing materials.
+              Demonstrate industry authority by co-branding with <Brand /> 2026, gaining prominent feature placements across all event communications and marketing materials.
             </p>
           </div>
         </div>

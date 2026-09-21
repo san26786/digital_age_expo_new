@@ -1,4 +1,5 @@
 "use client";
+import { BrandText } from "@/components/brand/BrandText";
 
 import { useState } from "react";
 import Image from "next/image";
@@ -142,7 +143,7 @@ export default function ExhibitorStandSection() {
                 </div>
                 <h3 className="text-2xl font-black uppercase text-white">Registration Submitted!</h3>
                 <p className="text-slate-300 text-sm">
-                  Thank you for registering to become an exhibitor at Digital Age Expo 2026. Our team will contact you shortly to set up your virtual stand.
+                  Thank you for registering to become an exhibitor at <BrandText /> 2026. Our team will contact you shortly to set up your virtual stand.
                 </p>
                 <button
                   onClick={() => setSubmitted(false)}
@@ -367,7 +368,7 @@ export default function ExhibitorStandSection() {
 
                 <div className="space-y-4 pt-4 border-t border-white/10">
                   <p className="text-xs text-slate-400 leading-relaxed">
-                    By clicking on Register button you submit the registration form for your interest in exhibiting at the Digital Age Expo and you consent to the event organisers sending you emails regarding this event.
+                    By clicking on Register button you submit the registration form for your interest in exhibiting at the <BrandText /> and you consent to the event organisers sending you emails regarding this event.
                   </p>
                   <label className="flex items-start gap-3 text-xs font-bold text-white cursor-pointer">
                     <input
@@ -380,7 +381,7 @@ export default function ExhibitorStandSection() {
                     Please tick here to indicate you have read and understood this*
                   </label>
                   <p className="text-xs text-slate-400 leading-relaxed">
-                    By clicking Register button below, you consent to allow Digital Age Expo show to store, share and process the personal information submitted above to provide you the content requested.
+                    By clicking Register button below, you consent to allow <BrandText /> show to store, share and process the personal information submitted above to provide you the content requested.
                   </p>
                 </div>
 

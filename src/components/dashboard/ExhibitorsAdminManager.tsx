@@ -12,11 +12,9 @@ import {
   Video, Star, CheckCircle, Clock,
   Download,
   Upload,
-  FileSpreadsheet,
   Mail,
   Loader2,
-  CheckCircle2,
-  AlertTriangle,
+  LayoutGrid,
 } from "lucide-react";
 import {
   eventExhibitorAdminSchema,
@@ -29,7 +27,9 @@ import type { ExhibitorAdminRow, ExhibitorStats } from "@/lib/services/eventExhi
 import { TablePagination } from "@/components/dashboard/TablePagination";
 
 import { ModalPortal } from "@/components/ui/ModalPortal";
-import { readCsv, columnIndex, downloadCsv } from "@/lib/csv";
+import { downloadCsv } from "@/lib/csv";
+import { ExhibitorImportModal } from "@/components/dashboard/ExhibitorImportModal";
+import { StandAllocationModal } from "@/components/dashboard/StandAllocationModal";
 
 const PAGE_SIZE = 20;
 
@@ -1088,296 +1088,6 @@ function ExhibitorFormModal({
   );
 }
 
-/* ----------------------------- CSV import modal ---------------------------- */
-
-interface ParsedExhibitorCsv {
-  rows: Record<string, string>[];
-  delimiterLabel: string;
-  ignoredColumns: string[];
-  error?: string;
-}
-
-/**
- * Maps a CSV onto exhibitor rows by HEADER NAME, so column order does not matter and the page's
- * own export re-imports unchanged. Either "First Name"+"Last Name" or a single "Name" works.
- *
- * Computed columns are accepted in the header and ignored — Stand/Spot assignment and the
- * account flags are derived when the exhibitor is created, not settable from a spreadsheet.
- */
-function mapExhibitorCsv(text: string): ParsedExhibitorCsv {
-  const { header, rows: table, delimiterLabel } = readCsv(text);
-  if (header.length === 0) {
-    return { rows: [], delimiterLabel, ignoredColumns: [], error: "That file is empty." };
-  }
-
-  const iFirst = columnIndex(header, "first name", "first_name", "firstname");
-  const iLast = columnIndex(header, "last name", "last_name", "lastname", "surname");
-  const iName = columnIndex(header, "name", "full name");
-  const iEmail = columnIndex(header, "email", "email address", "e-mail");
-  const iBusiness = columnIndex(header, "business", "company", "company name");
-  const iPhone = columnIndex(header, "phone", "telephone");
-  const iWork = columnIndex(header, "work phone", "work_phone", "mobile");
-  const iPosition = columnIndex(header, "position", "job title", "role");
-  const iWebsite = columnIndex(header, "website", "url");
-  const iLinked = columnIndex(header, "linkedin", "linkedin_user_profile", "linkedin profile");
-  const iStandNo = columnIndex(header, "stand number", "stand_number", "stand no");
-  const iStandSize = columnIndex(header, "stand size", "stand_size");
-  const iStandPrice = columnIndex(header, "stand price", "stand_price");
-  const iAbout = columnIndex(header, "about us", "about_us", "about");
-  const iFeatured = columnIndex(header, "featured");
-  const iStatus = columnIndex(header, "status");
-
-  if (iEmail === -1 || iBusiness === -1 || (iFirst === -1 && iName === -1)) {
-    return {
-      rows: [],
-      delimiterLabel,
-      ignoredColumns: [],
-      error:
-        `Needs "Email" and "Business", plus either "First Name" or "Name". Read the file as ` +
-        `${delimiterLabel}; columns came out as: ` +
-        `${header.map((h) => h || "(blank)").join(" | ") || "(empty)"}`,
-    };
-  }
-
-  const ignoredColumns = header.filter((h) =>
-    ["id", "account", "spot", "stand layout", "batch number"].includes(h),
-  );
-  const cell = (r: string[], i: number) => (i === -1 ? "" : (r[i] ?? "").trim());
-
-  const rows = table
-    .map((r) => ({
-      first_name: cell(r, iFirst),
-      last_name: cell(r, iLast),
-      name: cell(r, iName),
-      email: cell(r, iEmail),
-      business: cell(r, iBusiness),
-      phone: cell(r, iPhone),
-      work_phone: cell(r, iWork),
-      position: cell(r, iPosition),
-      website: cell(r, iWebsite),
-      linkedin_user_profile: cell(r, iLinked),
-      stand_number: cell(r, iStandNo),
-      stand_size: cell(r, iStandSize),
-      stand_price: cell(r, iStandPrice),
-      about_us: cell(r, iAbout),
-      featured: cell(r, iFeatured),
-      status: cell(r, iStatus),
-    }))
-    .filter((r) => r.email !== "" || r.business !== "" || r.name !== "");
-
-  if (rows.length === 0) {
-    return {
-      rows: [],
-      delimiterLabel,
-      ignoredColumns,
-      error: "That file has a header but no usable data rows.",
-    };
-  }
-  return { rows, delimiterLabel, ignoredColumns };
-}
-
-interface ExhibitorImportSummary {
-  created: number;
-  skipped: number;
-  skippedEmails: string[];
-  invalid: { row: number; name: string; reason: string }[];
-}
-
-function ImportExhibitorsModal({ onClose, onImported }: { onClose: () => void; onImported: () => void }) {
-  const [fileName, setFileName] = useState("");
-  const [parsed, setParsed] = useState<ParsedExhibitorCsv | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  const [summary, setSummary] = useState<ExhibitorImportSummary | null>(null);
-
-  async function pickFile(file: File | undefined) {
-    if (!file) return;
-    setError("");
-    setSummary(null);
-    setFileName(file.name);
-    const result = mapExhibitorCsv(await file.text());
-    setParsed(result);
-    if (result.error) setError(result.error);
-  }
-
-  async function runImport() {
-    if (!parsed?.rows.length) return;
-    setBusy(true);
-    setError("");
-    try {
-      const { data } = await axios.post("/api/members/exhibitors-admin/import", { rows: parsed.rows });
-      setSummary(data as ExhibitorImportSummary);
-      onImported();
-    } catch (err) {
-      const message =
-        isAxiosError(err) && typeof err.response?.data?.error === "string"
-          ? err.response.data.error
-          : "Could not import this file.";
-      setError(message);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <ModalPortal onClose={onClose}>
-      <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
-        <div className="w-full max-w-xl rounded-2xl border border-white/10 bg-zinc-950 p-6 shadow-2xl">
-          <div className="flex items-start justify-between border-b border-white/10 pb-4">
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-pink/15 text-brand-pink">
-                <FileSpreadsheet className="h-5 w-5" />
-              </span>
-              <div>
-                <h3 className="text-base font-bold text-white">Import Exhibitors from CSV</h3>
-                <p className="text-xs text-zinc-400">
-                  Same columns as Export CSV. Existing emails are skipped, never overwritten.
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close"
-              className="rounded-lg p-1.5 text-zinc-400 transition hover:bg-white/10 hover:text-white"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-
-          <div className="space-y-4 pt-5">
-            {error && (
-              <p className="flex items-start gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-300">
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-                <span>{error}</span>
-              </p>
-            )}
-
-            {summary ? (
-              <div className="space-y-3">
-                <p className="flex items-start gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-medium text-emerald-300">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-                  <span>
-                    Imported <strong>{summary.created}</strong>{" "}
-                    {summary.created === 1 ? "exhibitor" : "exhibitors"}.
-                    {summary.skipped > 0 && <> {summary.skipped} already existed and were left alone.</>}
-                  </span>
-                </p>
-
-                {summary.invalid.length > 0 && (
-                  <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-xs text-amber-200">
-                    <p className="mb-1 font-bold uppercase tracking-wider">
-                      {summary.invalid.length} row(s) rejected
-                    </p>
-                    <ul className="space-y-0.5">
-                      {summary.invalid.slice(0, 6).map((row) => (
-                        <li key={row.row}>
-                          Row {row.row}: {row.name} — {row.reason}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {summary.skippedEmails.length > 0 && (
-                  <details className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-xs text-zinc-400">
-                    <summary className="cursor-pointer font-semibold text-zinc-300">
-                      {summary.skippedEmails.length} skipped as duplicates
-                    </summary>
-                    <p className="mt-2 leading-relaxed">{summary.skippedEmails.join(", ")}</p>
-                  </details>
-                )}
-              </div>
-            ) : (
-              <>
-                <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-6 py-8 text-center transition hover:border-brand-pink/40 hover:bg-white/[0.04]">
-                  <Upload className="h-6 w-6 text-zinc-500" />
-                  <span className="text-sm font-semibold text-zinc-200">
-                    {fileName || "Choose a CSV file"}
-                  </span>
-                  <span className="text-[11px] text-zinc-500">
-                    Needs Email and Business, plus First/Last Name (or Name). Comma or tab separated.
-                  </span>
-                  <input
-                    type="file"
-                    accept=".csv,text/csv"
-                    className="hidden"
-                    onChange={(e) => pickFile(e.target.files?.[0])}
-                  />
-                </label>
-
-                {parsed && !parsed.error && (
-                  <div className="space-y-3">
-                    <p className="text-sm text-zinc-300">
-                      <strong className="text-white">{parsed.rows.length}</strong> row
-                      {parsed.rows.length === 1 ? "" : "s"} ready to import{" "}
-                      <span className="text-zinc-500">({parsed.delimiterLabel})</span>.
-                    </p>
-                    <p className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-[11px] leading-relaxed text-zinc-400">
-                      Each row is created through the same code path as Add Exhibitor, so batch
-                      numbers, linked listings and default stand layout are derived exactly as they
-                      would be by hand. A large file will therefore take a few moments.
-                    </p>
-
-                    <div className="max-h-48 overflow-y-auto rounded-xl border border-white/10">
-                      <table className="w-full text-left text-xs">
-                        <thead>
-                          <tr className="border-b border-white/10 bg-gradient-to-r from-brand-purple to-brand-pink text-white">
-                            <th className="px-6 py-4 font-black uppercase tracking-wider">Name</th>
-                            <th className="px-6 py-4 font-black uppercase tracking-wider">Business</th>
-                            <th className="px-6 py-4 font-black uppercase tracking-wider">Email</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5">
-                          {parsed.rows.slice(0, 50).map((row, i) => (
-                            <tr key={`${row.email}-${i}`} className="bg-zinc-900/30">
-                              <td className="px-3 py-1.5 text-zinc-200">
-                                {`${row.first_name} ${row.last_name}`.trim() || row.name || "—"}
-                              </td>
-                              <td className="px-3 py-1.5 text-zinc-400">{row.business || "—"}</td>
-                              <td className="px-3 py-1.5 text-zinc-500">{row.email || "—"}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    {parsed.rows.length > 50 && (
-                      <p className="text-[11px] text-zinc-500">
-                        Showing the first 50 — all {parsed.rows.length} will be imported.
-                      </p>
-                    )}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-
-          <div className="mt-6 flex justify-end gap-2 border-t border-white/10 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-zinc-300 transition hover:bg-white/10 hover:text-white"
-            >
-              {summary ? "Done" : "Cancel"}
-            </button>
-            {!summary && (
-              <button
-                type="button"
-                onClick={runImport}
-                disabled={busy || !parsed?.rows.length}
-                className="inline-flex items-center gap-2 rounded-xl bg-brand-pink px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white transition hover:opacity-90 disabled:opacity-40"
-              >
-                {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                {busy ? "Importing..." : `Import ${parsed?.rows.length ?? 0}`}
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </ModalPortal>
-  );
-}
-
 export function ExhibitorsAdminManager({
   initialExhibitors,
   initialStats,
@@ -1417,6 +1127,7 @@ export function ExhibitorsAdminManager({
   const [pendingId, setPendingId] = useState<number | null>(null);
   const [bulkPending, setBulkPending] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [allocateOpen, setAllocateOpen] = useState(false);
   const [templates, setTemplates] = useState<{ id: string; label: string }[]>([]);
   const [templateId, setTemplateId] = useState("");
   const [actionValue, setActionValue] = useState("");
@@ -1774,6 +1485,14 @@ export function ExhibitorsAdminManager({
               Import CSV
             </button>
             <button
+              onClick={() => setAllocateOpen(true)}
+              title="Give every active exhibitor without a stand the next free booth, alphabetically"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-zinc-300 transition hover:bg-white/10 hover:text-white cursor-pointer"
+            >
+              <LayoutGrid className="h-3.5 w-3.5" />
+              Auto-allocate Stands
+            </button>
+            <button
               onClick={() => setModalExhibitor("new")}
               className="inline-flex items-center gap-2 rounded-full bg-brand-pink px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-brand-pink/20 transition hover:scale-105 active:scale-95 cursor-pointer"
             >
@@ -2104,9 +1823,15 @@ export function ExhibitorsAdminManager({
         />
       )}
       {importOpen && (
-        <ImportExhibitorsModal
+        <ExhibitorImportModal
           onClose={() => setImportOpen(false)}
           onImported={() => refreshData()}
+        />
+      )}
+      {allocateOpen && (
+        <StandAllocationModal
+          onClose={() => setAllocateOpen(false)}
+          onAllocated={() => refreshData()}
         />
       )}
 

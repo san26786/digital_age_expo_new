@@ -1,11 +1,18 @@
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import { getDomain } from "@/lib/services/domain";
 import { Sparkles, Mic } from "lucide-react";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Keynote Sessions | Digital Age Expo",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Keynote Sessions | ${brand}`,
   description: "Main stage keynote addresses by visionary founders, executives, and keynote speakers.",
 };
+}
 
 export default async function KeynotePage() {
   const domain = await getDomain();

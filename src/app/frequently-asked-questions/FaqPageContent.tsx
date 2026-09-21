@@ -1,4 +1,5 @@
 "use client";
+import { BrandText } from "@/components/brand/BrandText";
 
 import { useState } from "react";
 import { ChevronDown, HelpCircle, Plus, Sparkles } from "lucide-react";
@@ -77,7 +78,7 @@ export function FaqPageContent({
             {/* Badge */}
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-purple-400/20 bg-purple-500/10 px-4 py-2 text-[10px] font-bold uppercase tracking-[0.22em] text-purple-300 backdrop-blur-md">
               <HelpCircle className="h-4 w-4" />
-              Digital Age Expo Help Centre
+              <BrandText /> Help Centre
             </div>
 
             {/* Heading */}
@@ -90,7 +91,7 @@ export function FaqPageContent({
 
             <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-zinc-300 sm:text-base">
               Find answers to common questions about exhibiting,
-              sponsoring, speaking and attending Digital Age Expo.
+              sponsoring, speaking and attending <BrandText />.
             </p>
 
             {/* Event Information */}
@@ -100,7 +101,7 @@ export function FaqPageContent({
                 <Sparkles className="h-4 w-4 text-pink-400" />
 
                 <p className="text-sm font-black uppercase tracking-wide text-white sm:text-base">
-                  Digital Age Expo
+                  <BrandText />
                 </p>
 
                 <Sparkles className="h-4 w-4 text-purple-400" />

@@ -52,7 +52,7 @@ export async function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative overflow-hidden bg-[#03010a] text-white">
+    <footer className="site-footer relative overflow-hidden text-white">
       {/* =========================================================
           BACKGROUND
       ========================================================== */}

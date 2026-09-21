@@ -8,6 +8,10 @@ import {
   Menu,
   Settings,
   Settings2,
+  Send,
+  Server,
+  SlidersHorizontal,
+  Palette,
   Wrench,
   ListChecks,
   Video,
@@ -67,6 +71,9 @@ import {
   ChevronsDown,
   type LucideIcon,
   Handshake,
+  Globe2,
+  Plus,
+  LayoutList,
 } from "lucide-react";
 import { DEFAULT_EVENT_ID } from "@/lib/site-config";
 
@@ -104,7 +111,12 @@ const BASE = "/members";
  * segment and renders a generic module full of MOCK records, so a typo here would not 404. It
  * would quietly show a member a page of fake data.
  */
-function buildTabs(eventId: number | string, eventSlug?: string | null): Tab[] {
+function buildTabs(
+  eventId: number | string,
+  eventSlug?: string | null,
+  canAccessHub = false,
+  canManageSites = false
+): Tab[] {
   const q = `event_id=${eventId}`;
 
   return [
@@ -624,6 +636,135 @@ function buildTabs(eventId: number | string, eventSlug?: string | null): Tab[] {
         },
       ],
     },
+
+    // ---------------------------------------------------------
+    // SITE HUB  (superadmin only)
+    //
+    // Not under ${BASE}. Every other entry in this navbar points at /members/<segment>, where
+    // src/app/members/(event)/[slug]/page.tsx catches anything unrecognised and renders a
+    // generic module full of MOCK records - so a Hub link that lived there would not 404 if it
+    // broke, it would quietly show fake sites. /hub is a top-level route of its own, with its
+    // own layout and its own gate, and a wrong URL there fails loudly.
+    //
+    // Hidden rather than disabled for people without access: the Hub is not a feature most
+    // members are missing out on, it is one they have no business knowing the shape of.
+    //
+    // The two tabs below are gated separately, and that split is the point.
+    //
+    // A superadmin is a superadmin on every host. Email Templates is fine that way - it is a
+    // screen you want from whichever site you are working on. Hub: Sites is not: without a second
+    // question it would appear inside B2B Growth Expo offering to manage B2B Growth Expo's
+    // siblings, so it asks getSitesHubAccess() and shows only on the parent site.
+    // ---------------------------------------------------------
+    ...(canAccessHub
+      ? [
+          /*
+           * SITE SETTINGS — this site's own name, colours, logos and contact details.
+           *
+           * The same editor the Hub uses, pointed at whichever site is being served. It is here
+           * rather than under Hub: Sites because it is not site MANAGEMENT: a created site
+           * changing its own colours has nothing to do with the parent site's list of every site,
+           * and routing it through there would mean an organiser needs the parent to change a
+           * colour. /hub/site-settings resolves the site from the host, so this one entry does the
+           * right thing on every site without the link needing to know which one it is on.
+           */
+          {
+            code: "LGTSITECFG",
+            label: "Site Settings",
+            icon: SlidersHorizontal,
+            colorClass: "bg-[#4B0082] hover:bg-black",
+            items: [
+              {
+                title: "Identity, Colours & Logos",
+                href: "/hub/site-settings",
+                icon: Palette,
+              },
+            ],
+          } satisfies Tab,
+
+          /*
+           * EMAIL TEMPLATES, IN FRONT OF THE HUB RATHER THAN INSIDE IT.
+           *
+           * This module already existed - it was just locked behind a second login at
+           * /cp/email-templates, which is the thing Angad asked to stop: "from only one login we
+           * can do changes whatever we want from organiser login don't need to cp login".
+           *
+           * So it is the SAME screen, not a copy of it. /hub/email-templates renders the shared
+           * components in src/components/email-templates/shared.tsx behind the Hub's gate, and
+           * the CP page now renders those same components behind its own. One implementation,
+           * two doors - see that file's header for why the alternative was not acceptable.
+           *
+           * It sits beside Hub: Sites but is NOT gated with it. The rows are platform-wide -
+           * find_email_templates has no DOMAIN column, so editing a template here changes what
+           * every site sends, which the screen says above the form - but that is a reason to warn
+           * loudly, not a reason to make the screen unreachable from the site somebody happens to
+           * be signed in to.
+           */
+          {
+            code: "LGTEMAIL",
+            label: "Email Templates",
+            icon: Mail,
+            colorClass: "bg-[#7C3AED] hover:bg-black",
+            items: [
+              {
+                title: "All Templates",
+                href: "/hub/email-templates",
+                icon: Files,
+              },
+            ],
+          } satisfies Tab,
+
+          /*
+           * SEND QUEUE — the mailbox this site sends from.
+           *
+           * Beside Email Templates and under the same flag, because it is the same shape of thing:
+           * per-site email settings, wanted from whichever site somebody is signed in to. The
+           * settings it edits are keyed on the serving domain, so gating it to the parent site
+           * would mean a sub-site could never set its own From address, which is the opposite of
+           * what it is for.
+           *
+           * The screen is honest about its own extent: the provider section is wired, and bounce
+           * capture, send cadence and the job list are named and marked as not built, because
+           * this app has no queue worker and no tables behind any of them.
+           */
+          {
+            code: "LGTSENDQ",
+            label: "Send Queue",
+            icon: Send,
+            colorClass: "bg-[#0F766E] hover:bg-black",
+            items: [
+              {
+                title: "Email Provider",
+                href: "/hub/send-queue",
+                icon: Server,
+              },
+            ],
+          } satisfies Tab,
+        ]
+      : []),
+
+    ...(canManageSites
+      ? [
+          {
+            code: "LGTHUB",
+            label: "Hub Sites",
+            icon: Globe2,
+            colorClass: "bg-[#0F766E] hover:bg-black",
+            items: [
+              {
+                title: "All Sites",
+                href: "/hub/sites",
+                icon: LayoutList,
+              },
+              {
+                title: "New Site",
+                href: "/hub/sites/new",
+                icon: Plus,
+              },
+            ],
+          } satisfies Tab,
+        ]
+      : []),
   ];
 }
 
@@ -648,6 +789,27 @@ interface EventAdminNavbarProps {
   eventSlug?: string | null;
 
   /**
+   * Whether to show the Site Hub tab.
+   *
+   * Decided on the SERVER by the caller (getHubAccess), never here: this is a client component,
+   * so anything it worked out for itself would be worked out from data already shipped to the
+   * browser. Defaults to false so a caller that forgets to pass it hides the tab rather than
+   * revealing it - the safe direction for a flag that gates site creation.
+   */
+  canAccessHub?: boolean;
+
+  /**
+   * Whether to show Hub: Sites specifically.
+   *
+   * Separate from canAccessHub because the two answer different questions. Email Templates is a
+   * screen an organiser wants from whichever site they are signed in to; creating and deleting
+   * whole sites belongs to the parent site only and must not appear inside one of the sites it
+   * manages. Both are decided on the SERVER by the caller - getHubAccess and getSitesHubAccess -
+   * and both default to false, so a caller that forgets hides rather than reveals.
+   */
+  canManageSites?: boolean;
+
+  /**
    * Optional tab to open initially.
    */
   defaultTab?: string;
@@ -663,10 +825,12 @@ interface EventAdminNavbarProps {
 export default function EventAdminNavbar({
   eventId = DEFAULT_EVENT_ID,
   eventSlug,
+  canAccessHub = false,
+  canManageSites = false,
   defaultTab,
   onOpenModal,
 }: EventAdminNavbarProps) {
-  const tabs = buildTabs(eventId, eventSlug);
+  const tabs = buildTabs(eventId, eventSlug, canAccessHub, canManageSites);
   const pathname = usePathname();
 
   /**

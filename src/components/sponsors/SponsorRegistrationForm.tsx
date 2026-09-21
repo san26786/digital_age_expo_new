@@ -1,4 +1,5 @@
 "use client";
+import { BrandText } from "@/components/brand/BrandText";
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -95,7 +96,7 @@ export function SponsorRegistrationForm({ tiers, defaultTierId }: Props) {
           Sponsor Registration Submitted!
         </h3>
         <p className="text-sm sm:text-base max-w-lg mx-auto font-medium text-emerald-300">
-          Thank you for registering your interest to sponsor Digital Age Expo 2026. Our partnership team will review your application and get in touch shortly.
+          Thank you for registering your interest to sponsor <BrandText /> 2026. Our partnership team will review your application and get in touch shortly.
         </p>
         <div className="pt-2">
           <button
@@ -125,7 +126,7 @@ export function SponsorRegistrationForm({ tiers, defaultTierId }: Props) {
           Sponsor Registration
         </h2>
         <p className="mt-1 text-sm text-fuchsia-300 font-semibold">
-          Digital Age Expo 2026
+          <BrandText /> 2026
         </p>
       </div>
 
@@ -283,7 +284,7 @@ export function SponsorRegistrationForm({ tiers, defaultTierId }: Props) {
       {/* Terms & Submit */}
       <div className="space-y-6 pt-4 border-t border-white/10">
         <p className="text-xs text-slate-400 leading-relaxed font-medium">
-          By clicking on Register button you submit the registration form for your interest in exhibiting at the Digital Age Expo and you consent to the event organisers sending you emails regarding this event.
+          By clicking on Register button you submit the registration form for your interest in exhibiting at the <BrandText /> and you consent to the event organisers sending you emails regarding this event.
         </p>
 
         <div>

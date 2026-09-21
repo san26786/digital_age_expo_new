@@ -2,6 +2,7 @@ import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { CACHE_TAGS, cachedRead } from "@/lib/cache";
 import { DOMAIN_ID, DEFAULT_EVENT_ID, DEFAULT_LISTING_ID, ACTIVE_EVENT_SETTING_VARNAME } from "@/lib/site-config";
+import { resolveSiteId } from "@/lib/tenant";
 
 /**
  * Reads the CP-selected "active event" (find_settings, varname=ACTIVE_EVENT_SETTING_VARNAME,
@@ -12,9 +13,9 @@ import { DOMAIN_ID, DEFAULT_EVENT_ID, DEFAULT_LISTING_ID, ACTIVE_EVENT_SETTING_V
  * null (not a throw) on any failure so getDomain() can fall back to DEFAULT_EVENT_ID exactly
  * like it already does for a missing find_domains row.
  */
-async function getActiveEventIdSetting(): Promise<number | null> {
+async function getActiveEventIdSetting(siteId: number): Promise<number | null> {
   try {
-    const raw = await readActiveEventSetting();
+    const raw = await readActiveEventSetting(siteId);
     const parsed = raw ? Number(raw) : NaN;
     return Number.isFinite(parsed) ? parsed : null;
   } catch (e) {
@@ -34,11 +35,20 @@ async function getActiveEventIdSetting(): Promise<number | null> {
  * catch below supplies the fallback for that one request, and the very next request
  * retries the database.
  */
+/*
+ * `siteId` is an ARGUMENT, and that is load-bearing rather than tidy.
+ *
+ * cachedRead folds a function's arguments into its cache key, so a zero-argument cached read is
+ * shared by every tenant: the first site to warm this entry would have its active event served
+ * to all the others for the whole revalidate window. That is the multi-tenancy bug that is
+ * hardest to notice - it looks like a caching flake, not a leak - so every read below that used
+ * the DOMAIN_ID constant now takes the site instead.
+ */
 const readActiveEventSetting = cachedRead(
   ["domain", "activeEventSetting"],
-  async function readActiveEventSetting(): Promise<string | null> {
+  async function readActiveEventSetting(siteId: number): Promise<string | null> {
     const rows = await prisma.$queryRaw<{ value: string | null }[]>`
-      SELECT value FROM find_settings WHERE varname = ${ACTIVE_EVENT_SETTING_VARNAME} AND "DOMAIN" = ${DOMAIN_ID} LIMIT 1
+      SELECT value FROM find_settings WHERE varname = ${ACTIVE_EVENT_SETTING_VARNAME} AND "DOMAIN" = ${siteId} LIMIT 1
     `;
     return rows[0]?.value ?? null;
   },
@@ -48,13 +58,17 @@ const readActiveEventSetting = cachedRead(
 /** The find_domains row, cached across requests. Same no-fallback-inside rule as above. */
 const readDomainRow = cachedRead(
   ["domain", "domainRow"],
-  async function readDomainRow() {
+  async function readDomainRow(siteId: number) {
     return prisma.find_domains.findUnique({
-      where: { id: DOMAIN_ID },
+      where: { id: siteId },
       select: {
         id: true,
         name: true,
         brand: true,
+        // The site's own hostname and address, needed by anything that prints "where" rather
+        // than "who" — the About block's contact line, most visibly.
+        link: true,
+        address: true,
         event_id: true,
         linked_profile_listing_id: true,
         faq_listing_id: true,
@@ -88,14 +102,18 @@ const readDomainRow = cachedRead(
  * Both are needed: (1) collapses the many calls inside one render, (2) collapses across renders.
  */
 export const getDomain = cache(async function getDomain() {
+  // Which site this request is for. Every failure inside resolveSiteId returns DOMAIN_ID, so on
+  // the main site - and on any request without a host, such as a script - this is 150 and
+  // everything below behaves exactly as it did before multi-site existed.
+  const siteId = await resolveSiteId();
+
   // Resolved independently of the find_domains lookup below so a missing/unreachable
   // find_domains row still gets the CP's chosen active event (not just the hardcoded
   // fallback) whenever the setting itself is readable.
-  const activeEventId = await getActiveEventIdSetting();
-  const resolvedEventId = activeEventId ?? DEFAULT_EVENT_ID;
+  const activeEventId = await getActiveEventIdSetting(siteId);
 
   try {
-    const domain = await readDomainRow();
+    const domain = await readDomainRow(siteId);
     if (domain) {
       // find_domains.event_id / linked_profile_listing_id are unenforced legacy columns —
       // this site's event is resolved above (CP "active event" setting, falling back to
@@ -104,6 +122,28 @@ export const getDomain = cache(async function getDomain() {
       // data; the CP's own "Mark Active" / General Settings "Event" dropdown is now the one
       // deliberate, visible way to change what this returns — see site-config.ts and
       // src/app/cp/(shell)/settings/general/page.tsx.
+      /*
+       * WHERE A SITE'S EVENT COMES FROM. Three sources, in this order, for every site:
+       *
+       *   1. The CP's "active event" setting for this DOMAIN. Deliberately first: it is the one
+       *      visible, intentional control over what the site shows, and the reason it exists is
+       *      that find_domains.event_id had drifted and was silently pointing pages at the wrong
+       *      show. Being FIRST is what fixed that - the row can no longer override the choice.
+       *
+       *   2. The site's own find_domains.event_id. It sits below the setting, so it cannot
+       *      reintroduce the drift; it can only replace a worse answer. For Digital Age Expo that
+       *      is 1474, the current show, which is what should be served if the setting ever goes
+       *      missing. For a Hub-created sub-site it is the event the Hub wrote at creation, and
+       *      that site has no setting row of its own to speak for it.
+       *
+       *   3. DEFAULT_EVENT_ID, the hardcoded constant. Last, and it should now be unreachable in
+       *      practice - it is 852, a 2021 show, and serving that to anyone is a bug rather than a
+       *      default. It used to be second, which is precisely why a missing setting meant the
+       *      main site quietly fell back four years.
+       */
+      const ownEventId = domain.event_id ?? null;
+      const resolvedEventId = activeEventId ?? ownEventId ?? DEFAULT_EVENT_ID;
+
       return {
         ...domain,
         event_id: resolvedEventId,
@@ -118,7 +158,9 @@ export const getDomain = cache(async function getDomain() {
     id: DOMAIN_ID,
     name: "Digital Age Expo",
     brand: "Digital Age Expo",
-    event_id: resolvedEventId,
+    link: "digitalageexpo.com",
+    address: null,
+    event_id: activeEventId ?? DEFAULT_EVENT_ID,
     linked_profile_listing_id: DEFAULT_LISTING_ID,
     faq_listing_id: null,
     email: "expo@findusonweb.com",

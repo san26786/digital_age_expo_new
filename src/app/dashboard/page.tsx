@@ -1,12 +1,20 @@
+import { Brand } from "@/components/brand/Brand";
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 import { authOptions } from "@/lib/auth/options";
 import { getMemberProfile, getUpcomingMeetingsCount } from "@/lib/services/member";
 import { Store, Presentation, Award, FileText, Sparkles, Shield, MapPin, Calendar, ExternalLink } from "lucide-react";
 
-export const metadata = {
-  title: "My Dashboard | Digital Age Expo",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `My Dashboard | ${brand}`,
 };
+}
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -57,7 +65,7 @@ export default async function DashboardPage() {
               </div>
 
               <p className="text-sm text-indigo-950/70 leading-relaxed max-w-2xl">
-                You are registered as an official exhibitor for <span className="font-semibold text-indigo-950">Digital Age Expo 2026</span>. Access your allocated stand info, branding guidelines, and artwork submission portals below.
+                You are registered as an official exhibitor for <span className="font-semibold text-indigo-950"><Brand /> 2026</span>. Access your allocated stand info, branding guidelines, and artwork submission portals below.
               </p>
 
               <div className="grid gap-4 sm:grid-cols-2 pt-2">

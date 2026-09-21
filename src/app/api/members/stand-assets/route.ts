@@ -30,27 +30,59 @@ export async function GET(request: Request) {
     }
   }
 
-  // 1. Get all exhibitors list for dropdown. This is the one thing every render of the page
-  // needs, so it's fetched outside the "rest of the stand" try/catch below — a bad row further
-  // down (a broken spot, a missing zone, etc.) must never blank out the exhibitor list itself.
+  /*
+   * 1. The exhibitor list behind the stand switcher.
+   *
+   * ACTIVE ONLY. A pending exhibitor has not been confirmed onto the event, so their stand is not
+   * something an organiser should be designing yet — on a large event the dropdown was mostly
+   * pending rows, and the handful of confirmed stands were lost in them.
+   *
+   * Fetched outside the "rest of the stand" try/catch below, because this is the one thing every
+   * render of the page needs: a bad row further down (a broken spot, a missing zone) must never
+   * blank out the list itself.
+   */
+  const EXHIBITOR_OPTION_FIELDS = {
+    id: true,
+    business: true,
+    name: true,
+    status: true,
+  } as const;
+
   let exhibitors: any[] = [];
   try {
     exhibitors = await prisma.find_event_exhibitor.findMany({
-      where: { event_id: eventId },
-      select: {
-        id: true,
-        business: true,
-        name: true,
-        status: true,
-      },
+      where: { event_id: eventId, status: "active" },
+      select: EXHIBITOR_OPTION_FIELDS,
       orderBy: { business: "asc" },
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to load exhibitors" }, { status: 500 });
   }
 
+  /*
+   * The one exception to "active only": whoever is actually selected.
+   *
+   * Two ways a non-active exhibitor legitimately ends up selected — an organiser following a direct
+   * ?ex_id= link to a stand they are setting up, and an exhibitor whose own registration is still
+   * pending opening their own stand. The switcher reads its button label out of this list, and the
+   * page shows "No exhibitors for this event" when the list is empty, so dropping the selected row
+   * would leave the first case labelled "Select exhibitor" and lock the second out of their own
+   * stand entirely. It is added back with its real status, so it still carries a Pending badge.
+   */
+  if (selectedExId && !exhibitors.some((ex) => ex.id === selectedExId)) {
+    try {
+      const selectedOption = await prisma.find_event_exhibitor.findFirst({
+        where: { id: selectedExId, event_id: eventId },
+        select: EXHIBITOR_OPTION_FIELDS,
+      });
+      if (selectedOption) exhibitors = [selectedOption, ...exhibitors];
+    } catch {
+      // Non-fatal: the stand itself still loads, the switcher just will not label this one row.
+    }
+  }
+
   if (!selectedExId && exhibitors.length > 0) {
-    // Default to first exhibitor if organiser or multiple
+    // Default to the first ACTIVE exhibitor — the page should never open on a pending stand.
     selectedExId = exhibitors[0].id;
   }
 

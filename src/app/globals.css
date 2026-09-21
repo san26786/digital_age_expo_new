@@ -33,6 +33,13 @@
   --color-indigo-950-rgb: 30 27 75;
 
   /* Dark surface backgrounds (headers, sidebars, cards, full-bleed sections) */
+  /*
+   * The navbar and the footer, as variables rather than as whatever surface they happened to
+   * share. Defaults reproduce exactly what they were: the navbar used bg-surface-1/90, the
+   * footer the literal #03010a. A site that sets neither looks identical to before they existed.
+   */
+  --color-nav-bg: #0A0514;
+  --color-footer-bg: #03010a;
   --color-surface-1: #0A0514;
   --color-surface-1-rgb: 10 5 20;
   --color-surface-2: #0C0618;
@@ -173,7 +180,8 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Button & interactive highlights matching var(--color-brand-purple) and var(--color-brand-pink) */
 .btn-sophisticated {
-  background: linear-gradient(135deg, var(--color-brand-purple), var(--color-brand-pink)) !important;
+  /* Flat primary, not a purple -> pink sweep. See the note above .btn-brand-gradient. */
+  background: var(--color-brand-pink) !important;
   box-shadow: 0 8px 24px rgb(var(--color-brand-pink-rgb) / 0.3) !important;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   color: var(--color-white) !important;
@@ -186,10 +194,27 @@ h1, h2, h3, h4, h5, h6 {
   filter: brightness(1.1);
 }
 
-/* Brand gradient buttons */
+/*
+ * ===========================================================================
+ *  THE BRAND BUTTON — A FLAT PRIMARY
+ * ===========================================================================
+ *
+ *  This is the class the hero CTAs actually use, and it is why the earlier Tailwind-utility rule
+ *  changed nothing: these buttons never carried `from-brand-purple to-brand-pink`. The gradient
+ *  lived here, in the design system, behind an `!important` that no utility could have beaten.
+ *
+ *  It was a three-stop sweep, purple -> pink -> purple, over a 200% background that slid on hover.
+ *  Two reasons it had to go beyond the ask: a button whose left end is the SECONDARY colour never
+ *  shows the primary somebody chose in the theme editor, and with a site whose secondary is a near
+ *  black (which Digital Age Expo's currently is) the sweep reads as a dark smudge rather than as a
+ *  brand colour.
+ *
+ *  The hover keeps its lift and its glow. The background-position slide is gone with the gradient
+ *  it moved — there is nothing left to slide — and brightness takes its place.
+ */
 .btn-brand-gradient {
-  background-size: 200% 200%;
-  background-image: linear-gradient(135deg, var(--color-brand-purple) 0%, var(--color-brand-pink) 50%, var(--color-brand-purple) 100%) !important;
+  background-image: none !important;
+  background-color: var(--color-brand-pink) !important;
   box-shadow: 0 4px 18px rgb(var(--color-brand-pink-rgb) / 0.35);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   color: var(--color-white) !important;
@@ -198,7 +223,7 @@ h1, h2, h3, h4, h5, h6 {
 .btn-brand-gradient:hover {
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 10px 30px rgb(var(--color-brand-pink-rgb) / 0.55), 0 0 20px rgb(var(--color-brand-purple-rgb) / 0.4);
-  background-position: 100% 0;
+  filter: brightness(1.08);
 }
 
 .btn-brand-gradient:active {
@@ -327,6 +352,106 @@ h1, h2, h3, h4, h5, h6 {
 /* Heartbeat glow for 3D decorative shapes (pulse-glow keyframe defined above, near line 47) */
 .animate-pulse-glow {
   animation: pulse-glow 4s ease-in-out infinite;
+}
+
+/*
+ * The two bars.
+ *
+ * Classes rather than Tailwind utilities because both need to read a custom property that the
+ * per-site theme block overrides, and the navbar needs it at 90% so the backdrop blur behind it
+ * still shows through. color-mix keeps that translucency while letting the colour itself be a
+ * variable — `bg-surface-1/90` could only ever be one surface.
+ */
+.site-navbar {
+  background-color: color-mix(in srgb, var(--color-nav-bg) 90%, transparent);
+}
+
+.site-footer {
+  background-color: var(--color-footer-bg);
+}
+
+/*
+ * ===========================================================================
+ *  BRAND BUTTONS ARE A FLAT PRIMARY, NOT A GRADIENT
+ * ===========================================================================
+ *
+ *  Every call-to-action in this app was `bg-gradient-to-r from-brand-purple to-brand-pink`, so a
+ *  button was half one brand colour, half the other, blended through the middle. Angad asked for
+ *  buttons in the primary colour alone, and there is a second reason to want that now: the theme
+ *  editor lets each site choose its own primary, and a two-stop gradient means the colour somebody
+ *  picks is never the colour they actually see on a button.
+ *
+ *  ---------------------------------------------------------------------------
+ *  WHY THIS IS A STYLESHEET RULE AND NOT AN EDIT TO EVERY BUTTON
+ *  ---------------------------------------------------------------------------
+ *
+ *  There are a lot of these, across pages, dashboards and the Hub. Editing each one is the same
+ *  change written many times, and the next button anyone adds by copying a neighbour brings the
+ *  gradient straight back. One rule keyed on the class pair covers the ones that exist and the
+ *  ones not written yet, and `--color-brand-pink` is the variable the per-site theme block
+ *  overrides — so a site that picks its own primary gets flat buttons in ITS primary, free.
+ *
+ *  ---------------------------------------------------------------------------
+ *  WHAT IT DELIBERATELY DOES NOT TOUCH
+ *  ---------------------------------------------------------------------------
+ *
+ *  Class selectors match whole tokens, so `from-brand-purple/20` is a DIFFERENT token and does not
+ *  match: the soft tinted overlays behind cards and glows keep their gradients, which is what they
+ *  are for. Section and hero backgrounds use the zinc/slate stops and are untouched. Gradient TEXT
+ *  is excluded explicitly — it paints a gradient and then clips it to the glyphs, so removing the
+ *  background-image would leave invisible text rather than a flat heading.
+ */
+/*
+ * ===========================================================================
+ *  TEXT COLOUR, SEPARATED FROM THE BUTTON FILL
+ * ===========================================================================
+ *
+ *  `text-brand-pink` and `bg-brand-pink` were the same variable, and the two uses want opposite
+ *  things: a fill wants to be dark enough for white text to sit on it, an accent wants to be light
+ *  enough to read on a near-black page. Reading a red logo produced #d21317 — a good button and an
+ *  unreadable heading.
+ *
+ *  So accent TEXT reads its own variable. siteTheme.ts sets it to the site's chosen accent, or
+ *  derives it from primary and lifts it in HSL lightness until it clears 4.5:1 against that site's
+ *  page background. The fill keeps the true primary. Nothing at any call site changed.
+ *
+ *  These rules are unlayered, so they beat Tailwind's own utilities without !important —
+ *  everything Tailwind emits lives inside `@layer utilities`, which loses to unlayered CSS
+ *  whatever the specificity.
+ */
+:root {
+  --color-text-main: #ffffff;
+  --color-accent-text: var(--color-brand-pink);
+}
+
+.text-brand-pink {
+  color: var(--color-accent-text);
+}
+
+/*
+ * Body and heading text. Only the three the app actually writes prose in — `text-white` for
+ * headings, and the two inverted zinc tones globals.css defines above for body and muted copy.
+ * `color-mix` keeps the zinc ramp's relative weighting rather than flattening every tone to one
+ * colour, so a chosen text colour still reads as heading / body / muted rather than as a wall.
+ */
+.text-white {
+  color: var(--color-text-main);
+}
+
+.text-zinc-300 {
+  color: color-mix(in srgb, var(--color-text-main) 88%, transparent);
+}
+
+.text-zinc-400 {
+  color: color-mix(in srgb, var(--color-text-main) 70%, transparent);
+}
+
+.from-brand-purple.to-brand-pink:not([class*="bg-clip-text"]),
+.from-brand-pink.to-brand-purple:not([class*="bg-clip-text"]),
+.from-brand-purple.to-brand-violet:not([class*="bg-clip-text"]),
+.from-brand-violet.to-brand-pink:not([class*="bg-clip-text"]) {
+  background-image: none;
+  background-color: var(--color-brand-pink);
 }
 
 /* Forms & Inputs visibility in dark theme */

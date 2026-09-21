@@ -1,0 +1,354 @@
+{
+  "jsx_text": [
+    {
+      "file": "src/app/contact/page.tsx",
+      "count": 2
+    },
+    {
+      "file": "src/app/dashboard/page.tsx",
+      "count": 1
+    },
+    {
+      "file": "src/app/event-services/page.tsx",
+      "count": 1
+    },
+    {
+      "file": "src/app/event_features/page.tsx",
+      "count": 1
+    },
+    {
+      "file": "src/app/exhibitor-information/page.tsx",
+      "count": 1
+    },
+    {
+      "file": "src/app/exhibitor-registration/page.tsx",
+      "count": 4
+    },
+    {
+      "file": "src/app/live-workshop/page.tsx",
+      "count": 1
+    },
+    {
+      "file": "src/app/magazine/page.tsx",
+      "count": 3
+    },
+    {
+      "file": "src/app/masterclass/page.tsx",
+      "count": 1
+    },
+    {
+      "file": "src/app/networking/page.tsx",
+      "count": 1
+    },
+    {
+      "file": "src/app/seminars/page.tsx",
+      "count": 1
+    },
+    {
+      "file": "src/app/speaker_registration/page.tsx",
+      "count": 1
+    },
+    {
+      "file": "src/app/vip-lounge/page.tsx",
+      "count": 1
+    },
+    {
+      "file": "src/app/webinars/page.tsx",
+      "count": 1
+    },
+    {
+      "file": "src/app/why-exhibit/page.tsx",
+      "count": 1
+    },
+    {
+      "file": "src/app/why_join_exhibit/page.tsx",
+      "count": 2
+    },
+    {
+      "file": "src/app/[...slug]/page.tsx",
+      "count": 1
+    },
+    {
+      "file": "src/components/home/B2BGrowthFlywheel.tsx",
+      "count": 1
+    },
+    {
+      "file": "src/components/home/EventIntroVideo.tsx",
+      "count": 1
+    },
+    {
+      "file": "src/components/layout/SitePreviewBanner.tsx",
+      "count": 1
+    },
+    {
+      "file": "src/components/speakers/BecomeSpeakerSection.tsx",
+      "count": 3
+    },
+    {
+      "file": "src/components/speakers/SpeakerProfileHeader.tsx",
+      "count": 1
+    },
+    {
+      "file": "src/components/speakers/SpeakerVideos.tsx",
+      "count": 2
+    },
+    {
+      "file": "src/components/sponsors/WhySponsorSection.tsx",
+      "count": 1
+    }
+  ],
+  "needs_human": [
+    {
+      "file": "src/app/layout.tsx",
+      "line": 19,
+      "kind": "comment",
+      "client": false,
+      "text": "t /favicon.ico, so every site served by this      * deployment showed Digital Age Expo's icon in the browser tab no matter what it had      * uploaded. It comes"
+    },
+    {
+      "file": "src/app/article/[slug]/page.tsx",
+      "line": 16,
+      "kind": "string/attribute",
+      "client": false,
+      "text": "getArticleById(id) : null;   if (!article) return { title: \"Article | Digital Age Expo\" };   return {     title: `${article.title} | Digital Age Expo`,     desc"
+    },
+    {
+      "file": "src/app/article/[slug]/page.tsx",
+      "line": 18,
+      "kind": "string/attribute",
+      "client": false,
+      "text": "icle | Digital Age Expo\" };   return {     title: `${article.title} | Digital Age Expo`,     description: article.shortDescription || undefined,   }; }  export"
+    },
+    {
+      "file": "src/app/event_features/page.tsx",
+      "line": 159,
+      "kind": "string/attribute",
+      "client": false,
+      "text": "src=\"https://www.youtube.com/embed/TX17TH2HGqw\"               title=\"Digital Age Expo Intro Video\"               allow=\"accelerometer; autoplay; clipboard-writ"
+    },
+    {
+      "file": "src/app/event_schedule/page.tsx",
+      "line": 39,
+      "kind": "string/attribute",
+      "client": false,
+      "text": "/>;   }    const defaultEvent = event || {     id: 1474,     title: \"Digital Age Expo 2026\",     venue: \"Exhibition Hall & Virtual Auditoriums\",     date_start"
+    },
+    {
+      "file": "src/app/frequently-asked-questions/FaqPageContent.tsx",
+      "line": 80,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "r-md\">               <HelpCircle className=\"h-4 w-4\" />               Digital Age Expo Help Centre             </div>              {/* Heading */}             <"
+    },
+    {
+      "file": "src/app/frequently-asked-questions/FaqPageContent.tsx",
+      "line": 93,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "ns about exhibiting,               sponsoring, speaking and attending Digital Age Expo.             </p>              {/* Event Information */}             <div"
+    },
+    {
+      "file": "src/app/frequently-asked-questions/FaqPageContent.tsx",
+      "line": 103,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "k uppercase tracking-wide text-white sm:text-base\">                   Digital Age Expo                 </p>                  <Sparkles className=\"h-4 w-4 text-p"
+    },
+    {
+      "file": "src/app/glimpse-of-the-show/page.tsx",
+      "line": 84,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "\">               <Sparkles className=\"w-4 h-4\" />               <span>Digital Age Expo Virtual Experience</span>             </div>             <h1 className=\"t"
+    },
+    {
+      "file": "src/app/glimpse-of-the-show/page.tsx",
+      "line": 247,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "-slate-300 font-medium\">             Take a tour through key areas of Digital Age Expo including our interactive hall, photo booth, lobby, and welcome lounge."
+    },
+    {
+      "file": "src/app/magazine/page.tsx",
+      "line": 137,
+      "kind": "string/attribute",
+      "client": false,
+      "text": "src={publication.thumbnailUrl}                         alt=\"Digital Age Expo Magazine cover\"                         className=\"h-full w-full object-c"
+    },
+    {
+      "file": "src/app/sponsors/page.tsx",
+      "line": 115,
+      "kind": "string/attribute",
+      "client": false,
+      "text": "font-medium\">             Interested in sponsoring {event?.title || \"Digital Age Expo\"}? Partner with us to reach thousands of business decision-makers."
+    },
+    {
+      "file": "src/app/why-exhibit/page.tsx",
+      "line": 55,
+      "kind": "string/attribute",
+      "client": false,
+      "text": "title: \"Target High-Intent Buyers\",       desc: \"Every attendee at Digital Age Expo registers with specific tech and service needs. Interact directly via vid"
+    },
+    {
+      "file": "src/app/why_join_exhibit/page.tsx",
+      "line": 105,
+      "kind": "string/attribute",
+      "client": false,
+      "text": "icAssetUrl(\"/images/event_feature3.jpg\"),       description:         \"Digital Age Expo proudly welcomes industry experts from around the world to share their ne"
+    },
+    {
+      "file": "src/components/brand/Brand.tsx",
+      "line": 15,
+      "kind": "comment",
+      "client": false,
+      "text": "es a site down.  *  *  An async server component needs none of that. `Digital Age Expo` in JSX becomes `<Brand />`  *  and nothing else about the file changes \u2014"
+    },
+    {
+      "file": "src/components/dashboard/MarketingToolsManager.tsx",
+      "line": 343,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "<span className=\"text-brand-pink font-black\">Facebook:</span> Digital Age Expo Official Page           </p>           <p className=\"flex items-center ga"
+    },
+    {
+      "file": "src/components/dashboard/MarketingToolsManager.tsx",
+      "line": 346,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "<span className=\"text-brand-pink font-black\">LinkedIn:</span> Digital Age Expo Network Group           </p>           <p className=\"text-[11px] font-nor"
+    },
+    {
+      "file": "src/components/exhibitors/ExhibitorInformationForm.tsx",
+      "line": 95,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "Thank you for providing your exhibitor details and booth assets for Digital Age Expo 2026. Our operations team will verify your setup.         </p>         <d"
+    },
+    {
+      "file": "src/components/exhibitors/ExhibitorInformationForm.tsx",
+      "line": 124,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "<p className=\"mt-1 text-sm text-fuchsia-300 font-semibold\">           Digital Age Expo 2026         </p>       </div>        {/* Business & Personal Details */}"
+    },
+    {
+      "file": "src/components/exhibitors/ExhibitorRegistrationForm.tsx",
+      "line": 116,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "\">           Thank you for registering your interest in exhibiting at Digital Age Expo 2026. Our exhibitor relations team will contact you shortly to finalize y"
+    },
+    {
+      "file": "src/components/exhibitors/ExhibitorRegistrationForm.tsx",
+      "line": 146,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "<p className=\"mt-1 text-sm text-fuchsia-300 font-semibold\">           Digital Age Expo 2026         </p>       </div>        {/* Section 1: Personal Details */}"
+    },
+    {
+      "file": "src/components/exhibitors/ExhibitorRegistrationForm.tsx",
+      "line": 362,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "n you submit the registration form for your interest in exhibiting at Digital Age Expo and consent to the event organisers sending you emails regarding this eve"
+    },
+    {
+      "file": "src/components/exhibitors/ExhibitorStandSection.tsx",
+      "line": 145,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "Thank you for registering to become an exhibitor at Digital Age Expo 2026. Our team will contact you shortly to set up your virtual stand."
+    },
+    {
+      "file": "src/components/exhibitors/ExhibitorStandSection.tsx",
+      "line": 370,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "u submit the registration form for your interest in exhibiting at the Digital Age Expo and you consent to the event organisers sending you emails regarding this"
+    },
+    {
+      "file": "src/components/exhibitors/ExhibitorStandSection.tsx",
+      "line": 383,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "By clicking Register button below, you consent to allow Digital Age Expo show to store, share and process the personal information submitted above"
+    },
+    {
+      "file": "src/components/hub/NewSiteForm.tsx",
+      "line": 36,
+      "kind": "string/attribute",
+      "client": true,
+      "text": "\", \"Sport\", \"Corporate\"];  const COLOUR_SCHEMES = [   \"Purple / Pink (Digital Age Expo)\",   \"Blue / Cyan\",   \"Emerald / Lime\",   \"Amber / Orange\",   \"Crimson /"
+    },
+    {
+      "file": "src/components/hub/SiteEditForm.tsx",
+      "line": 210,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "yment serves.</span> Anything             saved here changes the live Digital Age Expo \u2014 its logos, its colours and its contact             details \u2014 as soon as"
+    },
+    {
+      "file": "src/components/schedule/EventScheduleClient.tsx",
+      "line": 91,
+      "kind": "string/attribute",
+      "client": true,
+      "text": "tracking-tight text-white leading-none\">             {event.title || \"Digital Age Expo 2026\"} <span className=\"brand-gradient-text\">Schedule</span>           </"
+    },
+    {
+      "file": "src/components/speakers/SpeakerRegistrationForm.tsx",
+      "line": 92,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "d-300\">           Thank you for registering your interest to speak at Digital Age Expo 2026. Please proceed to complete the speaker questionnaire so we can matc"
+    },
+    {
+      "file": "src/components/speakers/SpeakerRegistrationForm.tsx",
+      "line": 132,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "<p className=\"mt-1 text-sm text-fuchsia-300 font-semibold\">           Digital Age Expo 2026         </p>       </div>        {/* Section 1: Personal Details */}"
+    },
+    {
+      "file": "src/components/speakers/SpeakerRegistrationForm.tsx",
+      "line": 330,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "u submit the registration form for your interest in exhibiting at the Digital Age Expo and you consent to the event organisers sending you emails regarding this"
+    },
+    {
+      "file": "src/components/sponsors/SponsorRegistrationForm.tsx",
+      "line": 98,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "ld-300\">           Thank you for registering your interest to sponsor Digital Age Expo 2026. Our partnership team will review your application and get in touch"
+    },
+    {
+      "file": "src/components/sponsors/SponsorRegistrationForm.tsx",
+      "line": 128,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "<p className=\"mt-1 text-sm text-fuchsia-300 font-semibold\">           Digital Age Expo 2026         </p>       </div>        {/* Personal Details */}       <div"
+    },
+    {
+      "file": "src/components/sponsors/SponsorRegistrationForm.tsx",
+      "line": 286,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "u submit the registration form for your interest in exhibiting at the Digital Age Expo and you consent to the event organisers sending you emails regarding this"
+    },
+    {
+      "file": "src/components/virtual-event/PhotoBoothModal.tsx",
+      "line": 195,
+      "kind": "string/attribute",
+      "client": true,
+      "text": ": [file] })) {         await navigator.share({ files: [file], title: \"Digital Age Expo\" });         return;       }     } catch {       /* user dismissed the sh"
+    },
+    {
+      "file": "src/components/virtual-event/PhotoBoothModal.tsx",
+      "line": 357,
+      "kind": "client component JSX",
+      "client": true,
+      "text": "px] font-black uppercase tracking-widest text-white\">                 Digital Age Expo               </span>             </div>              <canvas ref={canvas"
+    }
+  ]
+}

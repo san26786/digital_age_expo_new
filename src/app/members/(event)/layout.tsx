@@ -6,6 +6,7 @@ import { getEventMemberContext, roleLabel } from "@/lib/services/eventAccess";
 import EventAdminNavbar from "@/components/EventAdminNavbar";
 import { getEventById } from "@/lib/services/events";
 import { DEFAULT_EVENT_ID } from "@/lib/site-config";
+import { getHubAccess, getSitesHubAccess } from "@/lib/hub/access";
 
 /**
  * Route group (no URL segment) for every event-scoped member page — keeps URLs matching the
@@ -29,6 +30,14 @@ export default async function MembersEventLayout({ children }: { children: React
   // rather than bouncing through a members page that would stop non-organisers at its guard.
   const event = await getEventById(eventId);
 
+  // Server-side, so the Hub tab is absent from the markup entirely for anyone without
+  // access rather than merely hidden by a class the browser could be told to ignore.
+  // Two questions, not one: getHubAccess says whether this person may use the Hub's screens at
+  // all (Email Templates, on every site); getSitesHubAccess adds "and is this the parent site",
+  // which is what site management needs. Both run here rather than in the client navbar, which
+  // could only work either out from data already shipped to the browser.
+  const [hubAccess, sitesAccess] = await Promise.all([getHubAccess(), getSitesHubAccess()]);
+
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-12 min-h-screen text-white section-transition">
       <div className="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-white/10 mb-6">
@@ -51,7 +60,12 @@ export default async function MembersEventLayout({ children }: { children: React
       </div>
 
       <div className="glass-panel rounded-2xl p-4 sm:p-6 shadow-2xl mb-8 border border-white/10">
-        <EventAdminNavbar eventId={eventId} eventSlug={event?.friendly_url} />
+        <EventAdminNavbar
+          eventId={eventId}
+          eventSlug={event?.friendly_url}
+          canAccessHub={hubAccess.ok}
+          canManageSites={sitesAccess.ok}
+        />
       </div>
 
       <div className="mt-8 animate-slide-up">{children}</div>

@@ -1,5 +1,8 @@
 import { getEmailTemplate } from "@/lib/cp/email/emailTemplatesRepository";
-import { sendMail, isSmtpConfigured } from "./mailer";
+import { sendMail, isMailConfigured } from "./mailer";
+import { applySignature, resolveMailTransport } from "./siteMailSettings";
+import { isSuppressed } from "./emailLog";
+import { resolveSiteId } from "@/lib/tenant";
 
 /**
  * Replaces every {{key}} in `text` with variables[key]. A placeholder with no matching
@@ -17,7 +20,12 @@ export type SendTemplatedEmailResult =
   | { sent: true }
   | {
       sent: false;
-      reason: "template_not_found" | "template_disabled" | "smtp_not_configured" | "send_failed";
+      reason:
+        | "template_not_found"
+        | "template_disabled"
+        | "smtp_not_configured"
+        | "suppressed"
+        | "send_failed";
       error?: unknown;
     };
 
@@ -49,15 +57,40 @@ export async function sendTemplatedEmail(
   const template = await getEmailTemplate(templateId);
   if (!template) return { sent: false, reason: "template_not_found" };
   if (template.disable) return { sent: false, reason: "template_disabled" };
-  if (!isSmtpConfigured()) return { sent: false, reason: "smtp_not_configured" };
+  if (!(await isMailConfigured())) return { sent: false, reason: "smtp_not_configured" };
+
+  /*
+   * ---------------------------------------------------------------------------
+   *  A HARD-BOUNCED ADDRESS IS NOT TRIED AGAIN
+   * ---------------------------------------------------------------------------
+   *
+   *  The mail server has already said this mailbox does not exist. Sending to it again cannot
+   *  succeed, and it is not free: mailbox providers treat repeated unknown-user attempts as a
+   *  sender that does not clean its list, and the reputation cost lands on every other email from
+   *  the same domain — the registration confirmations that people are waiting for.
+   *
+   *  Reported as its own reason rather than as a generic failure, so a caller's log line says
+   *  "we deliberately did not send" instead of implying something broke.
+   */
+  const siteId = await resolveSiteId();
+  if (await isSuppressed(siteId, opts.to)) return { sent: false, reason: "suppressed" };
+
+  /*
+   * The sending site's signature, applied to the rendered body. Resolved here rather than inside
+   * sendMail because the signature is content, not transport: it belongs to the body somebody
+   * wrote, and {{signature}} has to be substituted before the HTML leaves for the mailer.
+   */
+  const transport = await resolveMailTransport();
 
   try {
     await sendMail({
+      siteId,
+      templateId,
       to: opts.to,
       cc: opts.cc,
       bcc: opts.bcc,
       subject: interpolate(template.subject || "", variables),
-      html: interpolate(template.body_html || "", variables),
+      html: applySignature(interpolate(template.body_html || "", variables), transport?.signatureHtml ?? ""),
       fromName: template.from_name || undefined,
       fromAddress: template.from_address || undefined,
       replyTo: template.reply_address || undefined,

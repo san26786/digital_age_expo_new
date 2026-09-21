@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
 import { getDomain } from "@/lib/services/domain";
 import { createFreeTicketRsvp, findFreeTicketConflict } from "@/lib/services/freeTicket";
+import { sendRegistrationEmail } from "@/lib/email/sendRegistrationEmail";
 import { freeTicketSchema } from "@/lib/validations/freeTicket";
+
+/**
+ * The visitor confirmation. Unlike the other three this one genuinely IS confirmed rather than
+ * pending — nobody approves a free ticket — so its stored wording says "You are registered!"
+ * instead of "we have received your application". Editable at /hub/email-templates.
+ */
+const TEMPLATE_ID = "ticket_confirmation";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -23,5 +31,17 @@ export async function POST(request: Request) {
 
   const rsvp = await createFreeTicketRsvp(domain.event_id, parsed.data);
 
-  return NextResponse.json({ success: true, id: rsvp.id });
+  const emailed = await sendRegistrationEmail(
+    TEMPLATE_ID,
+    {
+      email: parsed.data.email,
+      first_name: parsed.data.first_name,
+      last_name: parsed.data.last_name,
+      business: parsed.data.business,
+      position: parsed.data.position,
+    },
+    "free-ticket"
+  );
+
+  return NextResponse.json({ success: true, id: rsvp.id, emailed });
 }

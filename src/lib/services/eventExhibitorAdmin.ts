@@ -1,5 +1,13 @@
 import { prisma } from "@/lib/prisma";
+import {
+  canImport,
+  classifyImportRows,
+  type CandidateRow,
+  type ExistingExhibitor,
+  type ImportAnalysis,
+} from "@/lib/exhibitors/importMatching";
 import type { EventMemberContext } from "@/lib/services/eventAccess";
+import { listExhibitionZones } from "@/lib/services/eventLobbyZones";
 import {
   eventExhibitorAdminSchema,
   exhibitorOrderSubtotal,
@@ -625,116 +633,302 @@ export async function getExhibitorEmailTemplates(): Promise<ExhibitorEmailTempla
   }));
 }
 
+/* ===========================================================================
+ *  CSV IMPORT — ANALYSE, THEN COMMIT
+ * ===========================================================================
+ *
+ *  Two entry points over one matcher. analyzeExhibitorImport() classifies a file and writes
+ *  nothing; importExhibitors() takes back the rows the admin ticked, classifies them AGAIN against
+ *  the database as it stands at that moment, and inserts only the ones that still qualify.
+ *
+ *  The second classification is not belt and braces. Between the preview and the confirm the admin
+ *  can leave the screen open over lunch, another organiser can add the same exhibitor, or the same
+ *  file can be submitted from a second tab. A preview is a photograph; the insert has to look
+ *  again.
+ *
+ *  WHAT IT STILL CANNOT DO ALONE: stop two imports landing in the same millisecond. Both read,
+ *  both see nothing, both insert — a read-then-write check cannot prevent that however carefully
+ *  it is written. prisma/exhibitor_unique_contact.sql adds the index that can, and the catch below
+ *  turns its violation into an "already exists" row rather than a failure.
+ *
+ *  ---------------------------------------------------------------------------
+ *  THE DUPLICATE OVERRIDE
+ *  ---------------------------------------------------------------------------
+ *
+ *  An `already_exists` row can be imported anyway, but ONLY when it arrives carrying
+ *  `_allowDuplicate` — a flag the screen sets on a row the organiser ticked while it was showing as
+ *  already existing. The flag is what separates the two ways a row can be an exact match at commit
+ *  time, which otherwise look identical from here:
+ *
+ *      ticked as already_exists      -> a decision. Insert it, and say so on the results list.
+ *      was NEW, matched in the gap   -> a race. Skip it, exactly as before the override existed.
+ *
+ *  Without the flag the second case would silently become the first, and the re-classification
+ *  above would have been pointless.
+ */
+
+export interface ExhibitorImportOutcome {
+  row: number;
+  business: string;
+  email: string;
+  status:
+    | "imported"
+    | "potential_email_match_imported"
+    | "duplicate_imported"
+    | "already_exists"
+    | "csv_duplicate"
+    | "invalid"
+    | "failed";
+  reason?: string;
+}
+
 export interface ExhibitorImportResult {
-  created: number;
-  skipped: number;
-  skippedEmails: string[];
-  invalid: { row: number; name: string; reason: string }[];
+  imported: number;
+  potentialImported: number;
+  /** Exact matches the organiser chose to add anyway. */
+  duplicateImported: number;
+  alreadyExists: number;
+  csvDuplicates: number;
+  invalid: number;
+  failed: number;
+  outcomes: ExhibitorImportOutcome[];
+}
+
+/** A spreadsheet's idea of yes. Module level, because the commit path reads a flag with it too. */
+function truthy(value: string | undefined): boolean {
+  return ["yes", "true", "y", "1"].includes((value ?? "").trim().toLowerCase());
 }
 
 /**
- * Bulk CSV import — counterpart to Export CSV.
+ * One raw CSV row -> the shape the schema validates.
  *
- * Duplicates match on EMAIL, case-insensitively, scoped to this event: it is what identifies an
- * exhibitor contact and find_event_exhibitor has no other stable key. Existing exhibitors are
- * SKIPPED, never updated — an import must not silently overwrite a stand number, price or status
- * someone has negotiated — so re-importing the same file is a no-op.
+ * Shared by the analyse and the commit paths so a row cannot be judged valid during the preview
+ * and invalid at insert, which would strand it in a category with no explanation.
+ */
+function toCandidate(raw: Record<string, string>) {
+  // A single "Name" column is split on the first space when First/Last are absent.
+  let firstName = (raw.first_name ?? "").trim();
+  let lastName = (raw.last_name ?? "").trim();
+  if (!firstName && !lastName && raw.name) {
+    const whole = raw.name.trim();
+    const cut = whole.indexOf(" ");
+    firstName = cut === -1 ? whole : whole.slice(0, cut);
+    lastName = cut === -1 ? "" : whole.slice(cut + 1).trim();
+  }
+
+  const statusRaw = (raw.status ?? "").trim();
+  const status = (EXHIBITOR_STATUSES as readonly string[]).includes(statusRaw) ? statusRaw : "pending";
+
+  return {
+    first_name: firstName,
+    last_name: lastName,
+    email: (raw.email ?? "").trim(),
+    phone: (raw.phone ?? "").trim(),
+    work_phone: (raw.work_phone ?? "").trim(),
+    business: (raw.business ?? "").trim(),
+    position: (raw.position ?? "").trim(),
+    website: (raw.website ?? "").trim(),
+    linkedin_user_profile: (raw.linkedin_user_profile ?? "").trim(),
+    stand_number: (raw.stand_number ?? "").trim(),
+    stand_size: (raw.stand_size ?? "").trim(),
+    stand_price: (raw.stand_price ?? "").trim() || null,
+    about_us: (raw.about_us ?? "").trim(),
+    featured: truthy(raw.featured),
+    status,
+  };
+}
+
+/** Validate every row, keeping the raw row alongside so the commit can re-use it. */
+function prepare(rows: Record<string, string>[]) {
+  return rows.map((raw, index) => {
+    const candidate = toCandidate(raw);
+    const parsed = eventExhibitorAdminSchema.safeParse(candidate);
+
+    let invalidReason: string | undefined;
+    if (!parsed.success) {
+      const fields = parsed.error.flatten().fieldErrors;
+      invalidReason =
+        Object.values(fields).find((m) => Array.isArray(m) && m.length > 0)?.[0] ?? "Invalid row";
+    }
+
+    return {
+      raw,
+      parsed: parsed.success ? parsed.data : null,
+      candidate: {
+        /*
+         * The commit step is sent only the rows the admin ticked, so its own position in that
+         * array is not the position the admin saw. `_row` carries the original file row through
+         * from the preview; without it every outcome would cite a row number nobody can find.
+         */
+        row: Number(raw._row) > 0 ? Number(raw._row) : index + 1,
+        business: candidate.business,
+        email: candidate.email,
+        contact: `${candidate.first_name} ${candidate.last_name}`.trim(),
+        phone: candidate.phone,
+        valid: parsed.success,
+        invalidReason,
+      } satisfies CandidateRow,
+    };
+  });
+}
+
+/** This event's exhibitors, in the shape the matcher wants. One query. */
+async function existingForEvent(eventId: number): Promise<ExistingExhibitor[]> {
+  const rows = await prisma.find_event_exhibitor.findMany({
+    where: { event_id: eventId },
+    select: {
+      id: true,
+      business: true,
+      email: true,
+      name: true,
+      first_name: true,
+      last_name: true,
+      status: true,
+    },
+  });
+
+  return rows.map(
+    (r: {
+      id: number;
+      business: string | null;
+      email: string | null;
+      name: string | null;
+      first_name: string | null;
+      last_name: string | null;
+      status: string;
+    }) => ({
+      id: r.id,
+      business: r.business ?? "",
+      email: r.email ?? "",
+      // `name` is the legacy single column; the admin form writes first/last, so fall back to those.
+      contact: (r.name ?? "").trim() || `${r.first_name ?? ""} ${r.last_name ?? ""}`.trim(),
+      status: r.status || "pending",
+    }),
+  );
+}
+
+/** Classify a file without writing anything. */
+export async function analyzeExhibitorImport(
+  context: EventMemberContext,
+  rows: Record<string, string>[]
+): Promise<ImportAnalysis> {
+  const prepared = prepare(rows);
+  const existing = await existingForEvent(context.eventId);
+  return classifyImportRows(prepared.map((p) => p.candidate), existing);
+}
+
+/**
+ * Insert the rows the admin ticked, and only those that still qualify.
  *
- * Rows are validated with the same eventExhibitorAdminSchema the Add Exhibitor form uses, and
- * each row is created through createExhibitorAdmin() rather than a bulk insert, so imported
- * exhibitors get exactly the same derived fields (batch number, linked listing, default stand
- * layout) as one added by hand. That is slower than createMany and deliberately so: skipping it
- * would produce exhibitors that look right in the table but are wired up wrong in the lobby.
+ * Inserted one at a time rather than in a single transaction, deliberately: the screen reports a
+ * per-row outcome, and one failing row must not roll back the other sixty-seven. At this scale —
+ * a file of a hundred or so against an event of a few hundred — the cost of that is nothing.
  */
 export async function importExhibitors(
   context: EventMemberContext,
   rows: Record<string, string>[]
 ): Promise<ExhibitorImportResult> {
-  const result: ExhibitorImportResult = { created: 0, skipped: 0, skippedEmails: [], invalid: [] };
+  const result: ExhibitorImportResult = {
+    imported: 0,
+    potentialImported: 0,
+    duplicateImported: 0,
+    alreadyExists: 0,
+    csvDuplicates: 0,
+    invalid: 0,
+    failed: 0,
+    outcomes: [],
+  };
+
   if (context.role !== "organiser") return result;
 
-  const existing = await prisma.find_event_exhibitor.findMany({
-    where: { event_id: context.eventId },
-    select: { email: true },
-  });
-  const haveEmails = new Set(
-    existing
-      .map((r: { email: string | null }) => (r.email ?? "").trim().toLowerCase())
-      .filter((e: string) => e !== ""),
-  );
+  const prepared = prepare(rows);
+  const existing = await existingForEvent(context.eventId);
+  const analysis = classifyImportRows(prepared.map((p) => p.candidate), existing);
 
-  const truthy = (v: string | undefined) =>
-    ["yes", "true", "y", "1"].includes((v ?? "").trim().toLowerCase());
+  for (let index = 0; index < analysis.records.length; index += 1) {
+    const record = analysis.records[index];
+    const data = prepared[index].parsed;
 
-  for (let index = 0; index < rows.length; index++) {
-    const raw = rows[index] ?? {};
+    // Set by the preview screen on a row the organiser ticked while it showed as already existing.
+    const overridden = truthy(prepared[index].raw._allowDuplicate);
 
-    // A single "Name" column is split on the first space when First/Last are absent.
-    let firstName = (raw.first_name ?? "").trim();
-    let lastName = (raw.last_name ?? "").trim();
-    if (!firstName && !lastName && raw.name) {
-      const whole = raw.name.trim();
-      const cut = whole.indexOf(" ");
-      firstName = cut === -1 ? whole : whole.slice(0, cut);
-      lastName = cut === -1 ? "" : whole.slice(cut + 1).trim();
-    }
-
-    const statusRaw = (raw.status ?? "").trim();
-    const status = (EXHIBITOR_STATUSES as readonly string[]).includes(statusRaw)
-      ? statusRaw
-      : "pending";
-
-    const candidate = {
-      first_name: firstName,
-      last_name: lastName,
-      email: (raw.email ?? "").trim(),
-      phone: (raw.phone ?? "").trim(),
-      work_phone: (raw.work_phone ?? "").trim(),
-      business: (raw.business ?? "").trim(),
-      position: (raw.position ?? "").trim(),
-      website: (raw.website ?? "").trim(),
-      linkedin_user_profile: (raw.linkedin_user_profile ?? "").trim(),
-      stand_number: (raw.stand_number ?? "").trim(),
-      stand_size: (raw.stand_size ?? "").trim(),
-      stand_price: (raw.stand_price ?? "").trim() || null,
-      about_us: (raw.about_us ?? "").trim(),
-      featured: truthy(raw.featured),
-      status,
+    const outcome: ExhibitorImportOutcome = {
+      row: record.row,
+      business: record.business,
+      email: record.email,
+      status: "failed",
     };
 
-    const parsed = eventExhibitorAdminSchema.safeParse(candidate);
-    if (!parsed.success) {
-      const fields = parsed.error.flatten().fieldErrors;
-      const reason =
-        Object.values(fields).find((m) => Array.isArray(m) && m.length > 0)?.[0] ?? "Invalid row";
-      result.invalid.push({
-        row: index + 1,
-        name: `${firstName} ${lastName}`.trim() || candidate.email || "(blank)",
-        reason,
-      });
-      continue;
-    }
+    /*
+     * An exact match is skipped unless it was deliberately overridden. csv_duplicate and invalid
+     * have no override at all, so the flag is not even consulted for them.
+     */
+    const blocked =
+      !data ||
+      !canImport(record.category) ||
+      (record.category === "already_exists" && !overridden);
 
-    const key = parsed.data.email.trim().toLowerCase();
-    // Catches a file that repeats someone, not just a clash with the database.
-    if (haveEmails.has(key)) {
-      result.skipped += 1;
-      result.skippedEmails.push(parsed.data.email);
+    if (blocked) {
+      outcome.status =
+        record.category === "already_exists"
+          ? "already_exists"
+          : record.category === "csv_duplicate"
+            ? "csv_duplicate"
+            : "invalid";
+      outcome.reason =
+        record.category === "already_exists" && !overridden
+          ? "Already on this event, and not marked to add anyway."
+          : record.reason;
+
+      if (outcome.status === "already_exists") result.alreadyExists += 1;
+      else if (outcome.status === "csv_duplicate") result.csvDuplicates += 1;
+      else result.invalid += 1;
+
+      result.outcomes.push(outcome);
       continue;
     }
-    haveEmails.add(key);
 
     try {
-      await createExhibitorAdmin(context, parsed.data);
-      result.created += 1;
+      await createExhibitorAdmin(context, data);
+
+      if (record.category === "already_exists") {
+        outcome.status = "duplicate_imported";
+        outcome.reason = "Already on this event — added as a second contact because you chose to.";
+        result.duplicateImported += 1;
+      } else if (record.category === "potential_email_match") {
+        outcome.status = "potential_email_match_imported";
+        outcome.reason = "Same email exists for another company; imported because it was selected.";
+        result.potentialImported += 1;
+      } else {
+        outcome.status = "imported";
+        result.imported += 1;
+      }
     } catch (err) {
-      console.error("[importExhibitors] row failed:", err);
-      result.invalid.push({
-        row: index + 1,
-        name: parsed.data.email,
-        reason: "Could not be saved — see server log",
-      });
+      /*
+       * P2002 means a unique index refused the write. Two quite different situations reach here:
+       *
+       *   - an ordinary row that someone else inserted in the gap. Reporting "already exists" is
+       *     exactly right; it is the outcome the admin would have seen a moment earlier.
+       *   - a deliberate override, refused by prisma/exhibitor_unique_contact.sql. The index and
+       *     the override contradict each other by design, so the message says which one won
+       *     rather than pretending the row was a race.
+       */
+      const code = (err as { code?: string })?.code;
+      if (code === "P2002") {
+        outcome.status = "already_exists";
+        outcome.reason = overridden
+          ? "The database rejected the duplicate — a unique index on business + email is in place."
+          : "Added by someone else while this import was open.";
+        result.alreadyExists += 1;
+      } else {
+        console.error("[importExhibitors] row failed:", err);
+        outcome.status = "failed";
+        outcome.reason = "This row could not be saved.";
+        result.failed += 1;
+      }
     }
+
+    result.outcomes.push(outcome);
   }
 
   return result;
@@ -792,7 +986,7 @@ export async function getExhibitorFormOptions(
 ): Promise<ExhibitorFormOptions> {
   if (context.role !== "organiser") return EMPTY_FORM_OPTIONS;
 
-  const [listings, tickets, layout, standLayouts, groupProducts] = await Promise.all([
+  const [listings, tickets, standLayouts, groupProducts, zoneLookup] = await Promise.all([
     prisma.find_listings.findMany({
       where: { user_id: context.userId },
       orderBy: { title: "asc" },
@@ -803,11 +997,6 @@ export async function getExhibitorFormOptions(
       orderBy: [{ sequence: "asc" }, { id: "asc" }],
       select: { id: true, name: true, amount: true },
     }),
-    prisma.find_event_lobby_layout_manager.findFirst({
-      where: { event_id: context.eventId },
-      orderBy: { id: "asc" },
-      select: { id: true },
-    }),
     prisma.find_event_lobby_child_layout_manager.findMany({
       where: { event_id: context.eventId, layout_type: "exhibition_stand" },
       orderBy: [{ sequence: "asc" }, { id: "asc" }],
@@ -816,20 +1005,15 @@ export async function getExhibitorFormOptions(
     // type="membership_options" orders only count when the product sits in group 19 — the legacy
     // query expresses this as a subselect; resolving the ids first keeps it to plain Prisma.
     prisma.find_products.findMany({ where: { group_id: 19 }, select: { id: true } }),
+    /*
+     * Shared with the auto-allocator, deliberately. If this dropdown and the allocator each had
+     * their own idea of which zones exist, the allocator could fill a zone this form cannot show
+     * — leaving stands nobody could subsequently change.
+     */
+    listExhibitionZones(context.eventId),
   ]);
 
-  const exhibitionZones = layout
-    ? await prisma.find_event_lobby_child_layout_manager.findMany({
-        where: {
-          event_id: context.eventId,
-          layout_type: "exhibition",
-          event_layout_id: layout.id,
-          status: "enabled",
-        },
-        orderBy: [{ sequence: "asc" }, { id: "asc" }],
-        select: { id: true, title: true },
-      })
-    : [];
+  const exhibitionZones = zoneLookup.zones;
 
   const productIds = groupProducts.map((p: { id: number }) => p.id);
   const orders = await prisma.find_orders.findMany({
@@ -891,8 +1075,19 @@ export async function getExhibitorFormOptions(
 /** Every exhibition zone holds exactly this many virtual booths. */
 export const BOOTHS_PER_ZONE = 22;
 
+/**
+ * Stand numbers are five digits by house style — 31225, not 7.
+ *
+ * BASE is where an event's very first booth series starts; the +1 makes it 31001. MIN is simply
+ * the smallest five-digit number, used to tell "this is a real stand number" from "this is a
+ * leftover ordinal" without hard-coding the 31xxx block as the only valid one: an event whose
+ * numbers legitimately run 42xxx is left alone.
+ */
+export const STAND_NUMBER_BASE = 31000;
+export const STAND_NUMBER_MIN = 10000;
+
 /** A booth row as the allocation form needs it. */
-interface ZoneBooth {
+export interface ZoneBooth {
   id: number;
   stand_no: number | null;
   title: string | null;
@@ -924,8 +1119,12 @@ interface ZoneBooth {
  * Runs on read because the form is the only place booths are consumed and it is organiser-only;
  * there is no migration step in this project to hang it off. Once a zone is settled it writes
  * nothing.
+ *
+ * Exported for src/lib/services/standAllocation.ts, which needs every zone brought into this same
+ * shape before it can count what is free. The two must agree on how many booths a zone has, so
+ * they share this rather than each having their own idea of it.
  */
-async function resolveZoneBooths(
+export async function resolveZoneBooths(
   context: EventMemberContext,
   zoneId: number,
   takenSpotIds: Set<number>
@@ -980,10 +1179,50 @@ async function resolveZoneBooths(
     }
   }
 
-  // ---- 3. Top up to 22, continuing this zone's own numbering.
+  /*
+   * ---- 3. Top up to 22, in this event's five-digit series.
+   *
+   * A stand number is printed on floor plans, quoted in invoices and read out on the phone, and
+   * the house style is five digits — 31225, not 7. A zone that already has real numbers keeps
+   * continuing its own run; one that is starting from nothing picks up after the highest
+   * five-digit number anywhere on the event, so numbers stay unique across zones and read as one
+   * series rather than each zone restarting.
+   */
+  let nextNumber = booths.reduce((max, b) => Math.max(max, b.stand_no ?? 0), 0) + 1;
+
+  if (nextNumber <= STAND_NUMBER_MIN) {
+    const highest = await prisma.find_event_lobby_spots.aggregate({
+      where: {
+        event_id: context.eventId,
+        spot_type: "exhibitor",
+        stand_no: { gte: STAND_NUMBER_MIN },
+      },
+      _max: { stand_no: true },
+    });
+    nextNumber = Math.max(STAND_NUMBER_BASE + 1, (highest._max.stand_no ?? 0) + 1);
+
+    /*
+     * Lift any short numbers already in this zone into the series — but ONLY when no exhibitor
+     * stands on them. A booth someone holds keeps its number whatever it looks like: that number
+     * is on their paperwork, and the repair pass above treats the exhibitor as authoritative
+     * precisely so a renumbering here can never contradict it.
+     */
+    const short = booths.filter((b) => (b.stand_no ?? 0) < STAND_NUMBER_MIN);
+    if (short.length > 0 && !short.some((b) => takenSpotIds.has(b.id))) {
+      for (const booth of short) {
+        await prisma.find_event_lobby_spots.updateMany({
+          where: { id: booth.id, event_id: context.eventId },
+          data: { stand_no: nextNumber, updated_on: new Date() },
+        });
+        booth.stand_no = nextNumber;
+        nextNumber += 1;
+      }
+      booths.sort((a, b) => (a.stand_no ?? 0) - (b.stand_no ?? 0) || a.id - b.id);
+    }
+  }
+
   // Sequential rather than Promise.all so two booths can never claim the same number if the
   // organiser reopens the form while this is still running.
-  let nextNumber = booths.reduce((max, b) => Math.max(max, b.stand_no ?? 0), 0) + 1;
   while (booths.length < BOOTHS_PER_ZONE) {
     const created = await prisma.find_event_lobby_spots.create({
       data: {

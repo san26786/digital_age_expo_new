@@ -35,6 +35,7 @@ import { getDomain } from "@/lib/services/domain";
 import { getEventMemberContext, roleLabel } from "@/lib/services/eventAccess";
 import { getEventSummaryData } from "@/lib/services/eventSummary";
 import EventAdminNavbar from "@/components/EventAdminNavbar";
+import { getHubAccess, getSitesHubAccess } from "@/lib/hub/access";
 import { DEFAULT_EVENT_ID } from "@/lib/site-config";
 import { getEventById } from "@/lib/services/events";
 
@@ -85,6 +86,11 @@ export default async function UserEventSummaryPage({
   // Same reason as (event)/layout.tsx — lets the navbar link "View My Booth" straight to the
   // public lobby instead of the members-side redirect page.
   const navEvent = await getEventById(eventId);
+  // Two questions, not one: getHubAccess says whether this person may use the Hub's screens at
+  // all (Email Templates, on every site); getSitesHubAccess adds "and is this the parent site",
+  // which is what site management needs. Both run here rather than in the client navbar, which
+  // could only work either out from data already shipped to the browser.
+  const [hubAccess, sitesAccess] = await Promise.all([getHubAccess(), getSitesHubAccess()]);
 
   const context = (await getEventMemberContext(eventId, userId)) ?? {
     role: "organiser",
@@ -128,7 +134,12 @@ export default async function UserEventSummaryPage({
       </div>
 
       <div className="glass-panel rounded-2xl p-6 shadow-2xl mb-10">
-        <EventAdminNavbar eventId={eventId} eventSlug={navEvent?.friendly_url} />
+        <EventAdminNavbar
+          eventId={eventId}
+          eventSlug={navEvent?.friendly_url}
+          canAccessHub={hubAccess.ok}
+          canManageSites={sitesAccess.ok}
+        />
       </div>
 
       {/* Main Two-Column Layout */}

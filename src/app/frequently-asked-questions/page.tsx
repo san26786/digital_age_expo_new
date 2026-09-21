@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import { getDomain } from "@/lib/services/domain";
 import { createOutageCollector } from "@/lib/db-errors";
 import { DatabaseOutageNotice } from "@/components/common/DatabaseOutageNotice";
@@ -13,11 +15,16 @@ import { FaqPageContent, type FAQQuestion } from "./FaqPageContent";
  * state lives in ./FaqPageContent.tsx, which is the "use client" half.
  */
 
-export const metadata = {
-  title: "Frequently Asked Questions | Digital Age Expo",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Frequently Asked Questions | ${brand}`,
   description:
-    "Answers to common questions about exhibiting, sponsoring, speaking, and attending Digital Age Expo.",
+    `Answers to common questions about exhibiting, sponsoring, speaking, and attending ${brand}.`,
 };
+}
 
 // Legacy frequently-asked-questions.php falls back to this listing id
 // when the domain row has no faq_listing_id set.

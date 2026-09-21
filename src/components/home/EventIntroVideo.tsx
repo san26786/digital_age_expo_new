@@ -1,3 +1,4 @@
+import { Brand } from "@/components/brand/Brand";
 import Link from "next/link";
 import { staticAssetUrl } from "@/lib/assets";
 
@@ -39,7 +40,7 @@ export function EventIntroVideo() {
               href="/enter-the-show"
               className="rounded-full border border-white/40 bg-white/10 px-8 py-4 text-lg font-semibold text-white backdrop-blur-md transition-all duration-300 hover:scale-105 hover:bg-white/20"
             >
-              Enter Digital Age Expo
+              Enter <Brand />
             </Link>
           </div>
         </div>

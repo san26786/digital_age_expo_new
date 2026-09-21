@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import { getDomain } from "@/lib/services/domain";
 import { createOutageCollector } from "@/lib/db-errors";
 import { getEventById } from "@/lib/services/events";
@@ -5,10 +7,15 @@ import { formatDateLocation } from "@/lib/format";
 import { FreeTicketForm } from "@/components/free-ticket/FreeTicketForm";
 import { CheckCircle2, Ticket, Calendar, MapPin, Sparkles } from "lucide-react";
 
-export const metadata = {
-  title: "Get Your Free Ticket | Digital Age Expo",
-  description: "Claim your complimentary visitor pass for Digital Age Expo. Access live keynotes, workshops, and virtual exhibition halls.",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Get Your Free Ticket | ${brand}`,
+  description: `Claim your complimentary visitor pass for ${brand}. Access live keynotes, workshops, and virtual exhibition halls.`,
 };
+}
 
 export default async function FreeTicketPage() {
   const domain = await getDomain();

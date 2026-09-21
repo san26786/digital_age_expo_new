@@ -1,3 +1,6 @@
+import { Brand } from "@/components/brand/Brand";
+import type { Metadata } from "next";
+import { getBrandName } from "@/lib/brand";
 import {
   TrendingUp,
   DollarSign,
@@ -12,11 +15,16 @@ import { createOutageCollector } from "@/lib/db-errors";
 import { getWhyExhibitHero } from "@/lib/services/exhibitors";
 import { staticAssetUrl } from "@/lib/assets";
 
-export const metadata = {
-  title: "Why Exhibit | Digital Age Expo",
+export async function generateMetadata(): Promise<Metadata> {
+  // The site's own name, so this page titles itself correctly on every site this
+  // deployment serves rather than hardcoding the one it was first written for.
+  const brand = await getBrandName();
+  return {
+  title: `Why Exhibit | ${brand}`,
   description:
-    "Learn why exhibiting at Digital Age Expo delivers unmatched ROI, high-quality lead generation, and direct access to active technology buyers.",
+    `Learn why exhibiting at ${brand} delivers unmatched ROI, high-quality lead generation, and direct access to active technology buyers.`,
 };
+}
 
 export default async function WhyExhibitPage() {
   const domain = await getDomain();
@@ -75,7 +83,7 @@ export default async function WhyExhibitPage() {
       >
         <div className="relative z-10 max-w-4xl mx-auto">
           <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-fuchsia-400">
-            Digital Age Expo
+            <Brand />
           </p>
           <h1 className="mt-2 text-3xl sm:text-6xl font-black uppercase tracking-tight text-white">
             {hero?.section_title ? (
