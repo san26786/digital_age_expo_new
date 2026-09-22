@@ -163,12 +163,15 @@ export async function updateEventDetails(context: EventMemberContext, input: Eve
     throw new Error("Only the event organiser can edit event details.");
   }
 
-  return prisma.find_events.update({
+  const dateStart = new Date(input.date_start);
+  const dateEnd = input.date_end ? new Date(input.date_end) : null;
+
+  const updated = await prisma.find_events.update({
     where: { id: context.eventId },
     data: {
       title: input.title,
-      date_start: new Date(input.date_start),
-      date_end: input.date_end ? new Date(input.date_end) : null,
+      date_start: dateStart,
+      date_end: dateEnd,
       venue: input.venue || "",
       location: input.location || "",
       website: input.website || "",
@@ -212,6 +215,107 @@ export async function updateEventDetails(context: EventMemberContext, input: Eve
     },
     select: { id: true },
   });
+
+  await syncEventDateRange(context.eventId, dateStart, dateEnd);
+
+  return updated;
+}
+
+/**
+ * Keeps find_events_dates in step with the dates just written to find_events.
+ *
+ * WHY THIS IS NEEDED. The public site resolves the show's dates as
+ * `eventDates?.date_start ?? event.date_start` (src/app/page.tsx) — find_events_dates WINS, and
+ * find_events is only the fallback for an event that has no range row at all. Until now the only
+ * thing in the app that ever WROTE find_events_dates was copyEvent(). So an organiser who moved
+ * the show to new dates in Members -> Event Details saw the change take on this form and in the
+ * event title, while the homepage date line and the countdown carried on reading the old range.
+ * Once that old range fell into the past the countdown clamped to 00 / 00 / 00 / 00 and looked
+ * like a timer that had failed to start. Every event edited rather than copied drifted this way.
+ *
+ * WHY updateMany/create RATHER THAN upsert. The table has no single-column key — its only unique
+ * is the composite (event_id, date_start, date_end) — so there is nothing to upsert on. The
+ * existing rows are read first because writing one range into two rows of the same event would
+ * collide on that composite.
+ *
+ * This only ever mirrors what the organiser typed into the event itself. It does not invent a
+ * range, and it deletes nothing.
+ */
+export async function syncEventDateRange(eventId: number, dateStart: Date, dateEnd: Date | null) {
+  // find_events_dates.date_end is NOT NULL while find_events.date_end is nullable, so a
+  // single-day show (start, no end) stores the start date as the end as well.
+  const end = dateEnd ?? dateStart;
+
+  const existing = await prisma.find_events_dates.findMany({
+    where: { event_id: eventId },
+    select: { date_start: true, date_end: true },
+  });
+
+  if (existing.length === 0) {
+    await prisma.find_events_dates.create({
+      data: { event_id: eventId, date_start: dateStart, date_end: end, rsvp_reminder_sent: false },
+    });
+    return;
+  }
+
+  if (existing.length > 1) {
+    /*
+     * More than one range row for one event is outside what this form models, and the public
+     * reader (getEventDateRange) picks one with findFirst and no ordering, so which one wins is
+     * already arbitrary. Collapsing rows this code did not create would be destructive on a
+     * guess, so leave them: a visible mismatch beats silent data loss.
+     */
+    return;
+  }
+
+  const [row] = existing;
+
+  /*
+   * Carry the existing row's TIME OF DAY onto the new calendar dates.
+   *
+   * This form captures a date and nothing else (see toDateInputValue), so `dateStart` is always
+   * midnight. find_events_dates, though, is where the show's actual hours live — the range row
+   * for event 1474 reads 09:00 to 15:30, which is the real programme, set when the event was
+   * created rather than through this screen. Writing midnight over that would quietly throw the
+   * hours away and shift the countdown target nine hours earlier every time an organiser nudged
+   * a date. Moving a show to new dates should move it, not reset when it opens and closes.
+   */
+  const nextStart = withTimeOfDay(dateStart, row.date_start);
+  const nextEnd = withTimeOfDay(end, row.date_end);
+
+  if (row.date_start.getTime() === nextStart.getTime() && row.date_end.getTime() === nextEnd.getTime()) {
+    return;
+  }
+
+  await prisma.find_events_dates.update({
+    where: {
+      event_id_date_start_date_end: {
+        event_id: eventId,
+        date_start: row.date_start,
+        date_end: row.date_end,
+      },
+    },
+    data: { date_start: nextStart, date_end: nextEnd },
+  });
+}
+
+/**
+ * The calendar date of `date`, at the time of day of `source`.
+ *
+ * UTC accessors throughout, deliberately: these columns are `@db.Timestamp(0)` — no timezone —
+ * and `new Date("2027-08-26")` parses as UTC midnight, so reading and writing them in UTC keeps
+ * the date the organiser typed as the date that gets stored. Local-time accessors would shift
+ * the day by one for anyone west of Greenwich.
+ */
+function withTimeOfDay(date: Date, source: Date): Date {
+  const out = new Date(date);
+  out.setUTCHours(
+    source.getUTCHours(),
+    source.getUTCMinutes(),
+    source.getUTCSeconds(),
+    source.getUTCMilliseconds()
+  );
+  return out;
 }
 
 /**

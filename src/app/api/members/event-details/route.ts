@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireEventMember } from "@/lib/auth/requireEventMember";
 import { eventDetailsSchema } from "@/lib/validations/eventDetails";
 import { getEventDetails, updateEventDetails } from "@/lib/services/eventDetails";
+import { CACHE_TAGS, markContentStale } from "@/lib/cache";
 
 export async function GET(request: Request) {
   const context = await requireEventMember(request);
@@ -30,5 +31,15 @@ export async function PUT(request: Request) {
   }
 
   await updateEventDetails(context, parsed.data);
+
+  /*
+   * The public pages read the event through cachedRead (30 minute window), so without this an
+   * organiser saved new dates or new copy here and the live site went on showing the old ones
+   * for up to half an hour with nothing to indicate why. This is a route handler rather than a
+   * Server Action, so it is markContentStale (revalidateTag) rather than revalidateContent —
+   * see the note on both in src/lib/cache.ts.
+   */
+  markContentStale(CACHE_TAGS.event);
+
   return NextResponse.json({ success: true });
 }
