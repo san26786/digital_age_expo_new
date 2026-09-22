@@ -99,19 +99,33 @@ export default async function HomePage() {
       {/* =========================================
           3. ABOUT THE EVENT
       ========================================= */}
-      {opportunityContent.aboutEvent && (
+      {/*
+        The description now comes from Settings -> Event Details (`find_events.description`),
+        which is where an organiser actually writes it, and falls back to the sponsorship-
+        opportunity block only when that field is empty.
+
+        It used to read the opportunity block FIRST, so editing the event description changed
+        nothing on the homepage and the two could disagree indefinitely. Everything else about
+        this section - title, image, the additional-info line - still comes from the opportunity
+        block, because Event Details has no equivalent field for them.
+
+        The section is no longer gated on `opportunityContent.aboutEvent` existing either: an
+        event that has written a description but has no opportunity row used to render nothing
+        at all.
+      */}
+      {(event.description || opportunityContent.aboutEvent) && (
         <AboutEvent
           sectionTitle={
-            opportunityContent.aboutEvent.section_title
+            opportunityContent.aboutEvent?.section_title
           }
           sectionDescription={
-            opportunityContent.aboutEvent.section_description
+            event.description || opportunityContent.aboutEvent?.section_description
           }
           additionalInfo={
-            opportunityContent.aboutEvent.additional_info
+            opportunityContent.aboutEvent?.additional_info
           }
           backgroundImage={
-            opportunityContent.aboutEvent.opportunity_images
+            opportunityContent.aboutEvent?.opportunity_images
           }
           dateStart={dateStart}
           dateEnd={dateEnd}

@@ -18,6 +18,14 @@ export const getEventById = cachedRead(
         location: true,
         date_start: true,
         date_end: true,
+        /*
+         * The organiser-authored copy from Settings -> Event Details. `description` is the long
+         * form the About section renders; `description_short` is the one-liner the member
+         * dashboard already showed. Selected here so the public pages read the SAME row the
+         * organiser edits, rather than a second copy of the text living elsewhere.
+         */
+        description: true,
+        description_short: true,
         previous_event_id: true,
         hide_speaker: true,
         email: true,

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getBrand } from "@/lib/brand";
 import { assetUrl } from "@/lib/assets";
 import { formatDayRange, formatMonthDayYear } from "@/lib/format";
+import { AboutEventDescription } from "@/components/home/AboutEventDescription";
 
 /** Local stage photograph used when the event has configured no image of its own. */
 const ABOUT_FALLBACK_IMAGE = "/images/about_event.jpg";
@@ -132,10 +133,12 @@ export async function AboutEvent({
             {title}
           </h2>
 
-          <div
-            className="mt-5 text-sm leading-relaxed text-[var(--c-text-muted)] sm:text-base [&_a]:text-white [&_a]:underline"
-            dangerouslySetInnerHTML={{ __html: desc }}
-          />
+          {/*
+            Clamped to a teaser that expands in place — see AboutEventDescription. The
+            description now comes from Event Details and is the organiser's full write-up, which
+            printed in full pushed the WHERE/WHEN tiles and the whole page below them off screen.
+          */}
+          <AboutEventDescription html={desc} />
 
           {/* -------- Fact tiles: the reference's highlight row, carrying real values -------- */}
           <div className="mt-8 grid gap-3 sm:grid-cols-2 sm:gap-4">

@@ -4,7 +4,7 @@ import { getPublicSocialLinks } from "@/lib/services/social";
 import { getFooterContent } from "@/lib/services/footer";
 import { getBrandAssets } from "@/lib/services/branding";
 import { ThemedBrandLogo } from "@/components/layout/ThemedBrandLogo";
-import { NewsletterForm } from "@/components/layout/NewsletterForm";
+import { SocialIcon, hasSocialIcon } from "@/components/common/SocialIcon";
 import {
   Mail,
   Phone,
@@ -175,7 +175,15 @@ export async function Footer() {
                   Follow Us
                 </p>
 
-                <div className="flex flex-wrap gap-2">
+                {/*
+                  Icon only. The platform name is carried by aria-label and title, so a screen
+                  reader and a hover tooltip both still say "Instagram" — the text was removed
+                  from the visual layer, not from the accessible one.
+
+                  Square 44px targets: the WCAG 2.2 minimum for a touch target, which the old
+                  40px-tall pills only met because their labels made them wide.
+                */}
+                <div className="flex flex-wrap gap-2.5">
                   {socialLinks.map((social) => (
                     <a
                       key={social.label}
@@ -184,15 +192,18 @@ export async function Footer() {
                       rel="noreferrer"
                       aria-label={social.label}
                       title={social.label}
-                      className="group flex h-10 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 text-zinc-400 transition-all duration-300 hover:-translate-y-1 hover:border-fuchsia-500/50 hover:bg-gradient-to-br hover:from-purple-600/20 hover:to-fuchsia-500/20 hover:text-white hover:shadow-lg hover:shadow-fuchsia-900/20"
+                      className="group flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-zinc-400 transition-all duration-300 hover:-translate-y-1 hover:border-fuchsia-500/50 hover:bg-gradient-to-br hover:from-purple-600/20 hover:to-fuchsia-500/20 hover:text-white hover:shadow-lg hover:shadow-fuchsia-900/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-500/70"
                     >
-                      <span className="flex h-6 w-6 items-center justify-center rounded-md bg-white/10 text-[9px] font-black">
-                        {social.short}
-                      </span>
-
-                      <span className="text-xs font-semibold">
-                        {social.label}
-                      </span>
+                      {hasSocialIcon(social.key) ? (
+                        <SocialIcon
+                          platform={social.key}
+                          className="h-[18px] w-[18px] transition-transform duration-300 group-hover:scale-110"
+                        />
+                      ) : (
+                        /* No mark drawn for this platform yet — the two-letter label it used to
+                           show, rather than an empty square. */
+                        <span className="text-[10px] font-black">{social.short}</span>
+                      )}
                     </a>
                   ))}
                 </div>
@@ -252,7 +263,9 @@ export async function Footer() {
           </div>
 
           {/* =====================================================
-              NEWSLETTER
+              GET IN TOUCH
+              Was a newsletter signup (form removed — see below); now a single CTA button
+              straight to the contact page instead of collecting an email here.
           ====================================================== */}
 
           <div>
@@ -262,41 +275,33 @@ export async function Footer() {
               </p>
 
               <h3 className="mt-2 text-xl font-bold text-white">
-                Join Our Newsletter
+                Get In Touch
               </h3>
 
               <div className="mt-3 h-[2px] w-12 rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-500" />
             </div>
 
             <p className="text-sm leading-7 text-zinc-400">
-              Don&apos;t miss a thing! Subscribe to receive the latest{" "}
-              {domain.name} news, event updates, industry insights and
-              opportunities directly in your inbox.
+              Have a question about {domain.name}, exhibiting, or
+              sponsorship? Reach out and our team will get back to you.
             </p>
 
-            <div className="relative mt-6 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.06] to-white/[0.02] p-5 shadow-2xl">
-              <div className="pointer-events-none absolute -right-12 -top-12 h-32 w-32 rounded-full bg-fuchsia-600/10 blur-3xl" />
-
-              <div className="relative">
-                <p className="text-sm font-semibold text-white">
-                  Get event updates
-                </p>
-
-                <p className="mt-1 text-xs leading-5 text-zinc-500">
-                  Stay informed about upcoming events and opportunities.
-                </p>
-
-                <div className="mt-4">
-                  <NewsletterForm />
-                </div>
-              </div>
-            </div>
-
-           
+            {/*
+              NOTE: assuming the contact route is "/contact" — this wasn't in QUICK_LINKS above,
+              so update the href if the project names it something else (e.g. "/contact-us").
+            */}
+            <Link
+              href="/contact"
+              className="group mt-6 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-purple-600 to-fuchsia-500 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-fuchsia-900/30 transition-all duration-300 hover:scale-105 hover:shadow-fuchsia-900/50 active:scale-95"
+            >
+              Contact Us
+              <ArrowUpRight
+                size={16}
+                className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              />
+            </Link>
           </div>
         </div>
-
-        
       </div>
 
       {/* =========================================================
