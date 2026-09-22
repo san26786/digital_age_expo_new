@@ -205,7 +205,7 @@ export function ActivityReportManager({
               <ul className="relative space-y-2 border-l-2 border-brand-pink/60 pl-6 sm:ml-24">
                 {group.items.map((entry) => (
                   <li key={entry.id} className="relative rounded-lg border border-white/5 bg-white/5 px-4 py-2.5">
-                    <span className="absolute -left-[31px] top-4 h-3 w-3 rounded-full border-2 border-brand-pink bg-[#140f22]" />
+                    <span className="absolute -left-[31px] top-4 h-3 w-3 rounded-full border-2 border-brand-pink bg-[var(--c-bg-2)]" />
                     <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
                       <time
                         dateTime={entry.at}

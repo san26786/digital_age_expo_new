@@ -529,7 +529,7 @@ export function NewSiteForm({
                 >
                   <input
                     type="checkbox"
-                    className="mt-1 h-4 w-4 shrink-0 accent-[#C71585]"
+                    className="mt-1 h-4 w-4 shrink-0 accent-[var(--color-brand-pink)]"
                     checked={!notYet && (checked || forced)}
                     disabled={notYet}
                     onChange={() => toggle(entry.key)}
@@ -581,7 +581,7 @@ export function NewSiteForm({
                         <input
                           type="radio"
                           name="exhibitor-mode"
-                          className="h-3.5 w-3.5 accent-[#C71585]"
+                          className="h-3.5 w-3.5 accent-[var(--color-brand-pink)]"
                           checked={exhibitorMode === mode}
                           onChange={() => setExhibitorMode(mode)}
                         />

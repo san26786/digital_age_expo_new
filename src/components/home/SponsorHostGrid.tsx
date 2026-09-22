@@ -1,4 +1,5 @@
 import { assetUrl } from "@/lib/assets";
+import { LogoPlate } from "@/components/common/LogoPlate";
 
 interface Item {
   id: number;
@@ -53,20 +54,20 @@ export function SponsorHostGrid({ items }: { items?: Item[] }) {
   const displayItems = items && items.length > 0 ? items : DEFAULT_ITEMS;
 
   return (
-    <section className="relative overflow-hidden border-y border-white/[0.06] bg-[#0B0C20] px-5 py-14 text-white sm:px-6 sm:py-16">
+    <section className="relative overflow-hidden border-y border-white/[0.06] bg-[var(--c-bg-1)] px-5 py-14 text-white sm:px-6 sm:py-16">
       {/* Purple band behind the row, as in the reference. Non-interactive. */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(108,43,255,0.28),transparent_70%)]" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#8B3DFF]/50 to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#8B3DFF]/50 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--c-accent-violet-soft)]/50 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[var(--c-accent-violet-soft)]/50 to-transparent" />
 
       <div className="relative z-10 mx-auto max-w-6xl">
         {/* Section label with the reference's flanking rules. */}
         <div data-reveal className="flex items-center justify-center gap-4">
-          <span className="h-px w-8 bg-gradient-to-r from-transparent to-[#F020A8] sm:w-12" />
+          <span className="h-px w-8 bg-gradient-to-r from-transparent to-[var(--c-accent-pink)] sm:w-12" />
           <h2 className="text-center text-base font-black uppercase tracking-[0.12em] text-white sm:text-xl">
             Our Partners &amp; Sponsors
           </h2>
-          <span className="h-px w-8 bg-gradient-to-l from-transparent to-[#F020A8] sm:w-12" />
+          <span className="h-px w-8 bg-gradient-to-l from-transparent to-[var(--c-accent-pink)] sm:w-12" />
         </div>
 
         <div data-reveal style={{ transitionDelay: "120ms" }} className="mt-8 flex flex-wrap items-stretch justify-center gap-4 sm:mt-10 sm:gap-5">
@@ -76,27 +77,31 @@ export function SponsorHostGrid({ items }: { items?: Item[] }) {
             const card = (
               <>
                 {item.section_title && (
-                  <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#A5A6C5] sm:text-[10px]">
+                  <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--c-text-muted)] sm:text-[10px]">
                     {item.section_title}
                   </span>
                 )}
-                <div className="mt-2.5 flex h-16 w-full items-center justify-center sm:h-20">
-                  {img && (
-                    // eslint-disable-next-line @next/next/no-img-element -- legacy asset hosts
-                    // resolved through assetUrl(); next/image would need each one configured.
-                    <img
-                      src={img}
-                      alt={item.section_title || "Partner logo"}
-                      className="max-h-14 max-w-full object-contain transition-transform duration-300 group-hover:scale-105 sm:max-h-16"
-                      loading="lazy"
-                    />
-                  )}
-                </div>
+                {/*
+                  LogoPlate, not a bare <img>: these logos are uploaded by whoever runs the
+                  event, and the three bundled defaults are white-on-transparent artwork. On a
+                  light page that is an empty card. LogoPlate measures each file and gives only
+                  the light ones a dark chip — a dark or white-backed logo is left alone, which a
+                  fixed treatment could not do.
+                */}
+                {img && (
+                  <LogoPlate
+                    src={img}
+                    alt={item.section_title || "Partner logo"}
+                    wrapperClassName="mt-2.5 flex h-16 w-full items-center justify-center rounded-xl px-3 transition-colors sm:h-20"
+                    className="max-h-14 max-w-full object-contain transition-transform duration-300 group-hover:scale-105 sm:max-h-16"
+                  />
+                )}
+                {!img && <div className="mt-2.5 h-16 w-full sm:h-20" />}
               </>
             );
 
             const cardClass =
-              "group relative flex w-[15rem] flex-col items-center justify-center rounded-2xl border border-white/[0.1] bg-[#10112A]/85 px-6 py-6 text-center backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[#8B3DFF]/50 hover:shadow-[0_18px_46px_-16px_rgba(108,43,255,0.75)] sm:w-[17rem]";
+              "group relative flex w-[15rem] flex-col items-center justify-center rounded-2xl border border-white/[0.1] bg-[var(--c-bg-2)]/85 px-6 py-6 text-center backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[var(--c-accent-violet-soft)]/50 hover:shadow-[0_18px_46px_-16px_rgba(108,43,255,0.75)] sm:w-[17rem]";
 
             return item.additional_info ? (
               <a

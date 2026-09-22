@@ -87,13 +87,13 @@ const COLOURS: {
     field: "primaryColour",
     label: "Primary",
     hint: "Buttons, links, highlights and the accent on headings.",
-    fallback: "#C71585",
+    fallback: "var(--color-brand-pink)",
   },
   {
     field: "secondaryColour",
     label: "Secondary",
     hint: "The deeper half of every gradient, and the page glow.",
-    fallback: "#4B0082",
+    fallback: "var(--color-brand-purple)",
   },
   {
     field: "backgroundColour",
@@ -130,7 +130,7 @@ const COLOURS: {
     field: "accentTextColour",
     label: "Accent text",
     hint: "Links, eyebrow labels and the highlighted words in headings. Empty derives from the primary, lightened until it is readable on the page background.",
-    fallback: "#C71585",
+    fallback: "var(--color-brand-pink)",
     derived: true,
   },
   {
@@ -531,7 +531,7 @@ export function SiteEditForm({
         <label className="mt-5 flex cursor-pointer items-start gap-3">
           <input
             type="checkbox"
-            className="mt-1 h-4 w-4 accent-[#C71585]"
+            className="mt-1 h-4 w-4 accent-[var(--color-brand-pink)]"
             checked={form.active}
             onChange={(event) => set("active", event.target.checked)}
           />

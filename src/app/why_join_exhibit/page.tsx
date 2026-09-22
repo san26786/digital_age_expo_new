@@ -129,7 +129,8 @@ export default async function WhyJoinExhibitPage() {
     <div className="bg-slate-950 text-white min-h-screen">
       {/* Hero Header */}
       <section
-        className="relative overflow-hidden bg-cover bg-center bg-no-repeat px-6 py-24 sm:py-32 text-center"
+        data-theme-scope="dark"
+        className="relative overflow-hidden bg-slate-950 bg-cover bg-center bg-no-repeat px-6 py-24 sm:py-32 text-center"
         style={{
           backgroundImage: `linear-gradient(to bottom, rgb(var(--color-slate-900-rgb) / 0.88), rgb(var(--color-violet-900-rgb) / 0.85), rgb(var(--color-slate-900-rgb) / 0.95)), url('${staticAssetUrl("https://digitalageexpo.com/files/listing_pages/818073-dae_index_top_banner.jpg")}')`,
         }}

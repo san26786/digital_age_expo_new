@@ -42,25 +42,25 @@ const ITEMS = (
     label: "Visitors",
     value: tileValue(p.counts?.visitors, p.visitors, "25000+"),
     icon: Users,
-    accent: "#8B3DFF",
+    accent: "var(--c-accent-violet-soft)",
   },
   {
     label: "Exhibitors",
     value: tileValue(p.counts?.exhibitors, p.exhibitors, "1000+"),
     icon: Star,
-    accent: "#F020A8",
+    accent: "var(--c-accent-pink)",
   },
   {
     label: "Speakers",
     value: tileValue(p.counts?.speakers, p.speakers, "100+"),
     icon: Mic,
-    accent: "#FF2BAF",
+    accent: "var(--c-accent-pink-soft)",
   },
   {
     label: "Workshops & Masterclass",
     value: tileValue(p.counts?.workshops, p.workshops, "50+"),
     icon: GraduationCap,
-    accent: "#246BFD",
+    accent: "var(--c-accent-blue)",
   },
 ];
 
@@ -119,15 +119,15 @@ export function DataCounters(props: Props) {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden border-y border-white/[0.06] bg-[#0B0C20] px-4 py-10 text-white sm:px-6 sm:py-14"
+      className="relative overflow-hidden border-y border-white/[0.06] bg-[var(--c-bg-1)] px-4 py-10 text-white sm:px-6 sm:py-14"
     >
       {/* Background glow */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_15%_0%,rgba(108,43,255,0.18),transparent_55%),radial-gradient(ellipse_at_85%_100%,rgba(240,32,168,0.14),transparent_55%)]" />
 
       {/* Animated background orbs */}
-      <div className="pointer-events-none absolute -left-32 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-[#6C2BFF]/10 blur-[100px] animate-counter-orb-left" />
+      <div className="pointer-events-none absolute -left-32 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-[var(--c-accent-violet)]/10 blur-[100px] animate-counter-orb-left" />
 
-      <div className="pointer-events-none absolute -right-32 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-[#F020A8]/10 blur-[100px] animate-counter-orb-right" />
+      <div className="pointer-events-none absolute -right-32 top-1/2 h-64 w-64 -translate-y-1/2 rounded-full bg-[var(--c-accent-pink)]/10 blur-[100px] animate-counter-orb-right" />
 
       {/* Animated grid */}
       <div className="counter-grid pointer-events-none absolute inset-0 opacity-[0.035]" />
@@ -142,7 +142,7 @@ export function DataCounters(props: Props) {
           return (
             <div
               key={item.label}
-              className="counter-card group relative flex w-full max-w-full flex-col items-center justify-center overflow-hidden rounded-[1.25rem] border border-white/[0.09] bg-[#10112A]/85 px-3 py-6 text-center backdrop-blur-sm sm:px-5 sm:py-8"
+              className="counter-card group relative flex w-full max-w-full flex-col items-center justify-center overflow-hidden rounded-[1.25rem] border border-white/[0.09] bg-[var(--c-bg-2)]/85 px-3 py-6 text-center backdrop-blur-sm sm:px-5 sm:py-8"
               style={{
                 animationDelay: `${index * 120}ms`,
               }}
@@ -193,7 +193,7 @@ export function DataCounters(props: Props) {
 
               {/* Number */}
               <div
-                className="relative w-full max-w-full whitespace-nowrap px-1 text-2xl font-black tabular-nums tracking-tight text-white transition-all duration-500 group-hover:scale-105 sm:text-3xl lg:text-[2.35rem]"
+                className="stat-number relative w-full max-w-full whitespace-nowrap px-1 text-2xl font-black tabular-nums tracking-tight text-white transition-all duration-500 group-hover:scale-105 sm:text-3xl lg:text-[2.35rem]"
                 style={{
                   textShadow: `0 0 25px ${item.accent}25`,
                 }}
@@ -202,7 +202,7 @@ export function DataCounters(props: Props) {
               </div>
 
               {/* Label */}
-              <p className="relative mt-1.5 max-w-full break-words px-1 text-center text-xs font-medium text-[#A5A6C5] transition-colors duration-300 group-hover:text-white sm:text-sm">
+              <p className="relative mt-1.5 max-w-full break-words px-1 text-center text-xs font-medium text-[var(--c-text-muted)] transition-colors duration-300 group-hover:text-white sm:text-sm">
                 {item.label}
               </p>
 
@@ -223,7 +223,7 @@ export function DataCounters(props: Props) {
       </div>
 
       {/* Bottom decorative glow */}
-      <div className="pointer-events-none absolute bottom-0 left-1/2 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent via-[#8B3DFF]/60 to-transparent" />
+      <div className="pointer-events-none absolute bottom-0 left-1/2 h-px w-2/3 -translate-x-1/2 bg-gradient-to-r from-transparent via-[var(--c-accent-violet-soft)]/60 to-transparent" />
 
       <style jsx>{`
         @keyframes counterOrbLeft {

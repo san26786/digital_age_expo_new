@@ -84,21 +84,21 @@ export async function AboutEvent({
   return (
     <section
       id="about-event-section"
-      className="relative overflow-hidden bg-[#0B0C20] px-5 py-16 text-white sm:px-6 sm:py-24"
+      className="relative overflow-hidden bg-[var(--c-bg-1)] px-5 py-16 text-white sm:px-6 sm:py-24"
     >
       {/* Decorative field. All non-interactive. */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_10%_15%,rgba(108,43,255,0.20),transparent_55%),radial-gradient(ellipse_at_90%_85%,rgba(36,107,253,0.16),transparent_55%)]" />
-      <div className="pointer-events-none absolute -left-32 top-1/4 h-[26rem] w-[26rem] rounded-full bg-[#F020A8]/12 blur-[130px]" />
+      <div className="pointer-events-none absolute -left-32 top-1/4 h-[26rem] w-[26rem] rounded-full bg-[var(--c-accent-pink)]/12 blur-[130px]" />
 
       <div className="relative z-10 mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-2 lg:gap-16">
         {/* ---------------- Left: framed visual ---------------- */}
         <div data-reveal="left" className="relative">
           {/* Outer bloom */}
-          <div className="pointer-events-none absolute -inset-6 rounded-[2.5rem] bg-gradient-to-br from-[#F020A8]/35 via-[#6C2BFF]/25 to-[#00C8FF]/30 blur-3xl" />
+          <div className="pointer-events-none absolute -inset-6 rounded-[2.5rem] bg-gradient-to-br from-[var(--c-accent-pink)]/35 via-[var(--c-accent-violet)]/25 to-[var(--c-accent-cyan)]/30 blur-3xl" />
 
           {/* Device frame: gradient hairline border achieved with a padded gradient wrapper. */}
-          <div className="relative rounded-[1.75rem] bg-gradient-to-br from-[#F020A8] via-[#8B3DFF] to-[#00C8FF] p-[2px] shadow-[0_30px_90px_-25px_rgba(0,0,0,0.9)]">
-            <div className="overflow-hidden rounded-[1.65rem] bg-[#08091A] p-2">
+          <div className="relative rounded-[1.75rem] bg-gradient-to-br from-[var(--c-accent-pink)] via-[var(--c-accent-violet-soft)] to-[var(--c-accent-cyan)] p-[2px] shadow-[0_30px_90px_-25px_rgba(0,0,0,0.9)]">
+            <div className="overflow-hidden rounded-[1.65rem] bg-[var(--c-bg-0)] p-2">
               {/* eslint-disable-next-line @next/next/no-img-element -- remote/legacy asset host,
                   resolved through assetUrl(); next/image would need per-host config for every
                   legacy domain this map can return. */}
@@ -112,14 +112,14 @@ export async function AboutEvent({
           </div>
 
           {/* Accent bars echoing the reference's glowing edges. Decorative only. */}
-          <div className="pointer-events-none absolute -left-2 top-12 bottom-12 w-1 rounded-full bg-gradient-to-b from-transparent via-[#F020A8] to-transparent blur-[2px]" />
-          <div className="pointer-events-none absolute -right-2 top-20 bottom-20 w-1 rounded-full bg-gradient-to-b from-transparent via-[#00C8FF] to-transparent blur-[2px]" />
+          <div className="pointer-events-none absolute -left-2 top-12 bottom-12 w-1 rounded-full bg-gradient-to-b from-transparent via-[var(--c-accent-pink)] to-transparent blur-[2px]" />
+          <div className="pointer-events-none absolute -right-2 top-20 bottom-20 w-1 rounded-full bg-gradient-to-b from-transparent via-[var(--c-accent-cyan)] to-transparent blur-[2px]" />
         </div>
 
         {/* ---------------- Right: copy ---------------- */}
         <div data-reveal="right" style={{ transitionDelay: "100ms" }}>
           {showEyebrow && (
-            <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#F020A8] sm:text-xs">
+            <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[var(--c-accent-pink)] sm:text-xs">
               About The Event
             </span>
           )}
@@ -133,15 +133,15 @@ export async function AboutEvent({
           </h2>
 
           <div
-            className="mt-5 text-sm leading-relaxed text-[#A5A6C5] sm:text-base [&_a]:text-white [&_a]:underline"
+            className="mt-5 text-sm leading-relaxed text-[var(--c-text-muted)] sm:text-base [&_a]:text-white [&_a]:underline"
             dangerouslySetInnerHTML={{ __html: desc }}
           />
 
           {/* -------- Fact tiles: the reference's highlight row, carrying real values -------- */}
           <div className="mt-8 grid gap-3 sm:grid-cols-2 sm:gap-4">
             <div data-reveal style={{ transitionDelay: "150ms" }}>
-              <div className="h-full rounded-2xl border border-white/[0.09] bg-[#10112A]/80 p-5 backdrop-blur-sm transition-colors duration-300 hover:border-[#F020A8]/40">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#F020A8]/35 bg-[#F020A8]/10">
+              <div className="h-full rounded-2xl border border-white/[0.09] bg-[var(--c-bg-2)]/80 p-5 backdrop-blur-sm transition-colors duration-300 hover:border-[var(--c-accent-pink)]/40">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--c-accent-pink)]/35 bg-[var(--c-accent-pink)]/10">
                   <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
                     <defs>
                       <linearGradient id="dae-about-where" x1="0" y1="0" x2="1" y2="1">
@@ -156,13 +156,13 @@ export async function AboutEvent({
                   </svg>
                 </span>
                 <h4 className="mt-3 text-sm font-black uppercase tracking-wider text-white">Where</h4>
-                <p className="mt-1.5 whitespace-pre-line text-sm leading-snug text-[#A5A6C5]">{whereText}</p>
+                <p className="mt-1.5 whitespace-pre-line text-sm leading-snug text-[var(--c-text-muted)]">{whereText}</p>
               </div>
             </div>
 
             <div data-reveal style={{ transitionDelay: "250ms" }}>
-              <div className="h-full rounded-2xl border border-white/[0.09] bg-[#10112A]/80 p-5 backdrop-blur-sm transition-colors duration-300 hover:border-[#00C8FF]/40">
-                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#00C8FF]/35 bg-[#00C8FF]/10">
+              <div className="h-full rounded-2xl border border-white/[0.09] bg-[var(--c-bg-2)]/80 p-5 backdrop-blur-sm transition-colors duration-300 hover:border-[var(--c-accent-cyan)]/40">
+                <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[var(--c-accent-cyan)]/35 bg-[var(--c-accent-cyan)]/10">
                   <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
                     <defs>
                       <linearGradient id="dae-about-when" x1="0" y1="0" x2="1" y2="1">
@@ -180,12 +180,12 @@ export async function AboutEvent({
                 {dateStart ? (
                   <>
                     <p className="mt-1.5 text-sm font-medium text-white">{formatDayRange(dateStart, dateEnd)}</p>
-                    <p className="text-sm text-[#A5A6C5]">{formatMonthDayYear(dateStart, dateEnd)}</p>
+                    <p className="text-sm text-[var(--c-text-muted)]">{formatMonthDayYear(dateStart, dateEnd)}</p>
                   </>
                 ) : (
                   <>
                     <p className="mt-1.5 text-sm font-medium text-white">Wednesday to Friday</p>
-                    <p className="text-sm text-[#A5A6C5]">Aug 26 to Aug 28, 2026</p>
+                    <p className="text-sm text-[var(--c-text-muted)]">Aug 26 to Aug 28, 2026</p>
                   </>
                 )}
               </div>

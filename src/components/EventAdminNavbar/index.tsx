@@ -133,13 +133,13 @@ function buildTabs(
       code: "LGTS",
       label: "View Event Summary",
       icon: Menu,
-      colorClass: "bg-[#4B0082] hover:bg-black",
+      colorClass: "bg-[var(--color-brand-purple)] hover:bg-black",
       items: [
         {
           title: "Event Summary",
           href: `${BASE}/user_event_summary?${q}`,
           icon: Menu,
-          colorClass: "bg-[#4B0082] hover:bg-black",
+          colorClass: "bg-[var(--color-brand-purple)] hover:bg-black",
         },
         {
           title: "View Public Event",
@@ -171,7 +171,7 @@ function buildTabs(
       code: "LGTMM",
       label: "Setup Event",
       icon: Settings,
-      colorClass: "bg-[#C71585] hover:bg-black",
+      colorClass: "bg-[var(--color-brand-pink)] hover:bg-black",
       items: [
         {
           title: "Event Details",
@@ -250,7 +250,7 @@ function buildTabs(
       code: "LGTCL",
       label: "Configure Virtual Event",
       icon: Wrench,
-      colorClass: "bg-[#4B0082] hover:bg-black",
+      colorClass: "bg-[var(--color-brand-purple)] hover:bg-black",
       items: [
         {
           title: "Configure Lobby",
@@ -332,7 +332,7 @@ function buildTabs(
       code: "LGTME",
       label: "Manage Events",
       icon: ListChecks,
-      colorClass: "bg-[#C71585] hover:bg-black",
+      colorClass: "bg-[var(--color-brand-pink)] hover:bg-black",
       items: [
         {
           title: "Event Industry",
@@ -469,7 +469,7 @@ function buildTabs(
       code: "LTGMVB",
       label: "Manage Virtual Booth",
       icon: Video,
-      colorClass: "bg-black hover:bg-[#4B0082]",
+      colorClass: "bg-black hover:bg-[var(--color-brand-purple)]",
       items: [
         {
           title: "Manage Lobby Visitor Enquires",
@@ -546,7 +546,7 @@ function buildTabs(
       code: "LGTBUY",
       label: "Manage Event Orders",
       icon: ShoppingCart,
-      colorClass: "bg-[#4B0082] hover:bg-[#C71585]",
+      colorClass: "bg-[var(--color-brand-purple)] hover:bg-[var(--color-brand-pink)]",
       items: [
         {
           title: "Manage Orders",
@@ -618,7 +618,7 @@ function buildTabs(
       code: "LTGDO",
       label: "Download Orders",
       icon: ArrowDownCircle,
-      colorClass: "bg-[#C71585] hover:bg-black",
+      colorClass: "bg-[var(--color-brand-pink)] hover:bg-black",
       items: [
         {
           title: "Download Purchase Order PDF",
@@ -673,7 +673,7 @@ function buildTabs(
             code: "LGTSITECFG",
             label: "Site Settings",
             icon: SlidersHorizontal,
-            colorClass: "bg-[#4B0082] hover:bg-black",
+            colorClass: "bg-[var(--color-brand-purple)] hover:bg-black",
             items: [
               {
                 title: "Identity, Colours & Logos",
@@ -1027,11 +1027,11 @@ export default function EventAdminNavbar({
           "VIEW EVENT SUMM...", "CONFIGURE VIRTUA...", "MANAGE VIRTUAL B..." A menu you cannot
           read is not a menu.
       ====================================================== */}
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/25 shadow-[0_24px_60px_-30px_rgba(0,0,0,0.95)] backdrop-blur-xl">
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-[var(--color-surface-2)] shadow-[0_24px_60px_-30px_rgba(0,0,0,0.35)] backdrop-blur-xl">
         <div
           role="tablist"
           aria-label="Event admin sections"
-          className="flex flex-wrap gap-2 border-b border-white/[0.07] bg-black/30 p-3"
+          className="flex flex-wrap gap-2 border-b border-white/[0.07] bg-zinc-850 p-3"
         >
           {tabs.map((tab) => {
             const Icon = tab.icon;

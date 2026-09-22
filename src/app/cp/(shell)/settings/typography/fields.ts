@@ -1,7 +1,7 @@
 /**
  * Typography field catalog — find_settings, grouptitle="typography". Genuinely new: this
  * project's fonts are currently hardcoded CSS custom properties in src/app/globals.css
- * (--font-sans: "Plus Jakarta Sans"..., --font-display: "Outfit"...), not driven by next/font
+ * (--font-sans: "Inter"..., --font-display: "Space Grotesk"...), not driven by next/font
  * or any DB-backed config. These settings don't replace that file — Phase 2 is what would make
  * the public layout read these values and override those CSS variables at runtime; for now this
  * page just gives the CP a place to record the intended values.
@@ -20,7 +20,7 @@
 export const TYPOGRAPHY_FONT_GROUPS = [
   {
     label: "Used by this site",
-    fonts: ["Plus Jakarta Sans", "Inter", "Outfit", "Space Grotesk", "JetBrains Mono"],
+    fonts: ["Inter", "Space Grotesk", "JetBrains Mono"],
   },
   {
     label: "Web-safe (no loading required)",
@@ -69,25 +69,25 @@ export const TYPOGRAPHY_FONT_FIELDS = [
   {
     varname: "cp_typography_primary_font",
     label: "Primary Font",
-    defaultValue: "Plus Jakarta Sans",
+    defaultValue: "Inter",
     hint: "Main interface font (globals.css --font-sans).",
   },
   {
     varname: "cp_typography_secondary_font",
     label: "Secondary Font",
-    defaultValue: "Inter",
+    defaultValue: "Space Grotesk",
     hint: "Fallback/support font used alongside the primary.",
   },
   {
     varname: "cp_typography_heading_font",
     label: "Heading Font",
-    defaultValue: "Outfit",
-    hint: "Display font for h1–h6 (globals.css --font-display).",
+    defaultValue: "Space Grotesk",
+    hint: "Display font for h1–h6, navigation, buttons (globals.css --font-display).",
   },
   {
     varname: "cp_typography_body_font",
     label: "Body Font",
-    defaultValue: "Plus Jakarta Sans",
+    defaultValue: "Inter",
     hint: "Running text: paragraphs, lists, tables.",
   },
 ] as const;

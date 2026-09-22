@@ -3,7 +3,7 @@ import { getDomain } from "@/lib/services/domain";
 import { getPublicSocialLinks } from "@/lib/services/social";
 import { getFooterContent } from "@/lib/services/footer";
 import { getBrandAssets } from "@/lib/services/branding";
-import { BrandLogo } from "@/components/layout/BrandLogo";
+import { ThemedBrandLogo } from "@/components/layout/ThemedBrandLogo";
 import { NewsletterForm } from "@/components/layout/NewsletterForm";
 import {
   Mail,
@@ -93,21 +93,24 @@ export async function Footer() {
               className="group inline-flex items-center"
               aria-label={domain.name}
             >
-              <div className="relative rounded-2xl border border-white/10 bg-white/[0.03] px-6 py-4 transition-all duration-300 group-hover:border-fuchsia-500/30 group-hover:bg-white/[0.06]">
-                {/*
-                  width/height were 220x55 (4:1) but digitalageexpo_logo.png is 2172x724
-                  (3:1), so Next reserved a box of the wrong shape. 576x192 is the same
-                  3:1 ratio at ~3x the largest rendered width.
-                */}
-                <BrandLogo
-                  src={brand.footerLogo}
-                  alt={domain.name}
-                  width={576}
-                  height={192}
-                  priority
-                  className="h-auto max-h-16 w-auto object-contain sm:max-h-20"
-                />
-              </div>
+              {/*
+                No plate. The logo used to sit in a bordered, tinted box; on a light footer that
+                box read as a stray panel around the mark, and the mark does not need one on a
+                dark footer either.
+
+                width/height were 220x55 (4:1) but digitalageexpo_logo.png is 2172x724 (3:1), so
+                Next reserved a box of the wrong shape. 576x192 is the same 3:1 ratio at ~3x the
+                largest rendered width.
+              */}
+              <ThemedBrandLogo
+                darkSrc={brand.footerLogo}
+                lightSrc={brand.lightLogo}
+                alt={domain.name}
+                width={576}
+                height={192}
+                priority
+                className="h-auto max-h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-[1.03] sm:max-h-20"
+              />
             </Link>
 
             {/* DESCRIPTION */}

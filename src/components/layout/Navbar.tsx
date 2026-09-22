@@ -16,7 +16,8 @@ import {
 
 import { MenuItem } from "@/lib/services/menu";
 import { LogoutButton } from "@/components/member/LogoutButton";
-import { BrandLogo } from "@/components/layout/BrandLogo";
+import { ThemeToggle } from "@/components/common/ThemeToggle";
+import { ThemedBrandLogo } from "@/components/layout/ThemedBrandLogo";
 import { DEFAULT_BRAND_ASSETS } from "@/lib/constants/brandAssets";
 
 interface NavbarProps {
@@ -347,7 +348,8 @@ export function Navbar({
   // hasn't been updated to pass the CP-managed assets.
   primaryLogo = DEFAULT_BRAND_ASSETS.primaryLogo,
   mobileLogo = DEFAULT_BRAND_ASSETS.mobileLogo,
-}: NavbarProps & { primaryLogo?: string; mobileLogo?: string }) {
+  lightLogo = DEFAULT_BRAND_ASSETS.lightLogo,
+}: NavbarProps & { primaryLogo?: string; mobileLogo?: string; lightLogo?: string }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [openMobileSubmenu, setOpenMobileSubmenu] =
     useState<number | null>(null);
@@ -476,13 +478,14 @@ export function Navbar({
             (3:1), so the reserved box was the wrong shape and the row shifted once the
             image decoded. 576x192 is the same 3:1 and ~3x the largest rendered width.
           */}
-          <BrandLogo
-            src={primaryLogo}
+          <ThemedBrandLogo
+            darkSrc={primaryLogo}
+            lightSrc={lightLogo}
             alt={domainName}
             width={576}
             height={192}
             priority
-            className="h-12 w-auto brightness-110 transition-transform duration-300 group-hover:scale-105 sm:h-14 xl:h-16"
+            className="h-12 w-auto transition-transform duration-300 group-hover:scale-105 sm:h-14 xl:h-16"
           />
         </Link>
 
@@ -580,7 +583,11 @@ export function Navbar({
             </div>
           )}
 
-        
+
+          {/* Theme switch. Outside the lg: breakpoint guards on its neighbours, so it is
+              reachable at every width rather than hiding with the desktop nav. */}
+          <ThemeToggle />
+
           {/* MOBILE MENU BUTTON */}
           <button
             type="button"
@@ -631,12 +638,16 @@ export function Navbar({
                 }
               >
                 {/* 600x141 (4.255:1) — the bundled default's intrinsic size. */}
-                <BrandLogo
-                  src={mobileLogo}
+                {/* mobileLogo already defaults to the purple wordmark, which is the LIGHT
+                    variant — so on a dark drawer it was the low-contrast one. Dark now takes
+                    the white primary and light keeps the admin's mobile slot. */}
+                <ThemedBrandLogo
+                  darkSrc={primaryLogo}
+                  lightSrc={mobileLogo}
                   alt={domainName}
                   width={600}
                   height={141}
-                  className="h-11 w-auto brightness-110"
+                  className="h-11 w-auto"
                 />
               </Link>
 

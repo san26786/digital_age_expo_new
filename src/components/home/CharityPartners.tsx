@@ -94,7 +94,7 @@ export function CharityPartners({
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden border-t border-white/[0.06] bg-[#0B0C20] px-5 py-14 text-white sm:px-6 sm:py-16"
+      className="relative overflow-hidden border-t border-white/[0.06] bg-[var(--c-bg-1)] px-5 py-14 text-white sm:px-6 sm:py-16"
     >
       {/* =====================================================
           BACKGROUND EFFECTS
@@ -129,7 +129,7 @@ export function CharityPartners({
 
       {/* Decorative particles */}
       <span
-        className={`pointer-events-none absolute left-[12%] top-[25%] h-1.5 w-1.5 rounded-full bg-pink-400 shadow-[0_0_15px_#F020A8] transition-all duration-[1400ms] ${
+        className={`pointer-events-none absolute left-[12%] top-[25%] h-1.5 w-1.5 rounded-full bg-pink-400 shadow-[0_0_15px_var(--c-accent-pink)] transition-all duration-[1400ms] ${
           isVisible
             ? "translate-y-0 scale-100 opacity-100"
             : "translate-y-8 scale-0 opacity-0"
@@ -137,7 +137,7 @@ export function CharityPartners({
       />
 
       <span
-        className={`pointer-events-none absolute right-[18%] top-[20%] h-2 w-2 rounded-full bg-purple-400 shadow-[0_0_18px_#8B3DFF] transition-all delay-200 duration-[1600ms] ${
+        className={`pointer-events-none absolute right-[18%] top-[20%] h-2 w-2 rounded-full bg-purple-400 shadow-[0_0_18px_var(--c-accent-violet-soft)] transition-all delay-200 duration-[1600ms] ${
           isVisible
             ? "translate-y-0 scale-100 opacity-100"
             : "-translate-y-8 scale-0 opacity-0"
@@ -145,7 +145,7 @@ export function CharityPartners({
       />
 
       <span
-        className={`pointer-events-none absolute bottom-[20%] right-[8%] h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_15px_#00C8FF] transition-all delay-300 duration-[1800ms] ${
+        className={`pointer-events-none absolute bottom-[20%] right-[8%] h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_15px_var(--c-accent-cyan)] transition-all delay-300 duration-[1800ms] ${
           isVisible
             ? "translate-y-0 scale-100 opacity-100"
             : "translate-y-8 scale-0 opacity-0"
@@ -171,17 +171,17 @@ export function CharityPartners({
           {/* Small label */}
           <div className="mb-4 flex items-center justify-center gap-3 lg:justify-start">
             <span
-              className={`h-px bg-gradient-to-r from-transparent to-[#F020A8] transition-all duration-1000 ${
+              className={`h-px bg-gradient-to-r from-transparent to-[var(--c-accent-pink)] transition-all duration-1000 ${
                 isVisible ? "w-8" : "w-0"
               }`}
             />
 
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#F020A8]">
+            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[var(--c-accent-pink)]">
               Community Impact
             </span>
 
             <span
-              className={`h-px bg-gradient-to-r from-[#F020A8] to-transparent transition-all duration-1000 ${
+              className={`h-px bg-gradient-to-r from-[var(--c-accent-pink)] to-transparent transition-all duration-1000 ${
                 isVisible ? "w-8" : "w-0"
               }`}
             />
@@ -191,13 +191,13 @@ export function CharityPartners({
             Our Charity Partners
           </h2>
 
-          <p className="mx-auto mt-2.5 max-w-md text-sm leading-relaxed text-[#A5A6C5] lg:mx-0">
+          <p className="mx-auto mt-2.5 max-w-md text-sm leading-relaxed text-[var(--c-text-muted)] lg:mx-0">
             Together for a better, more inclusive digital future.
           </p>
 
           {/* Animated underline */}
           <div
-            className={`mx-auto mt-5 h-[2px] rounded-full bg-gradient-to-r from-[#F020A8] via-[#8B3DFF] to-transparent transition-all duration-[1200ms] ease-out lg:mx-0 ${
+            className={`mx-auto mt-5 h-[2px] rounded-full bg-gradient-to-r from-[var(--c-accent-pink)] via-[var(--c-accent-violet-soft)] to-transparent transition-all duration-[1200ms] ease-out lg:mx-0 ${
               isVisible
                 ? "w-28 opacity-100"
                 : "w-0 opacity-0"
@@ -223,7 +223,7 @@ export function CharityPartners({
               return (
                 <div
                   key={partner.id}
-                  className={`group/logo relative flex h-24 w-56 items-center justify-center overflow-hidden rounded-xl border border-white/[0.12] bg-white p-4 shadow-[0_14px_40px_-16px_rgba(0,0,0,0.9)] transition-all ease-out hover:-translate-y-2 hover:scale-[1.04] hover:border-[#F020A8]/50 hover:shadow-[0_20px_50px_-15px_rgba(240,32,168,0.45)] sm:h-28 sm:w-64 ${
+                  className={`group/logo relative flex h-24 w-56 items-center justify-center overflow-hidden rounded-xl border border-white/[0.12] bg-white p-4 shadow-[0_14px_40px_-16px_rgba(0,0,0,0.9)] transition-all ease-out hover:-translate-y-2 hover:scale-[1.04] hover:border-[var(--c-accent-pink)]/50 hover:shadow-[0_20px_50px_-15px_rgba(240,32,168,0.45)] sm:h-28 sm:w-64 ${
                     isVisible
                       ? "translate-x-0 translate-y-0 scale-100 opacity-100"
                       : "translate-x-16 translate-y-8 scale-90 opacity-0"
@@ -252,7 +252,7 @@ export function CharityPartners({
                   )}
 
                   {/* Bottom accent */}
-                  <span className="absolute bottom-0 left-1/2 h-[2px] w-0 -translate-x-1/2 bg-gradient-to-r from-[#8B3DFF] via-[#F020A8] to-[#00C8FF] transition-all duration-500 group-hover/logo:w-3/4" />
+                  <span className="absolute bottom-0 left-1/2 h-[2px] w-0 -translate-x-1/2 bg-gradient-to-r from-[var(--c-accent-violet-soft)] via-[var(--c-accent-pink)] to-[var(--c-accent-cyan)] transition-all duration-500 group-hover/logo:w-3/4" />
                 </div>
               );
             })}
@@ -304,11 +304,11 @@ export function CharityPartners({
           transitionDelay: reduceMotion ? "0ms" : "800ms",
         }}
       >
-        <span className="h-px w-16 bg-gradient-to-r from-transparent to-[#8B3DFF]" />
+        <span className="h-px w-16 bg-gradient-to-r from-transparent to-[var(--c-accent-violet-soft)]" />
 
-        <span className="h-2 w-2 animate-pulse rounded-full bg-[#F020A8] shadow-[0_0_16px_#F020A8]" />
+        <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--c-accent-pink)] shadow-[0_0_16px_var(--c-accent-pink)]" />
 
-        <span className="h-px w-16 bg-gradient-to-l from-transparent to-[#8B3DFF]" />
+        <span className="h-px w-16 bg-gradient-to-l from-transparent to-[var(--c-accent-violet-soft)]" />
       </div>
     </section>
   );

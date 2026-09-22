@@ -63,7 +63,7 @@ export default function GlimpseOfTheShowPage() {
   return (
     <div className="w-full bg-slate-950 text-white min-h-screen pb-20">
       {/* Hero Section: Video & Visitor Form Overlay */}
-      <section id="hero" className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden">
+      <section id="hero" data-theme-scope="dark" className="relative w-full min-h-[85vh] flex items-center justify-center overflow-hidden bg-slate-950">
         {/* Background Video */}
         <div className="absolute inset-0">
           <video

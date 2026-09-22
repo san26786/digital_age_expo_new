@@ -13,6 +13,7 @@
  * An empty object is the correct state before the first run.
  */
 export const ASSET_OVERRIDES: Record<string, string> = {
+  "/images/external/8315.jpg": "/images/external/8314.jpg",
   "/images/external/apps/speaker_hall.png": "/images/speaker_hall.png",
   "/images/external/listing_pages/810210-tradeshow_banner_bg.jpg": "/images/external/listing_pages/817601-banner1.jpg",
   "/images/external/listing_pages/817601-817601-freeticket.jpg": "/images/external/listing_pages/817601-freeticket.jpg",

@@ -146,7 +146,7 @@ export function BlogsAndNews() {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden bg-[#0B0C20] px-5 py-16 text-white sm:px-6 sm:py-20"
+      className="relative overflow-hidden bg-[var(--c-bg-1)] px-5 py-16 text-white sm:px-6 sm:py-20"
     >
       {/* =========================================================
           BACKGROUND EFFECTS
@@ -197,9 +197,9 @@ export function BlogsAndNews() {
                 : "-translate-x-14 translate-y-6 opacity-0"
             }`}
           >
-            <span className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.3em] text-[#F020A8] sm:text-xs">
+            <span className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.3em] text-[var(--c-accent-pink)] sm:text-xs">
               <span
-                className={`h-1.5 w-1.5 rounded-full bg-[#F020A8] shadow-[0_0_14px_#F020A8] transition-all duration-700 ${
+                className={`h-1.5 w-1.5 rounded-full bg-[var(--c-accent-pink)] shadow-[0_0_14px_var(--c-accent-pink)] transition-all duration-700 ${
                   isVisible
                     ? "scale-100 opacity-100"
                     : "scale-0 opacity-0"
@@ -215,7 +215,7 @@ export function BlogsAndNews() {
 
             {/* Animated underline */}
             <div
-              className={`mt-4 h-[2px] rounded-full bg-gradient-to-r from-[#F020A8] via-[#8B3DFF] to-transparent transition-all duration-[1200ms] ease-out ${
+              className={`mt-4 h-[2px] rounded-full bg-gradient-to-r from-[var(--c-accent-pink)] via-[var(--c-accent-violet-soft)] to-transparent transition-all duration-[1200ms] ease-out ${
                 isVisible
                   ? "w-32 opacity-100"
                   : "w-0 opacity-0"
@@ -226,7 +226,7 @@ export function BlogsAndNews() {
           {/* CTA */}
           <Link
             href="/articles"
-            className={`group inline-flex shrink-0 items-center gap-2 self-start rounded-full border border-[#8B3DFF]/50 bg-white/[0.04] px-6 py-3 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur-md transition-all duration-1000 hover:-translate-y-1 hover:border-[#8B3DFF] hover:bg-[#8B3DFF]/10 hover:shadow-[0_0_30px_-6px_#8B3DFF] sm:self-auto ${
+            className={`group inline-flex shrink-0 items-center gap-2 self-start rounded-full border border-[var(--c-accent-violet-soft)]/50 bg-white/[0.04] px-6 py-3 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur-md transition-all duration-1000 hover:-translate-y-1 hover:border-[var(--c-accent-violet-soft)] hover:bg-[var(--c-accent-violet-soft)]/10 hover:shadow-[0_0_30px_-6px_var(--c-accent-violet-soft)] sm:self-auto ${
               isVisible
                 ? "translate-x-0 translate-y-0 opacity-100"
                 : "translate-x-14 translate-y-6 opacity-0"
@@ -251,7 +251,7 @@ export function BlogsAndNews() {
               key={blog.id}
               id={`blog-card-${blog.id}`}
               href="/articles"
-              className={`group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.09] bg-[#10112A] transition-all ease-out hover:-translate-y-2 hover:border-[#8B3DFF]/60 hover:shadow-[0_25px_65px_-22px_rgba(108,43,255,0.9)] ${
+              className={`group relative flex flex-col overflow-hidden rounded-2xl border border-white/[0.09] bg-[var(--c-bg-2)] transition-all ease-out hover:-translate-y-2 hover:border-[var(--c-accent-violet-soft)]/60 hover:shadow-[0_25px_65px_-22px_rgba(108,43,255,0.9)] ${
                 isVisible
                   ? "translate-y-0 scale-100 opacity-100"
                   : "translate-y-20 scale-[0.96] opacity-0"
@@ -267,7 +267,7 @@ export function BlogsAndNews() {
                   IMAGE
               ================================================== */}
 
-              <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#14152F]">
+              <div className="relative aspect-[16/10] w-full overflow-hidden bg-[var(--c-surf-1)]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={blog.imageUrl}
@@ -277,13 +277,13 @@ export function BlogsAndNews() {
                 />
 
                 {/* Image dark gradient */}
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#10112A] via-transparent to-transparent opacity-90" />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[var(--c-bg-2)] via-transparent to-transparent opacity-90" />
 
                 {/* Hover purple glow */}
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-purple-500/0 via-transparent to-pink-500/0 transition-all duration-700 group-hover:from-purple-500/10 group-hover:to-pink-500/10" />
 
                 {/* Category */}
-                <span className="absolute bottom-3 left-3 rounded-full border border-[#F020A8]/40 bg-[#08091A]/85 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-[#FF7ACF] backdrop-blur-sm transition-all duration-300 group-hover:border-[#F020A8]/80 group-hover:bg-[#F020A8]/15 group-hover:text-white">
+                <span className="absolute bottom-3 left-3 rounded-full border border-[var(--c-accent-pink)]/40 bg-[var(--c-bg-0)]/85 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-[var(--c-accent-pink-200)] backdrop-blur-sm transition-all duration-300 group-hover:border-[var(--c-accent-pink)]/80 group-hover:bg-[var(--c-accent-pink)]/15 group-hover:text-white">
                   {blog.category}
                 </span>
 
@@ -296,19 +296,19 @@ export function BlogsAndNews() {
               ================================================== */}
 
               <div className="flex flex-1 flex-col p-5">
-                <h4 className="line-clamp-2 text-sm font-bold leading-snug text-white transition-all duration-300 group-hover:translate-x-1 group-hover:text-[#F020A8] sm:text-[0.95rem]">
+                <h4 className="line-clamp-2 text-sm font-bold leading-snug text-white transition-all duration-300 group-hover:translate-x-1 group-hover:text-[var(--c-accent-pink)] sm:text-[0.95rem]">
                   {blog.title}
                 </h4>
 
-                <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-[#A5A6C5] transition-colors duration-300 group-hover:text-[#C7C8E0]">
+                <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-[var(--c-text-muted)] transition-colors duration-300 group-hover:text-[#C7C8E0]">
                   {blog.excerpt}
                 </p>
 
                 {/* Footer */}
-                <div className="mt-auto flex items-center justify-between gap-3 border-t border-white/[0.07] pt-4 text-[10px] uppercase tracking-wider text-[#A5A6C5]">
+                <div className="mt-auto flex items-center justify-between gap-3 border-t border-white/[0.07] pt-4 text-[10px] uppercase tracking-wider text-[var(--c-text-muted)]">
                   <span className="truncate transition-colors duration-300 group-hover:text-[#C7C8E0]">
                     By{" "}
-                    <span className="font-bold text-[#EDEDF8]">
+                    <span className="font-bold text-[var(--c-text)]">
                       {blog.author}
                     </span>
                   </span>
@@ -317,7 +317,7 @@ export function BlogsAndNews() {
                     {formatPublished(blog.publishedAt)}
 
                     <ArrowRight
-                      className="h-3.5 w-3.5 text-[#8B3DFF] transition-all duration-300 group-hover:translate-x-1.5 group-hover:text-[#F020A8]"
+                      className="h-3.5 w-3.5 text-[var(--c-accent-violet-soft)] transition-all duration-300 group-hover:translate-x-1.5 group-hover:text-[var(--c-accent-pink)]"
                       aria-hidden="true"
                     />
                   </span>
@@ -325,7 +325,7 @@ export function BlogsAndNews() {
               </div>
 
               {/* Bottom animated border */}
-              <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-gradient-to-r from-[#8B3DFF] via-[#F020A8] to-[#00C8FF] transition-all duration-500 group-hover:w-full" />
+              <span className="absolute bottom-0 left-0 h-[2px] w-0 bg-gradient-to-r from-[var(--c-accent-violet-soft)] via-[var(--c-accent-pink)] to-[var(--c-accent-cyan)] transition-all duration-500 group-hover:w-full" />
             </Link>
           ))}
         </div>
@@ -344,11 +344,11 @@ export function BlogsAndNews() {
             transitionDelay: reduceMotion ? "0ms" : "850ms",
           }}
         >
-          <span className="h-px w-16 bg-gradient-to-r from-transparent to-[#8B3DFF]" />
+          <span className="h-px w-16 bg-gradient-to-r from-transparent to-[var(--c-accent-violet-soft)]" />
 
-          <span className="h-2 w-2 animate-pulse rounded-full bg-[#F020A8] shadow-[0_0_16px_#F020A8]" />
+          <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--c-accent-pink)] shadow-[0_0_16px_var(--c-accent-pink)]" />
 
-          <span className="h-px w-16 bg-gradient-to-l from-transparent to-[#8B3DFF]" />
+          <span className="h-px w-16 bg-gradient-to-l from-transparent to-[var(--c-accent-violet-soft)]" />
         </div>
       </div>
     </section>

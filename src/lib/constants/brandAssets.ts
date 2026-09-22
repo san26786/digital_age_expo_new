@@ -14,6 +14,14 @@ export const DEFAULT_BRAND_ASSETS = {
   mobileLogo: "/images/logo.png",
   footerLogo: "/images/digitalageexpo_logo.png",
   loginLogo: "/images/logo.png",
+
+  /*
+   * The same wordmark drawn in the brand purple instead of white, for light
+   * backgrounds. The primary logo is white-on-transparent, so on a light page
+   * the words are not faint - they are absent, leaving only the two coloured
+   * glyphs. This is the variant that gets shown when the theme is light.
+   */
+  lightLogo: "/images/digitalageexpo_logo_light.png",
 } as const;
 
 export type BrandAssets = { -readonly [K in keyof typeof DEFAULT_BRAND_ASSETS]: string };

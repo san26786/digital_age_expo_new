@@ -26,8 +26,8 @@ const ZONES: Zone[] = [
     description:
       'Explore the bleeding-edge of machine learning, neural accelerators, generative transformers, and cognitive automation.',
     icon: Cpu,
-    from: '#6C2BFF',
-    to: '#8B3DFF',
+    from: 'var(--c-accent-violet)',
+    to: 'var(--c-accent-violet-soft)',
     accent: '#B08CFF',
   },
   {
@@ -36,8 +36,8 @@ const ZONES: Zone[] = [
     description:
       'Hardening enterprise postures with post-quantum cryptography, zero-trust architectures, and seamless audit logs.',
     icon: ShieldCheck,
-    from: '#246BFD',
-    to: '#00C8FF',
+    from: 'var(--c-accent-blue)',
+    to: 'var(--c-accent-cyan)',
     accent: '#5FD8FF',
   },
   {
@@ -46,8 +46,8 @@ const ZONES: Zone[] = [
     description:
       'Pioneering the future of instant corporate clearing, decentralised accounting ledgers, and secure financial assets.',
     icon: Coins,
-    from: '#00C8FF',
-    to: '#246BFD',
+    from: 'var(--c-accent-cyan)',
+    to: 'var(--c-accent-blue)',
     accent: '#7FE0FF',
   },
   {
@@ -56,9 +56,9 @@ const ZONES: Zone[] = [
     description:
       'Harnessing serverless infrastructure, global content orchestration, and real-time edge processing for modern web apps.',
     icon: TrendingUp,
-    from: '#F020A8',
-    to: '#8B3DFF',
-    accent: '#FF7ACF',
+    from: 'var(--c-accent-pink)',
+    to: 'var(--c-accent-violet-soft)',
+    accent: 'var(--c-accent-pink-200)',
   },
 ];
 
@@ -151,7 +151,7 @@ export function EventZones() {
         overflow-hidden
         border-y
         border-white/[0.06]
-        bg-[#0B0C20]
+        bg-[var(--c-bg-1)]
         px-5
         py-16
         text-white
@@ -179,7 +179,7 @@ export function EventZones() {
           h-72
           w-72
           rounded-full
-          bg-[#6C2BFF]/10
+          bg-[var(--c-accent-violet)]/10
           blur-3xl
           animate-[pulse_5s_ease-in-out_infinite]
         "
@@ -194,7 +194,7 @@ export function EventZones() {
           h-72
           w-72
           rounded-full
-          bg-[#F020A8]/10
+          bg-[var(--c-accent-pink)]/10
           blur-3xl
           animate-[pulse_6s_ease-in-out_infinite]
         "
@@ -226,7 +226,7 @@ export function EventZones() {
               font-black
               uppercase
               tracking-[0.3em]
-              text-[#F020A8]
+              text-[var(--c-accent-pink)]
               sm:text-xs
             "
           >
@@ -254,7 +254,7 @@ export function EventZones() {
               mt-3
               text-sm
               leading-relaxed
-              text-[#A5A6C5]
+              text-[var(--c-text-muted)]
               sm:text-base
             "
           >
@@ -270,7 +270,7 @@ export function EventZones() {
               h-px
               bg-gradient-to-r
               from-transparent
-              via-[#F020A8]
+              via-[var(--c-accent-pink)]
               to-transparent
               transition-all
               duration-1000
@@ -315,7 +315,7 @@ export function EventZones() {
                   rounded-2xl
                   border
                   border-white/[0.1]
-                  bg-[#10112A]
+                  bg-[var(--c-bg-2)]
                   p-6
                   text-center
 
@@ -477,7 +477,7 @@ export function EventZones() {
                     mt-2.5
                     text-xs
                     leading-relaxed
-                    text-[#A5A6C5]
+                    text-[var(--c-text-muted)]
                     transition-colors
                     duration-300
                     group-hover:text-[#C5C6DD]

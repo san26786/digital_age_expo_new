@@ -11,7 +11,8 @@ interface Props {
 export function TicketUrgency({ title, subtext, eventName, targetDate }: Props) {
   return (
     <section
-      className="relative overflow-hidden bg-cover bg-center bg-no-repeat px-6 py-20 text-center text-white border-y border-white/10"
+      data-theme-scope="dark"
+      className="relative overflow-hidden bg-slate-950 bg-cover bg-center bg-no-repeat px-6 py-20 text-center text-white border-y border-white/10"
       style={{
         backgroundImage: `url('${staticAssetUrl("https://digitalageexpo.com/images/croped_hurry.jpg")}')`,
       }}

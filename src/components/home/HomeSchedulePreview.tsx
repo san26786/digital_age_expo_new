@@ -157,7 +157,7 @@ export function HomeSchedulePreview({ scheduleDays }: Props) {
         overflow-hidden
         border-y
         border-white/[0.06]
-        bg-[#0B0C20]
+        bg-[var(--c-bg-1)]
         px-5
         py-16
         text-white
@@ -189,7 +189,7 @@ export function HomeSchedulePreview({ scheduleDays }: Props) {
           h-72
           w-72
           rounded-full
-          bg-[#246BFD]/10
+          bg-[var(--c-accent-blue)]/10
           blur-3xl
           animate-[pulse_6s_ease-in-out_infinite]
         "
@@ -206,7 +206,7 @@ export function HomeSchedulePreview({ scheduleDays }: Props) {
           h-80
           w-80
           rounded-full
-          bg-[#F020A8]/10
+          bg-[var(--c-accent-pink)]/10
           blur-3xl
           animate-[pulse_7s_ease-in-out_infinite]
         "
@@ -240,9 +240,9 @@ export function HomeSchedulePreview({ scheduleDays }: Props) {
               -inset-5
               rounded-[2.25rem]
               bg-gradient-to-br
-              from-[#F020A8]/30
-              via-[#6C2BFF]/25
-              to-[#00C8FF]/30
+              from-[var(--c-accent-pink)]/30
+              via-[var(--c-accent-violet)]/25
+              to-[var(--c-accent-cyan)]/30
               blur-3xl
               transition-all
               duration-1000
@@ -259,9 +259,9 @@ export function HomeSchedulePreview({ scheduleDays }: Props) {
               overflow-hidden
               rounded-[1.65rem]
               bg-gradient-to-br
-              from-[#F020A8]
-              via-[#8B3DFF]
-              to-[#00C8FF]
+              from-[var(--c-accent-pink)]
+              via-[var(--c-accent-violet-soft)]
+              to-[var(--c-accent-cyan)]
               p-[2px]
               shadow-[0_28px_80px_-28px_rgba(0,0,0,0.9)]
               transition-all
@@ -297,7 +297,7 @@ export function HomeSchedulePreview({ scheduleDays }: Props) {
                 inset-0
                 rounded-[1.55rem]
                 bg-gradient-to-t
-                from-[#0B0C20]/35
+                from-[var(--c-bg-1)]/35
                 via-transparent
                 to-transparent
                 opacity-70
@@ -359,7 +359,7 @@ export function HomeSchedulePreview({ scheduleDays }: Props) {
                 font-black
                 uppercase
                 tracking-[0.3em]
-                text-[#F020A8]
+                text-[var(--c-accent-pink)]
                 sm:text-xs
               "
             >
@@ -402,7 +402,7 @@ export function HomeSchedulePreview({ scheduleDays }: Props) {
               max-w-xl
               text-sm
               leading-relaxed
-              text-[#A5A6C5]
+              text-[var(--c-text-muted)]
               transition-all
               duration-800
               ease-[cubic-bezier(0.22,1,0.36,1)]
@@ -448,7 +448,7 @@ export function HomeSchedulePreview({ scheduleDays }: Props) {
                     rounded-2xl
                     border
                     border-white/[0.09]
-                    bg-[#10112A]/85
+                    bg-[var(--c-bg-2)]/85
                     p-3.5
                     backdrop-blur-sm
 
@@ -463,8 +463,8 @@ export function HomeSchedulePreview({ scheduleDays }: Props) {
                     }
 
                     hover:-translate-y-1
-                    hover:border-[#8B3DFF]/55
-                    hover:bg-[#10112A]
+                    hover:border-[var(--c-accent-violet-soft)]/55
+                    hover:bg-[var(--c-bg-2)]
                     hover:shadow-[0_16px_40px_-20px_rgba(108,43,255,0.9)]
 
                     sm:p-4
@@ -488,15 +488,15 @@ export function HomeSchedulePreview({ scheduleDays }: Props) {
                       justify-center
                       rounded-xl
                       border
-                      border-[#8B3DFF]/30
-                      bg-[#8B3DFF]/10
+                      border-[var(--c-accent-violet-soft)]/30
+                      bg-[var(--c-accent-violet-soft)]/10
                       text-center
                       leading-none
                       transition-all
                       duration-500
                       group-hover:scale-105
-                      group-hover:border-[#F020A8]/50
-                      group-hover:bg-[#F020A8]/10
+                      group-hover:border-[var(--c-accent-pink)]/50
+                      group-hover:bg-[var(--c-accent-pink)]/10
                     "
                   >
                     {badge ? (
@@ -511,10 +511,10 @@ export function HomeSchedulePreview({ scheduleDays }: Props) {
                             text-[9px]
                             font-bold
                             tracking-wider
-                            text-[#A5A6C5]
+                            text-[var(--c-text-muted)]
                             transition-colors
                             duration-300
-                            group-hover:text-[#FF7ACF]
+                            group-hover:text-[var(--c-accent-pink-200)]
                           "
                         >
                           {badge.month}
@@ -528,7 +528,7 @@ export function HomeSchedulePreview({ scheduleDays }: Props) {
                           font-bold
                           uppercase
                           leading-tight
-                          text-[#A5A6C5]
+                          text-[var(--c-text-muted)]
                         "
                       >
                         {session.dayTitle || 'Session'}
@@ -548,7 +548,7 @@ export function HomeSchedulePreview({ scheduleDays }: Props) {
                         text-white
                         transition-colors
                         duration-300
-                        group-hover:text-[#F020A8]
+                        group-hover:text-[var(--c-accent-pink)]
                         sm:text-[0.95rem]
                       "
                     >
@@ -561,7 +561,7 @@ export function HomeSchedulePreview({ scheduleDays }: Props) {
                         block
                         truncate
                         text-xs
-                        text-[#A5A6C5]
+                        text-[var(--c-text-muted)]
                       "
                     >
                       {session.startTime} – {session.endTime}
@@ -577,7 +577,7 @@ export function HomeSchedulePreview({ scheduleDays }: Props) {
                           block
                           truncate
                           text-[11px]
-                          text-[#A5A6C5]/75
+                          text-[var(--c-text-muted)]/75
                         "
                       >
                         Host: {session.speakerName}
@@ -592,11 +592,11 @@ export function HomeSchedulePreview({ scheduleDays }: Props) {
                       h-5
                       w-5
                       shrink-0
-                      text-[#8B3DFF]
+                      text-[var(--c-accent-violet-soft)]
                       transition-all
                       duration-300
                       group-hover:translate-x-1
-                      group-hover:text-[#F020A8]
+                      group-hover:text-[var(--c-accent-pink)]
                     "
                     aria-hidden="true"
                   />

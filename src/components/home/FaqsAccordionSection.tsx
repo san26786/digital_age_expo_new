@@ -107,7 +107,7 @@ export function FaqsAccordionSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative overflow-hidden border-y border-white/[0.06] bg-[#0B0C20] px-5 py-16 text-white sm:px-6 sm:py-20"
+      className="relative overflow-hidden border-y border-white/[0.06] bg-[var(--c-bg-1)] px-5 py-16 text-white sm:px-6 sm:py-20"
     >
       {/* =====================================================
           BACKGROUND EFFECTS
@@ -142,7 +142,7 @@ export function FaqsAccordionSection() {
 
       {/* Decorative floating dots */}
       <span
-        className={`pointer-events-none absolute left-[8%] top-[25%] h-2 w-2 rounded-full bg-purple-400 shadow-[0_0_18px_#8B3DFF] transition-all duration-[1500ms] ${
+        className={`pointer-events-none absolute left-[8%] top-[25%] h-2 w-2 rounded-full bg-purple-400 shadow-[0_0_18px_var(--c-accent-violet-soft)] transition-all duration-[1500ms] ${
           isVisible
             ? "translate-y-0 scale-100 opacity-100"
             : "translate-y-10 scale-0 opacity-0"
@@ -150,7 +150,7 @@ export function FaqsAccordionSection() {
       />
 
       <span
-        className={`pointer-events-none absolute right-[10%] top-[20%] h-1.5 w-1.5 rounded-full bg-pink-400 shadow-[0_0_15px_#F020A8] transition-all delay-300 duration-[1700ms] ${
+        className={`pointer-events-none absolute right-[10%] top-[20%] h-1.5 w-1.5 rounded-full bg-pink-400 shadow-[0_0_15px_var(--c-accent-pink)] transition-all delay-300 duration-[1700ms] ${
           isVisible
             ? "translate-y-0 scale-100 opacity-100"
             : "-translate-y-10 scale-0 opacity-0"
@@ -158,7 +158,7 @@ export function FaqsAccordionSection() {
       />
 
       <span
-        className={`pointer-events-none absolute bottom-[18%] right-[25%] h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_16px_#00C8FF] transition-all delay-500 duration-[1900ms] ${
+        className={`pointer-events-none absolute bottom-[18%] right-[25%] h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_16px_var(--c-accent-cyan)] transition-all delay-500 duration-[1900ms] ${
           isVisible
             ? "translate-y-0 scale-100 opacity-100"
             : "translate-y-10 scale-0 opacity-0"
@@ -183,14 +183,14 @@ export function FaqsAccordionSection() {
         >
           {/* Top accent */}
           <span
-            className={`block h-1 rounded-full bg-gradient-to-r from-[#F020A8] to-[#8B3DFF] transition-all duration-1000 ${
+            className={`block h-1 rounded-full bg-gradient-to-r from-[var(--c-accent-pink)] to-[var(--c-accent-violet-soft)] transition-all duration-1000 ${
               isVisible ? "w-12" : "w-0"
             }`}
           />
 
           {/* Label */}
           <span
-            className={`mt-5 block text-[11px] font-black uppercase tracking-[0.3em] text-[#F020A8] transition-all delay-150 duration-700 sm:text-xs ${
+            className={`mt-5 block text-[11px] font-black uppercase tracking-[0.3em] text-[var(--c-accent-pink)] transition-all delay-150 duration-700 sm:text-xs ${
               isVisible
                 ? "translate-y-0 opacity-100"
                 : "translate-y-5 opacity-0"
@@ -212,7 +212,7 @@ export function FaqsAccordionSection() {
 
           {/* Description */}
           <p
-            className={`mt-4 max-w-md text-sm leading-relaxed text-[#A5A6C5] transition-all delay-300 duration-1000 ${
+            className={`mt-4 max-w-md text-sm leading-relaxed text-[var(--c-text-muted)] transition-all delay-300 duration-1000 ${
               isVisible
                 ? "translate-y-0 opacity-100"
                 : "translate-y-8 opacity-0"
@@ -230,9 +230,9 @@ export function FaqsAccordionSection() {
                 : "translate-y-5 opacity-0"
             }`}
           >
-            <span className="h-px w-16 bg-gradient-to-r from-[#F020A8] to-[#8B3DFF]" />
+            <span className="h-px w-16 bg-gradient-to-r from-[var(--c-accent-pink)] to-[var(--c-accent-violet-soft)]" />
 
-            <span className="h-2 w-2 animate-pulse rounded-full bg-[#F020A8] shadow-[0_0_15px_#F020A8]" />
+            <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--c-accent-pink)] shadow-[0_0_15px_var(--c-accent-pink)]" />
           </div>
         </div>
 
@@ -248,9 +248,9 @@ export function FaqsAccordionSection() {
               <div
                 key={faq.id}
                 id={`faq-accordion-${faq.id}`}
-                className={`group relative overflow-hidden rounded-2xl border bg-[#10112A]/85 backdrop-blur-sm transition-all ease-out ${
+                className={`group relative overflow-hidden rounded-2xl border bg-[var(--c-bg-2)]/85 backdrop-blur-sm transition-all ease-out ${
                   isOpen
-                    ? "border-[#8B3DFF]/55 shadow-[0_15px_45px_-25px_rgba(139,61,255,0.8)]"
+                    ? "border-[var(--c-accent-violet-soft)]/55 shadow-[0_15px_45px_-25px_rgba(139,61,255,0.8)]"
                     : "border-white/[0.09] hover:-translate-y-1 hover:border-white/20 hover:shadow-[0_15px_40px_-25px_rgba(108,43,255,0.6)]"
                 } ${
                   isVisible
@@ -266,7 +266,7 @@ export function FaqsAccordionSection() {
               >
                 {/* Active top glow */}
                 <div
-                  className={`pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#8B3DFF] to-transparent transition-opacity duration-500 ${
+                  className={`pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--c-accent-violet-soft)] to-transparent transition-opacity duration-500 ${
                     isOpen ? "opacity-100" : "opacity-0"
                   }`}
                 />
@@ -287,7 +287,7 @@ export function FaqsAccordionSection() {
                     className={`text-sm font-bold transition-all duration-300 sm:text-[0.95rem] ${
                       isOpen
                         ? "translate-x-1 text-white"
-                        : "text-white group-hover:translate-x-1 group-hover:text-[#F020A8]"
+                        : "text-white group-hover:translate-x-1 group-hover:text-[var(--c-accent-pink)]"
                     }`}
                   >
                     {faq.question}
@@ -297,15 +297,15 @@ export function FaqsAccordionSection() {
                   <span
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-all duration-300 ${
                       isOpen
-                        ? "rotate-180 border-[#F020A8]/40 bg-[#F020A8]/10"
-                        : "border-white/10 bg-white/[0.03] group-hover:border-[#8B3DFF]/40"
+                        ? "rotate-180 border-[var(--c-accent-pink)]/40 bg-[var(--c-accent-pink)]/10"
+                        : "border-white/10 bg-white/[0.03] group-hover:border-[var(--c-accent-violet-soft)]/40"
                     }`}
                   >
                     <ChevronDown
                       className={`h-4 w-4 transition-colors duration-300 ${
                         isOpen
-                          ? "text-[#F020A8]"
-                          : "text-[#A5A6C5] group-hover:text-white"
+                          ? "text-[var(--c-accent-pink)]"
+                          : "text-[var(--c-text-muted)] group-hover:text-white"
                       }`}
                       aria-hidden="true"
                     />
@@ -324,7 +324,7 @@ export function FaqsAccordionSection() {
                   <div className="min-h-0 overflow-hidden">
                     <div className="border-t border-white/[0.07] px-5 py-4 sm:px-6">
                       <p
-                        className={`text-sm leading-relaxed text-[#A5A6C5] transition-all duration-500 ${
+                        className={`text-sm leading-relaxed text-[var(--c-text-muted)] transition-all duration-500 ${
                           isOpen
                             ? "translate-y-0 opacity-100"
                             : "-translate-y-2 opacity-0"
@@ -338,7 +338,7 @@ export function FaqsAccordionSection() {
 
                 {/* Bottom active indicator */}
                 <span
-                  className={`absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[#8B3DFF] via-[#F020A8] to-[#00C8FF] transition-all duration-500 ${
+                  className={`absolute bottom-0 left-0 h-[2px] bg-gradient-to-r from-[var(--c-accent-violet-soft)] via-[var(--c-accent-pink)] to-[var(--c-accent-cyan)] transition-all duration-500 ${
                     isOpen ? "w-full" : "w-0"
                   }`}
                 />
@@ -362,11 +362,11 @@ export function FaqsAccordionSection() {
           transitionDelay: reduceMotion ? "0ms" : "900ms",
         }}
       >
-        <span className="h-px w-16 bg-gradient-to-r from-transparent to-[#8B3DFF]" />
+        <span className="h-px w-16 bg-gradient-to-r from-transparent to-[var(--c-accent-violet-soft)]" />
 
-        <span className="h-2 w-2 animate-pulse rounded-full bg-[#F020A8] shadow-[0_0_16px_#F020A8]" />
+        <span className="h-2 w-2 animate-pulse rounded-full bg-[var(--c-accent-pink)] shadow-[0_0_16px_var(--c-accent-pink)]" />
 
-        <span className="h-px w-16 bg-gradient-to-l from-transparent to-[#8B3DFF]" />
+        <span className="h-px w-16 bg-gradient-to-l from-transparent to-[var(--c-accent-violet-soft)]" />
       </div>
     </section>
   );

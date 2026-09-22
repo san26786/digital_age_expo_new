@@ -56,7 +56,24 @@ export function HeroSection({
   const waveY = useTransform(scrollYProgress, [0, 0.5], ["0px", "-25px"]);
 
   return (
-    <section className="relative isolate min-h-[720px] overflow-hidden bg-[var(--color-surface-1)] sm:min-h-[760px] lg:min-h-[780px]">
+    <section
+      /*
+       * Pinned to the dark tokens in both themes. The hero is a photograph with the copy laid
+       * straight over it and gradient scrims tuned to that photograph; light-mode ink would
+       * disappear into the image, and lightening the scrims instead would wash the photo out.
+       * A dark hero above a light page is a normal editorial pattern, not an oversight.
+       */
+      data-theme-scope="dark"
+      /*
+       * The ground MUST be --color-surface-1, the same token the four scrims below dissolve
+       * into. The image layer only covers the right 66% on lg, so its left-hand gradient fades
+       * out onto this colour; if the two are not the same value there is a hard vertical seam
+       * down the page at the 34% mark. They were briefly different (this said --c-bg-1, #0B0C20,
+       * while the scrims resolved the site's themed #111125) and that seam is exactly what
+       * appeared. One token, used by both, cannot drift again.
+       */
+      className="relative isolate min-h-[720px] overflow-hidden bg-[var(--color-surface-1)] sm:min-h-[760px] lg:min-h-[780px]"
+    >
       {/* ================================================================== */}
       {/* BACKGROUND IMAGE */}
       {/* ================================================================== */}
@@ -149,7 +166,7 @@ export function HeroSection({
       {/* ================================================================== */}
 
       <motion.div
-        className="pointer-events-none absolute -left-40 top-1/4 h-[30rem] w-[30rem] rounded-full bg-[#6C2BFF]/20 blur-[130px]"
+        className="pointer-events-none absolute -left-40 top-1/4 h-[30rem] w-[30rem] rounded-full bg-[var(--c-accent-violet)]/20 blur-[130px]"
         style={{
           x: glowX,
           y: glowY,
@@ -166,7 +183,7 @@ export function HeroSection({
       />
 
       <motion.div
-        className="pointer-events-none absolute bottom-0 left-1/3 h-[24rem] w-[24rem] rounded-full bg-[#F020A8]/15 blur-[120px]"
+        className="pointer-events-none absolute bottom-0 left-1/3 h-[24rem] w-[24rem] rounded-full bg-[var(--c-accent-pink)]/15 blur-[120px]"
         animate={{
           x: [0, 60, 0],
           y: [0, -40, 0],
@@ -210,7 +227,7 @@ export function HeroSection({
               ease: "easeOut",
             }}
           >
-            <span className="inline-block text-[11px] font-black uppercase tracking-[0.3em] text-[#F020A8] sm:text-xs">
+            <span className="inline-block text-[11px] font-black uppercase tracking-[0.3em] text-[var(--c-accent-pink)] sm:text-xs">
               The Future Is Digital
             </span>
           </motion.div>
@@ -271,12 +288,12 @@ export function HeroSection({
               duration: 0.7,
               delay: 0.45,
             }}
-            className="mt-4 text-base font-medium text-[#EDEDF8] sm:text-lg lg:text-xl"
+            className="mt-4 text-base font-medium text-[var(--c-text)] sm:text-lg lg:text-xl"
           >
             Connect
-            <span className="mx-2 text-[#F020A8]">•</span>
+            <span className="mx-2 text-[var(--c-accent-pink)]">•</span>
             Learn
-            <span className="mx-2 text-[#F020A8]">•</span>
+            <span className="mx-2 text-[var(--c-accent-pink)]">•</span>
             Grow
           </motion.p>
 
@@ -294,7 +311,7 @@ export function HeroSection({
               duration: 0.7,
               delay: 0.55,
             }}
-            className="mt-3 text-sm text-[#A5A6C5] sm:text-base"
+            className="mt-3 text-sm text-[var(--c-text-muted)] sm:text-base"
           >
             {formatDateLocation(dateStart, dateEnd, venue)}
           </motion.p>
@@ -392,7 +409,7 @@ export function HeroSection({
                   stiffness: 400,
                   damping: 18,
                 }}
-                className="btn-outline-animated inline-flex cursor-pointer rounded-full border border-[#8B3DFF]/50 bg-white/[0.04] px-7 py-3.5 text-sm font-bold text-white backdrop-blur-md"
+                className="btn-outline-animated inline-flex cursor-pointer rounded-full border border-[var(--c-accent-violet-soft)]/50 bg-white/[0.04] px-7 py-3.5 text-sm font-bold text-white backdrop-blur-md"
               >
                 Enter The Show
               </motion.div>
@@ -531,7 +548,7 @@ export function HeroSection({
 
       {/* Bottom glowing line */}
       <motion.div
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#8B3DFF]/60 to-transparent"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[var(--c-accent-violet-soft)]/60 to-transparent"
         animate={{
           opacity: [0.35, 1, 0.35],
         }}

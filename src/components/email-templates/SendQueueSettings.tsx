@@ -243,7 +243,7 @@ export function SendQueueSettings({
                   name="secure"
                   type="checkbox"
                   defaultChecked={settings.secure}
-                  className="h-4 w-4 accent-[#C71585]"
+                  className="h-4 w-4 accent-[var(--color-brand-pink)]"
                 />
                 TLS/SSL (port 465)
               </label>

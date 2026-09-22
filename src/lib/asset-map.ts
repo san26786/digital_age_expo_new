@@ -307,6 +307,20 @@ export function resolveAsset(value: string | null | undefined): ResolvedAsset {
   const raw = String(value).trim();
   if (raw === "") return { kind: "empty", url: undefined };
 
+  /*
+   * The STRINGS "undefined" and "null", not the values.
+   *
+   * Some legacy rows hold the literal text - a PHP-era `$row['profile_pic']` that was
+   * interpolated into a string while unset. They are not empty, so they used to fall through to
+   * the path builder and produce `/images/external/undefined`, a request that can only ever 404.
+   * The caller's `?? fallback` never ran, because a URL was returned; the component got a broken
+   * image instead of the initials placeholder it has for exactly this case.
+   *
+   * Treated as empty, those rows now take the fallback path like any other missing asset. No
+   * data changes - this only stops a value that cannot resolve from pretending it can.
+   */
+  if (raw === "undefined" || raw === "null") return { kind: "empty", url: undefined };
+
   // data: / blob: URIs pass straight through.
   if (/^(data|blob):/i.test(raw)) return { kind: "inline", url: raw };
 

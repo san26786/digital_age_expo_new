@@ -86,18 +86,18 @@ export function FeaturedExhibitors({ exhibitors }: Props) {
   const scrollable = pageCount > 1;
 
   return (
-    <section className="relative overflow-hidden bg-[#0B0C20] px-5 py-14 text-white sm:px-6 sm:py-20">
+    <section className="relative overflow-hidden bg-[var(--c-bg-1)] px-5 py-14 text-white sm:px-6 sm:py-20">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_110%,rgba(108,43,255,0.18),transparent_60%)]" />
 
       <div className="relative z-10 mx-auto max-w-7xl">
         <div className="text-center">
-          <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[#F020A8]">
+          <span className="text-[11px] font-black uppercase tracking-[0.3em] text-[var(--c-accent-pink)]">
             The Trades Cohort
           </span>
           <h2 className="mt-2.5 text-2xl font-black uppercase tracking-tight text-white sm:text-4xl">
             Featured Exhibitors
           </h2>
-          <p className="mx-auto mt-2.5 max-w-2xl text-sm text-[#A5A6C5]">
+          <p className="mx-auto mt-2.5 max-w-2xl text-sm text-[var(--c-text-muted)]">
             Book stand packages to showcase alongside these industry-leading technology operations.
           </p>
         </div>
@@ -112,7 +112,7 @@ export function FeaturedExhibitors({ exhibitors }: Props) {
                   type="button"
                   onClick={() => scrollByPage(-1)}
                   aria-label="Previous exhibitors"
-                  className="absolute -left-1 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#8B3DFF]/50 bg-[#10112A]/95 text-white backdrop-blur transition-all duration-300 hover:border-[#8B3DFF] hover:shadow-[0_0_20px_-4px_#8B3DFF] sm:flex lg:-left-6"
+                  className="absolute -left-1 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[var(--c-accent-violet-soft)]/50 bg-[var(--c-bg-2)]/95 text-white backdrop-blur transition-all duration-300 hover:border-[var(--c-accent-violet-soft)] hover:shadow-[0_0_20px_-4px_var(--c-accent-violet-soft)] sm:flex lg:-left-6"
                 >
                   <ChevronLeft className="h-5 w-5" aria-hidden="true" />
                 </button>
@@ -120,7 +120,7 @@ export function FeaturedExhibitors({ exhibitors }: Props) {
                   type="button"
                   onClick={() => scrollByPage(1)}
                   aria-label="Next exhibitors"
-                  className="absolute -right-1 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#F020A8]/50 bg-[#10112A]/95 text-white backdrop-blur transition-all duration-300 hover:border-[#F020A8] hover:shadow-[0_0_20px_-4px_#F020A8] sm:flex lg:-right-6"
+                  className="absolute -right-1 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[var(--c-accent-pink)]/50 bg-[var(--c-bg-2)]/95 text-white backdrop-blur transition-all duration-300 hover:border-[var(--c-accent-pink)] hover:shadow-[0_0_20px_-4px_var(--c-accent-pink)] sm:flex lg:-right-6"
                 >
                   <ChevronRight className="h-5 w-5" aria-hidden="true" />
                 </button>
@@ -140,9 +140,9 @@ export function FeaturedExhibitors({ exhibitors }: Props) {
                   <div
                     key={exh.id}
                     id={`featured-exh-${exh.id}`}
-                    className="group w-[15.5rem] shrink-0 snap-start rounded-[1.35rem] bg-gradient-to-br from-[#8B3DFF]/50 via-white/[0.06] to-[#F020A8]/40 p-px transition-all duration-300 hover:-translate-y-1.5 hover:from-[#8B3DFF] hover:to-[#F020A8] hover:shadow-[0_22px_55px_-20px_rgba(108,43,255,0.9)] sm:w-[16.5rem]"
+                    className="group w-[15.5rem] shrink-0 snap-start rounded-[1.35rem] bg-gradient-to-br from-[var(--c-accent-violet-soft)]/50 via-white/[0.06] to-[var(--c-accent-pink)]/40 p-px transition-all duration-300 hover:-translate-y-1.5 hover:from-[var(--c-accent-violet-soft)] hover:to-[var(--c-accent-pink)] hover:shadow-[0_22px_55px_-20px_rgba(108,43,255,0.9)] sm:w-[16.5rem]"
                   >
-                    <div className="flex h-full flex-col rounded-[1.3rem] bg-[#10112A] p-3.5">
+                    <div className="flex h-full flex-col rounded-[1.3rem] bg-[var(--c-bg-2)] p-3.5">
                       {/* Light plate: fills the card so white-backed artwork blends instead of
                           reading as a sticker. See the note at the top of this file. */}
                       <div className="relative flex aspect-[16/10] w-full items-center justify-center overflow-hidden rounded-xl bg-[#F6F7FB] p-5">
@@ -150,18 +150,18 @@ export function FeaturedExhibitors({ exhibitors }: Props) {
                           src={logo}
                           business={exh.business}
                           className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-[1.06]"
-                          fallbackClassName="text-3xl font-black uppercase tracking-tight text-[#10112A]/70"
+                          fallbackClassName="text-3xl font-black uppercase tracking-tight text-[var(--c-bg-2)]/70"
                         />
 
                         {exh.standNumber && (
-                          <span className="absolute right-2 top-2 rounded-full border border-[#F020A8]/40 bg-[#08091A]/90 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-[#F020A8]">
+                          <span className="absolute right-2 top-2 rounded-full border border-[var(--c-accent-pink)]/40 bg-[var(--c-bg-0)]/90 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">
                             Stand {exh.standNumber}
                           </span>
                         )}
                       </div>
 
                       <div className="mt-3.5 text-center">
-                        <h4 className="line-clamp-1 text-base font-bold text-white transition-colors group-hover:text-[#F020A8]">
+                        <h4 className="line-clamp-1 text-base font-bold text-[var(--c-accent-pink)] transition-colors group-hover:text-[var(--c-accent-pink)]">
                           {exh.business}
                         </h4>
                         {exh.website && (
@@ -169,7 +169,7 @@ export function FeaturedExhibitors({ exhibitors }: Props) {
                             href={exh.website}
                             target="_blank"
                             rel="noreferrer"
-                            className="mt-1 block truncate text-xs text-[#A5A6C5] transition-colors hover:text-white"
+                            className="mt-1 block truncate text-xs text-[var(--c-text-muted)] transition-colors hover:text-white"
                           >
                             {displayWebsite(exh.website)}
                           </a>
@@ -188,7 +188,7 @@ export function FeaturedExhibitors({ exhibitors }: Props) {
                     key={i}
                     aria-hidden="true"
                     className={`h-2 rounded-full transition-all duration-300 ${
-                      i === page ? 'w-6 bg-[#F020A8]' : 'w-2 bg-white/20'
+                      i === page ? 'w-6 bg-[var(--c-accent-pink)]' : 'w-2 bg-white/20'
                     }`}
                   />
                 ))}
@@ -198,7 +198,7 @@ export function FeaturedExhibitors({ exhibitors }: Props) {
             <div className="mt-9 flex justify-center">
               <Link
                 href="/exhibitors"
-                className="group inline-flex items-center gap-2 rounded-full border border-[#F020A8]/60 bg-[#F020A8]/[0.07] px-8 py-3.5 text-xs font-bold uppercase tracking-widest text-white backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-[#F020A8] hover:bg-[#F020A8]/15 hover:shadow-[0_0_30px_-6px_#F020A8] active:scale-95"
+                className="group inline-flex items-center gap-2 rounded-full border border-[var(--c-accent-pink)]/60 bg-[var(--c-accent-pink)]/[0.07] px-8 py-3.5 text-xs font-bold uppercase tracking-widest text-white backdrop-blur-md transition-all duration-300 hover:scale-105 hover:border-[var(--c-accent-pink)] hover:bg-[var(--c-accent-pink)]/15 hover:shadow-[0_0_30px_-6px_var(--c-accent-pink)] active:scale-95"
               >
                 Browse All Exhibitors
                 <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
@@ -206,8 +206,8 @@ export function FeaturedExhibitors({ exhibitors }: Props) {
             </div>
           </div>
         ) : (
-          <div className="mt-10 rounded-2xl border border-dashed border-white/10 bg-[#10112A]/50 p-12 text-center">
-            <p className="font-medium text-[#A5A6C5]">
+          <div className="mt-10 rounded-2xl border border-dashed border-white/10 bg-[var(--c-bg-2)]/50 p-12 text-center">
+            <p className="font-medium text-[var(--c-text-muted)]">
               Exhibitor registrations are currently opening. Secure your spot now!
             </p>
             <Link

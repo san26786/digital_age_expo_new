@@ -115,7 +115,7 @@ export function BookYourStand({
           h-96
           w-96
           rounded-full
-          bg-[#6C2BFF]/10
+          bg-[var(--c-accent-violet)]/10
           blur-3xl
           animate-[pulse_8s_ease-in-out_infinite]
         "
@@ -210,7 +210,7 @@ export function BookYourStand({
                 h-[2px]
                 bg-gradient-to-r
                 from-brand-pink
-                via-[#8B3DFF]
+                via-[var(--c-accent-violet-soft)]
                 to-transparent
                 transition-all
                 duration-1000
@@ -523,8 +523,8 @@ export function BookYourStand({
                   rounded-[2rem]
                   bg-gradient-to-br
                   from-brand-pink/20
-                  via-[#8B3DFF]/15
-                  to-[#00C8FF]/20
+                  via-[var(--c-accent-violet-soft)]/15
+                  to-[var(--c-accent-cyan)]/20
                   blur-2xl
                   opacity-70
                   transition-all
@@ -639,9 +639,9 @@ export function BookYourStand({
                   -inset-4
                   rounded-[2rem]
                   bg-gradient-to-br
-                  from-[#6C2BFF]/20
-                  via-[#8B3DFF]/15
-                  to-[#00C8FF]/20
+                  from-[var(--c-accent-violet)]/20
+                  via-[var(--c-accent-violet-soft)]/15
+                  to-[var(--c-accent-cyan)]/20
                   blur-2xl
                   opacity-60
                   transition-all
@@ -664,7 +664,7 @@ export function BookYourStand({
                   transition-all
                   duration-500
                   group-hover:-translate-y-2
-                  group-hover:border-[#8B3DFF]/40
+                  group-hover:border-[var(--c-accent-violet-soft)]/40
                 "
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}

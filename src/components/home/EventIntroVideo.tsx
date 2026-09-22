@@ -7,7 +7,14 @@ const INTRO_VIDEO_URL =
 
 export function EventIntroVideo() {
   return (
-    <section className="relative h-screen w-full overflow-hidden">
+    <section
+      /* Full-screen video band: dark tokens in both themes. */
+      data-theme-scope="dark"
+      /* An explicit ground, not just the video: if the file fails to load or is still
+         buffering, the section would otherwise be transparent, and white copy over the page's
+         own background is white-on-white in light mode. */
+      className="relative h-screen w-full overflow-hidden bg-slate-950"
+    >
       {/* Background Video */}
       <video
         autoPlay

@@ -6,6 +6,7 @@ import { ChromeGate } from "@/components/layout/ChromeGate";
 import { ScrollReveal } from "@/components/common/ScrollReveal";
 import { SitePreviewBanner } from "@/components/layout/SitePreviewBanner";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { ThemeProvider, THEME_INIT_SCRIPT } from "@/components/providers/ThemeProvider";
 import { getDomain } from "@/lib/services/domain";
 import { getBrandAssets } from "@/lib/services/branding";
 import { getSiteTheme, themeCss } from "@/lib/services/siteTheme";
@@ -75,7 +76,15 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
+      /*
+       * The blocking script at the top of <body> writes `data-theme` (and toggles `dark`) onto
+       * this element before React ever runs, which by definition is an attribute the server did
+       * not render. suppressHydrationWarning here silences that ONE expected difference on this
+       * ONE element; it does not silence anything inside the app.
+       */
+      suppressHydrationWarning
       className="h-full antialiased dark"
+      data-theme="dark"
     >
       {/*
         suppressHydrationWarning is here for ONE specific, unavoidable case: browser extensions
@@ -93,6 +102,16 @@ export default async function RootLayout({
         suppressHydrationWarning
         className="flex min-h-full flex-col font-sans main-glow-bg text-white"
       >
+        {/*
+          Theme resolution, before first paint. This must stay the FIRST thing in <body>: an
+          inline script executes while the browser is still parsing the document, so the theme
+          attribute is set before any content is drawn. Moved lower, or run from a React effect,
+          the page would paint dark and then repaint — the flash a theme toggle is judged by.
+
+          The content is a module constant with no interpolated data of any kind, so there is
+          nothing here for a value to escape from.
+        */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
         {/*
           This site's colours, when it has chosen any.
 
@@ -118,6 +137,7 @@ export default async function RootLayout({
         {/* Above everything, including the header, so it cannot be mistaken for site chrome. */}
         <SitePreviewBanner />
 
+        <ThemeProvider>
         <BrandProvider brand={brand}>
           <AuthProvider>
             <ChromeGate>
@@ -131,6 +151,7 @@ export default async function RootLayout({
             </ChromeGate>
           </AuthProvider>
         </BrandProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

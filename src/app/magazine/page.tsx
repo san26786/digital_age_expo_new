@@ -63,13 +63,13 @@ export default async function MagazinePage({ searchParams }: Props) {
   const downloadHref = publication?.pdfUrl || undefined;
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#050509] text-white">
+    <main className="min-h-screen overflow-hidden bg-[var(--c-bg-0)] text-white">
       {/* =========================================================
           HERO
       ========================================================= */}
       <section className="relative overflow-hidden border-b border-white/10">
         {/* Background effects */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.22),transparent_35%),radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.16),transparent_35%),linear-gradient(to_bottom,#09091a,#050509)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.22),transparent_35%),radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.16),transparent_35%),linear-gradient(to_bottom,#09091a,var(--c-bg-0))]" />
 
         <div className="absolute -left-32 top-10 h-72 w-72 rounded-full bg-purple-600/10 blur-3xl" />
         <div className="absolute -right-32 bottom-0 h-72 w-72 rounded-full bg-pink-600/10 blur-3xl" />

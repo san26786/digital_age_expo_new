@@ -46,7 +46,7 @@ export default async function SponsorsPage() {
   return (
     <div className="w-full bg-slate-950 text-white min-h-screen pb-20">
       {/* Top Banner Section */}
-      <section className="relative w-full min-h-[60vh] flex items-center justify-center overflow-hidden border-b border-white/10 bg-slate-950">
+      <section data-theme-scope="dark" className="relative w-full min-h-[60vh] flex items-center justify-center overflow-hidden border-b border-white/10 bg-slate-950">
         {/* Background Image Overlay */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"

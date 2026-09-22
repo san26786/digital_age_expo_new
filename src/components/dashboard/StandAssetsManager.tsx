@@ -730,7 +730,7 @@ export function StandAssetsManager({
               </button>
 
               {switcherOpen && (
-                <div className="absolute left-0 top-full z-50 mt-2 w-full overflow-hidden rounded-xl border border-white/10 bg-[#140f22] shadow-2xl">
+                <div className="absolute left-0 top-full z-50 mt-2 w-full overflow-hidden rounded-xl border border-white/10 bg-[var(--c-bg-2)] shadow-2xl">
                   <div className="relative border-b border-white/10 p-3">
                     <Search className={INPUT_SEARCH_ICON} />
                     <input
@@ -930,7 +930,7 @@ export function StandAssetsManager({
                       type="button"
                       onClick={() => templateSlotInputRefs.current[slot.key]?.click()}
                       disabled={isUploading || !selectedExId}
-                      className="absolute -right-3 -top-3 z-20 flex h-7 w-7 items-center justify-center rounded-lg border border-white/20 bg-[#140f22] text-zinc-300 opacity-0 shadow-lg transition hover:border-brand-pink hover:text-brand-pink group-hover:opacity-100 disabled:opacity-40"
+                      className="absolute -right-3 -top-3 z-20 flex h-7 w-7 items-center justify-center rounded-lg border border-white/20 bg-[var(--c-bg-2)] text-zinc-300 opacity-0 shadow-lg transition hover:border-brand-pink hover:text-brand-pink group-hover:opacity-100 disabled:opacity-40"
                       title={`Browse & upload — ${slot.label} (${slot.helpText})`}
                     >
                       {isUploading ? (
@@ -1085,7 +1085,7 @@ export function StandAssetsManager({
                 <Share2 className="h-4 w-4 shrink-0 text-brand-pink" /> Share via Social Media
               </button>
               {shareMenuOpen && (
-                <div className="absolute right-0 top-full z-50 mt-1 w-full overflow-hidden rounded-xl border border-white/10 bg-[#140f22] shadow-2xl">
+                <div className="absolute right-0 top-full z-50 mt-1 w-full overflow-hidden rounded-xl border border-white/10 bg-[var(--c-bg-2)] shadow-2xl">
                   {socialShareLinks.map((s) => (
                     <a
                       key={s.label}

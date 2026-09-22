@@ -107,6 +107,12 @@ export function GetFreeTicket({ title, description }: Props) {
   return (
     <section
       ref={sectionRef}
+      /*
+       * Pinned to the dark tokens in both themes. The visible ground here is a VIDEO under a
+       * from-slate-950 scrim, not the section's own `bg-slate-950` - so lightening the token
+       * changed nothing anyone can see while the copy on top turned to ink.
+       */
+      data-theme-scope="dark"
       className="group relative min-h-[520px] overflow-hidden bg-slate-950 py-24 text-center text-white"
     >
       {/* Background Video */}

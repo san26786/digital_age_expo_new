@@ -31,28 +31,28 @@ const NODES: FlywheelNode[] = [
     id: 0,
     title: "Learn",
     icon: GraduationCap,
-    color: "#F020A8",
+    color: "var(--c-accent-pink)",
     positionStyle: { top: "12%", left: "50%" },
   },
   {
     id: 1,
     title: "Network",
     icon: Users,
-    color: "#8B3DFF",
+    color: "var(--c-accent-violet-soft)",
     positionStyle: { top: "50%", left: "88%" },
   },
   {
     id: 2,
     title: "Grow",
     icon: TrendingUp,
-    color: "#00C8FF",
+    color: "var(--c-accent-cyan)",
     positionStyle: { top: "88%", left: "50%" },
   },
   {
     id: 3,
     title: "Innovate",
     icon: Lightbulb,
-    color: "#246BFD",
+    color: "var(--c-accent-blue)",
     positionStyle: { top: "50%", left: "12%" },
   },
 ];
@@ -131,7 +131,7 @@ export function B2BGrowthFlywheel() {
 
   return (
     <motion.section
-      className="relative overflow-hidden border-y border-white/[0.06] bg-[#0B0C20] px-5 py-16 text-white sm:px-6 sm:py-24"
+      className="relative overflow-hidden border-y border-white/[0.06] bg-[var(--c-bg-1)] px-5 py-16 text-white sm:px-6 sm:py-24"
       style={{ y: sectionY }}
     >
       {/* ================================================================== */}
@@ -139,7 +139,7 @@ export function B2BGrowthFlywheel() {
       {/* ================================================================== */}
 
       <motion.div
-        className="pointer-events-none absolute -left-40 top-1/3 h-[30rem] w-[30rem] rounded-full bg-[#F020A8]/10 blur-[130px]"
+        className="pointer-events-none absolute -left-40 top-1/3 h-[30rem] w-[30rem] rounded-full bg-[var(--c-accent-pink)]/10 blur-[130px]"
         style={{
           x: glowX,
           y: glowY,
@@ -156,7 +156,7 @@ export function B2BGrowthFlywheel() {
       />
 
       <motion.div
-        className="pointer-events-none absolute -right-40 top-1/4 h-[34rem] w-[34rem] rounded-full bg-[#6C2BFF]/20 blur-[140px]"
+        className="pointer-events-none absolute -right-40 top-1/4 h-[34rem] w-[34rem] rounded-full bg-[var(--c-accent-violet)]/20 blur-[140px]"
         animate={{
           x: [0, -60, 0],
           y: [0, 50, 0],
@@ -227,7 +227,7 @@ export function B2BGrowthFlywheel() {
               duration: 0.6,
               delay: 0.1,
             }}
-            className="inline-block text-[11px] font-black uppercase tracking-[0.3em] text-[#F020A8] sm:text-xs"
+            className="inline-block text-[11px] font-black uppercase tracking-[0.3em] text-[var(--c-accent-pink)] sm:text-xs"
           >
             Why Attend?
           </motion.span>
@@ -255,7 +255,7 @@ export function B2BGrowthFlywheel() {
           >
             A System Where{" "}
             <span className="text-white">Every Part</span>{" "}
-            <span className="text-[#F020A8]">Feeds</span>{" "}
+            <span className="text-[var(--c-accent-pink)]">Feeds</span>{" "}
             <span className="text-white">The Next</span>
           </motion.h2>
 
@@ -276,7 +276,7 @@ export function B2BGrowthFlywheel() {
               duration: 0.7,
               delay: 0.3,
             }}
-            className="mt-5 max-w-xl text-sm leading-relaxed text-[#A5A6C5] sm:text-base"
+            className="mt-5 max-w-xl text-sm leading-relaxed text-[var(--c-text-muted)] sm:text-base"
           >
             <BrandText /> is more than an event — it&apos;s an ecosystem. From
             learning and networking to business growth, every experience is
@@ -327,13 +327,13 @@ export function B2BGrowthFlywheel() {
                   className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white shadow-[0_0_14px_rgba(255,255,255,0.35)]"
                 >
                   <Check
-                    className="h-3.5 w-3.5 text-[#0B0C20]"
+                    className="h-3.5 w-3.5 text-[var(--c-bg-1)]"
                     strokeWidth={3}
                     aria-hidden="true"
                   />
                 </motion.span>
 
-                <span className="text-sm font-semibold text-[#EDEDF8] transition-colors duration-300 group-hover:text-white sm:text-base">
+                <span className="text-sm font-semibold text-[var(--c-text)] transition-colors duration-300 group-hover:text-white sm:text-base">
                   {benefit}
                 </span>
               </motion.li>
@@ -499,7 +499,7 @@ export function B2BGrowthFlywheel() {
             {/* ============================================================= */}
 
             <motion.div
-              className="pointer-events-none absolute inset-[8%] rounded-full bg-[#8B3DFF]/10 blur-3xl"
+              className="pointer-events-none absolute inset-[8%] rounded-full bg-[var(--c-accent-violet-soft)]/10 blur-3xl"
               animate={{
                 scale: [1, 1.12, 1],
                 opacity: [0.35, 0.7, 0.35],
@@ -517,7 +517,7 @@ export function B2BGrowthFlywheel() {
 
             <motion.div className="pointer-events-none absolute inset-0 flex items-center justify-center">
               <motion.div
-                className="h-40 w-40 rounded-full bg-[#8B3DFF]/25 blur-3xl sm:h-48 sm:w-48"
+                className="h-40 w-40 rounded-full bg-[var(--c-accent-violet-soft)]/25 blur-3xl sm:h-48 sm:w-48"
                 animate={{
                   scale: [1, 1.2, 1],
                   opacity: [0.45, 0.8, 0.45],
@@ -548,7 +548,7 @@ export function B2BGrowthFlywheel() {
                   repeat: Infinity,
                   ease: "easeInOut",
                 }}
-                className="flex h-[42%] w-[42%] flex-col items-center justify-center rounded-full border-2 border-[#F020A8]/60 bg-[#08091A] text-center"
+                className="flex h-[42%] w-[42%] flex-col items-center justify-center rounded-full border-2 border-[var(--c-accent-pink)]/60 bg-[var(--c-bg-0)] text-center"
               >
                 <motion.span
                   animate={{
@@ -640,7 +640,7 @@ export function B2BGrowthFlywheel() {
                       repeat: Infinity,
                       ease: "easeInOut",
                     }}
-                    className="relative flex h-[4.5rem] w-[4.5rem] flex-col items-center justify-center rounded-full border bg-[#10112A] sm:h-[5.5rem] sm:w-[5.5rem]"
+                    className="relative flex h-[4.5rem] w-[4.5rem] flex-col items-center justify-center rounded-full border bg-[var(--c-bg-2)] sm:h-[5.5rem] sm:w-[5.5rem]"
                     style={{
                       borderColor: isActive
                         ? node.color
@@ -674,7 +674,7 @@ export function B2BGrowthFlywheel() {
       {/* ================================================================== */}
 
       <motion.div
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#8B3DFF] to-transparent"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[var(--c-accent-violet-soft)] to-transparent"
         animate={{
           opacity: [0.25, 1, 0.25],
         }}

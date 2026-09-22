@@ -1,14 +1,47 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Outfit:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+/*
+ * Two families, both variable, both loaded in full.
+ *
+ * Space Grotesk was already here but only at 500/600/700, and it sat SECOND in the display
+ * stack behind Outfit - so it was downloaded and then never used. Plus Jakarta Sans and Outfit
+ * are gone; Inter is now actually fetched rather than merely listed as a fallback, which is what
+ * it was before (a family nobody has installed resolves to the next entry in the stack, silently).
+ *
+ * Space Grotesk's variable range stops at 700. That matters here: `font-black` (900) appears
+ * 1,470 times in this codebase, so every one of those now asks for a weight the face does not
+ * have. See `font-synthesis-weight` in the base layer below for how that is handled.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300..800&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Outfit", "Space Grotesk", sans-serif;
+  /*
+   * --font-sans   body copy, descriptions, forms, tables, everything you read in sentences.
+   * --font-display headings, navigation, buttons, tabs and figures - the things you scan.
+   *
+   * Tailwind emits `font-sans` / `font-display` / `font-mono` utilities from these three, so a
+   * component can always opt out of the default for its element.
+   */
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  /* Theme Brand Colors requested by user: var(--color-brand-purple) (Indigo) & var(--color-brand-pink) (Medium Violet Red) */
-  --color-brand-pink: #C71585;
-  --color-brand-purple: #4B0082;
+  /*
+   * Brand colours, sampled from /images/digitalageexpo_logo.png rather than approximated.
+   *
+   * These were #C71585 (CSS "mediumvioletred") and #4B0082 ("indigo") - named CSS colours picked
+   * to resemble the logo. The logo's own pixels are #E4106C and #4E1888: brighter and more
+   * saturated than the stand-ins, which is why brand fills never quite matched the mark sitting
+   * above them in the header.
+   *
+   * Contrast, measured: white on #E4106C is 4.58:1 and on #4E1888 is 11.6:1, so both clear WCAG
+   * AA for body text as button fills. #E4106C ALSO clears 4.58:1 against white, which is the
+   * unusual property that lets one magenta serve as an accent in both themes.
+   *
+   * A site that has saved its own theme in the CP still overrides all of this - see the <style>
+   * block in the root layout.
+   */
+  --color-brand-pink: #E4106C;
+  --color-brand-purple: #4E1888;
   
   /* Deep black dark mode overrides for crystal-clear dark aesthetic */
   --color-zinc-950: #05030a;
@@ -16,8 +49,14 @@
   --color-zinc-850: rgba(255, 255, 255, 0.04);
   --color-zinc-800: rgba(255, 255, 255, 0.07);
   --color-zinc-700: rgba(255, 255, 255, 0.12);
-  --color-zinc-600: rgba(255, 255, 255, 0.25);
-  --color-zinc-500: rgba(255, 255, 255, 0.45);
+  /* 0.36, not 0.25. `text-zinc-600` turns out to be a TEXT tone, not a hairline
+     one - 199 uses as text against one as a border - and at 0.25 it composited
+     to 2.1:1 on the dark ground, i.e. unreadable rather than merely quiet. 0.36
+     reaches 3.2:1 and keeps it clearly the faintest step in the ramp. */
+  --color-zinc-600: rgba(255, 255, 255, 0.36);
+  /* 0.46, not 0.45: at 0.45 this composites to 4.43:1 on the dark ground, just under the
+     4.5:1 AA threshold for body text. The extra hundredth is invisible and clears it. */
+  --color-zinc-500: rgba(255, 255, 255, 0.46);
   --color-zinc-400: rgba(255, 255, 255, 0.7);
   --color-zinc-300: rgba(255, 255, 255, 0.88);
   --color-zinc-200: #f4f4f5;
@@ -25,8 +64,8 @@
   
   /* --- Centralized design-system colors (extracted from hardcoded values across the app) --- */
   --color-brand-violet: #6A0DAD;
-  --color-brand-pink-rgb: 199 21 133;
-  --color-brand-purple-rgb: 75 0 130;
+  --color-brand-pink-rgb: 228 16 108;
+  --color-brand-purple-rgb: 78 24 136;
   --color-brand-purple-hover: #3b0066;
   --color-brand-purple-deep: #3a0066;
   --color-zinc-950-rgb: 5 3 10;
@@ -142,9 +181,120 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-display);
-  letter-spacing: -0.02em;
+/* =========================================================================
+ *  TYPOGRAPHY
+ * =========================================================================
+ *
+ *  WHY THIS IS IN @layer base AND THE OLD RULE WAS NOT
+ *  ---------------------------------------------------
+ *  The previous version of this block was UNLAYERED:
+ *
+ *      h1, h2, h3, h4, h5, h6 { font-family: ...; letter-spacing: -0.02em; }
+ *
+ *  Unlayered declarations beat every cascade layer, so that `letter-spacing`
+ *  silently overrode Tailwind's tracking utilities on every heading in the
+ *  app. `<h2 class="tracking-[0.12em]">OUR PARTNERS & SPONSORS</h2>` computed
+ *  to -0.32px, not +1.92px: the widely-spaced eyebrow labels this design uses
+ *  were being drawn tight, and no amount of editing the component could have
+ *  fixed it.
+ *
+ *  Declared in `base`, these become what they were always meant to be -
+ *  defaults. Tailwind's utilities live in a later layer, so `tracking-[0.3em]`,
+ *  `leading-tight` and `font-sans` all win again wherever a component asks for
+ *  them.
+ *
+ *  THE SCALE
+ *  ---------
+ *  Sizes are deliberately NOT set here; components size their own headings and
+ *  a base-layer font-size would fight every `text-4xl` on the site. What is set
+ *  is the part no utility usually specifies: family, the tracking that suits
+ *  each size band, and a line-height that keeps long headings readable.
+ *
+ *  Tracking tightens as size grows, which is how display faces are meant to be
+ *  set: letterforms that look balanced at 14px look loose at 48px.
+ * ========================================================================= */
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-optical-sizing: auto;
+    line-height: 1.6;
+  }
+
+  /*
+   * Space Grotesk stops at 700 and this codebase asks for 900 constantly. Without this, the
+   * browser fakes the missing weight by smearing the 700 outlines, which on a display face at
+   * heading sizes looks like a printing fault. Turned off, a 900 request simply resolves to the
+   * heaviest real weight - clean edges, and the hierarchy still reads because 700 against
+   * Inter's 400 body is already a wide gap.
+   */
+  * {
+    font-synthesis-weight: none;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+  }
+
+  h1 { letter-spacing: -0.035em; line-height: 1.06; }
+  h2 { letter-spacing: -0.028em; line-height: 1.14; }
+  h3 { letter-spacing: -0.022em; line-height: 1.22; }
+  h4 { letter-spacing: -0.016em; line-height: 1.3; }
+  h5, h6 { letter-spacing: -0.01em; line-height: 1.38; }
+
+  /*
+   * Navigation, buttons and tabs are scanned rather than read, and they are where the display
+   * face earns its keep. A touch of POSITIVE tracking here: these are short, often uppercase
+   * strings at small sizes, which is the one place letterforms need air rather than less of it.
+   */
+  nav a,
+  button,
+  [role="button"],
+  [role="tab"],
+  summary {
+    font-family: var(--font-display);
+    letter-spacing: 0.005em;
+  }
+
+  /*
+   * Forms stay on the body face. Tailwind's preflight sets `font: inherit` on form controls, so
+   * a control inside a <button>-styled wrapper would otherwise pick up the display face, and
+   * long values in an input are reading, not scanning.
+   */
+  input,
+  textarea,
+  select,
+  optgroup,
+  option {
+    font-family: var(--font-sans);
+    letter-spacing: 0;
+  }
+
+  ::placeholder {
+    font-family: var(--font-sans);
+  }
+}
+
+/*
+ * Figures: counters, countdowns, stat tiles, prices.
+ *
+ * `tabular-nums` is the point. Proportional digits are set to look right inside words, so a
+ * counter animating 1 -> 8 or a countdown ticking 09 -> 10 visibly jumps as the glyph widths
+ * change. Tabular figures are all one width, so the number changes and nothing moves.
+ */
+@layer components {
+  .stat-number {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+    letter-spacing: -0.02em;
+  }
 }
 
 /* Base glowing background for main containers with var(--color-brand-purple) & var(--color-brand-pink) radial glows on black */
@@ -572,4 +722,582 @@ textarea:focus {
     transform: none !important;
     transition: none !important;
   }
+}
+
+/* =========================================================================
+ *  LIGHT / DARK THEME
+ * =========================================================================
+ *
+ *  HOW THIS WORKS, AND WHY IT IS DONE THIS WAY
+ *  -------------------------------------------
+ *  This is a dark-first codebase: 349 components, ~2,800 `text-white` /
+ *  `border-white/10` / `bg-white/5` utilities and ~2,800 `zinc-*` utilities,
+ *  all written on the assumption that the page underneath is nearly black.
+ *  Re-tagging every one of them with `dark:` variants would be a rewrite of
+ *  the whole front end.
+ *
+ *  It is not necessary, because of how Tailwind v4 compiles colour utilities.
+ *  `bg-zinc-800` becomes `background-color: var(--color-zinc-800)`, and
+ *  `border-white/10` becomes
+ *  `color-mix(in oklab, var(--color-white) 10%, transparent)`. The value is a
+ *  variable, not a literal - so redefining the variable under a selector
+ *  repaints every utility that reads it, with no component changes at all.
+ *
+ *  The `@theme` block at the top of this file already redefines the zinc scale
+ *  as white-alpha values (`--color-zinc-800: rgba(255,255,255,0.07)`), i.e. as
+ *  "lift off a dark ground". Inverting that scale to ink-alpha - "shade on a
+ *  light ground" - is the whole light theme for 2,800 call sites.
+ *
+ *  THE ONE DELIBERATE TRICK
+ *  ------------------------
+ *  `--color-white` is redefined in light mode. In this codebase "white" means
+ *  two different things: the primary foreground (`text-white`), and a faint
+ *  lift off the background (`bg-white/5`, `border-white/10`, `divide-white/5`).
+ *  Both of those want to invert together, and redefining one variable does it.
+ *
+ *  What that breaks is the small minority where `white` means literal white -
+ *  a white card, or label text sitting on a brand-coloured button. Those are
+ *  handled explicitly in the rescue block further down, which is short because
+ *  there are ~90 such call sites against ~5,400 that invert correctly.
+ *
+ *  ESCAPE HATCH
+ *  ------------
+ *  `data-theme-scope="dark"` on any element pins that subtree to the dark
+ *  tokens in both themes. Use it for content that sits on a photograph or a
+ *  dark video still, where light-mode ink would vanish. The hero sections use
+ *  it.
+ *
+ *  WHAT THIS DOES NOT COVER
+ *  ------------------------
+ *  Colours written as literal hex inside arbitrary values (`bg-[#0B0C20]`) are
+ *  compiled as literals and cannot be repainted. Those have been converted to
+ *  `bg-[var(--c-bg-1)]` form - see the `--c-*` tokens below. Colours inside
+ *  `rgba()` literals in gradient definitions are decorative glows and are left
+ *  as they are; they read as soft tints on both grounds.
+ * ========================================================================= */
+
+/* -------------------------------------------------------------------------
+ *  Palette tokens used by the marketing pages.
+ *
+ *  These are the values from the home-page design brief, which were previously
+ *  written as hex literals in ~230 places across src/components/home and the
+ *  public pages. Naming them is what makes those call sites themeable.
+ * ------------------------------------------------------------------------- */
+:root {
+  /* Grounds, darkest to lightest */
+  --c-bg-0: #08091A;
+  --c-bg-1: #0B0C20;
+  --c-bg-2: #10112A;
+
+  /* Raised surfaces */
+  --c-surf-1: #14152F;
+  --c-surf-2: #191A38;
+  --c-surf-3: #202044;
+
+  /* Accents */
+  --c-accent-violet: #6C2BFF;
+  --c-accent-violet-soft: #8B3DFF;
+  --c-accent-pink: #F020A8;
+  --c-accent-pink-soft: #FF2BAF;
+  --c-accent-pink-200: #FF7ACF;
+  --c-accent-blue: #246BFD;
+  --c-accent-cyan: #00C8FF;
+
+  /* Type */
+  --c-text: #EDEDF8;
+  --c-text-muted: #A5A6C5;
+
+  /* Hairlines and washes, as complete colours so they invert in one step */
+  --c-hairline: rgba(255, 255, 255, 0.09);
+  --c-wash: rgba(255, 255, 255, 0.04);
+}
+
+/* -------------------------------------------------------------------------
+ *  LIGHT THEME
+ *
+ *  Every value below was checked against WCAG AA (4.5:1 for body text):
+ *
+ *    ink #141020        on page #F6F5FA   17.2:1
+ *    muted #57536E      on page #F6F5FA    6.8:1
+ *    brand #E4106C      on white           4.6:1
+ *    pink text #C50D5C  on white           5.9:1
+ *    violet #5B18E8     on white           7.7:1
+ *    blue #1A54D6       on white           6.4:1
+ *    cyan #0077A3       on white           5.0:1   (the logo-adjacent cyan
+ *                                                   #00C8FF is 1.7:1 on white
+ *                                                   and is not used for text)
+ *
+ *  The grounds are very slightly violet rather than neutral grey, so the page
+ *  stays in the same colour family as the logo instead of reading as a
+ *  different site with the same mark on it.
+ * ------------------------------------------------------------------------- */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  /*
+   * "White" now means ink. This is the line that flips ~5,400 utilities: see
+   * the explanation at the top of this block.
+   */
+  --color-white: #141020;
+
+  /* The zinc scale, inverted: white-alpha lift becomes ink-alpha shade. */
+  --color-zinc-950: #FFFFFF;
+  --color-zinc-900: #F6F5FA;
+  --color-zinc-850: rgba(20, 16, 32, 0.035);
+  --color-zinc-800: rgba(20, 16, 32, 0.06);
+  --color-zinc-700: rgba(20, 16, 32, 0.11);
+  --color-zinc-600: rgba(20, 16, 32, 0.55);
+  --color-zinc-500: rgba(20, 16, 32, 0.62);
+  --color-zinc-400: rgba(20, 16, 32, 0.72);
+  --color-zinc-300: rgba(20, 16, 32, 0.86);
+  --color-zinc-200: #2A2438;
+  --color-zinc-100: #141020;
+  --color-zinc-950-rgb: 255 255 255;
+
+  /* Chrome and card surfaces. */
+  --color-nav-bg: #FFFFFF;
+  --color-footer-bg: #F1EFF8;
+  --color-surface-1: #FFFFFF;
+  --color-surface-1-rgb: 255 255 255;
+  --color-surface-2: #F6F5FA;
+  --color-surface-4: #FFFFFF;
+
+  /* Hairlines and inputs. */
+  --color-border-glass: rgba(20, 16, 32, 0.10);
+  --color-border-input: rgba(20, 16, 32, 0.18);
+  --color-chart-grid: rgba(20, 16, 32, 0.08);
+  --color-text-soft: #57536E;
+  --color-ink: #141020;
+  --color-muted-text: #57536E;
+
+  /*
+   * THE TWO VARIABLES THAT ACTUALLY DRIVE TEXT COLOUR.
+   *
+   * Further up this file, the per-site theme feature added three UNLAYERED rules:
+   *
+   *     .text-white   { color: var(--color-text-main); }
+   *     .text-zinc-300{ color: color-mix(... var(--color-text-main) 88% ...); }
+   *     .text-zinc-400{ color: color-mix(... var(--color-text-main) 70% ...); }
+   *
+   * Unlayered CSS beats everything Tailwind emits, so for those three utilities
+   * - which is most of the text on the site - `--color-white` and the zinc scale
+   * are never consulted at all. Overriding them alone left every heading and
+   * paragraph painted in --color-text-main (#ffffff by default, #e4e4e7 on a
+   * themed site) on a white page: the "no text visible" symptom.
+   *
+   * Composited: #141020 at 100% is 18.7:1 on white, at 88% is 13.4:1, at 70%
+   * is 7.0:1 - so the ramp keeps its heading / body / muted weighting and all
+   * three clear AA.
+   */
+  --color-text-main: #141020;
+
+  /*
+   * Accent text darkened toward black rather than replaced, so a site that chose
+   * its own primary keeps its hue. 72% of the colour over black: this site's
+   * #ec4899 becomes 6.1:1 on white, the default #E4106C becomes 7.7:1. At full
+   * strength they are 3.5:1 and 4.6:1 - one failing outright, the other with no
+   * margin once antialiasing thins the strokes.
+   */
+  --color-accent-text: color-mix(in srgb, var(--color-brand-pink) 72%, #000000);
+
+  --color-brand-pink-text: #C50D5C;
+  --color-brand-purple-text: #4E1888;
+
+  /* Marketing palette, inverted. */
+  --c-bg-0: #FFFFFF;
+  --c-bg-1: #F6F5FA;
+  --c-bg-2: #FFFFFF;
+  --c-surf-1: #F1EFF8;
+  --c-surf-2: #E9E6F4;
+  --c-surf-3: #DFDBEE;
+  --c-accent-violet: #5B18E8;
+  --c-accent-violet-soft: #6E29F0;
+  --c-accent-pink: #C50D5C;
+  --c-accent-pink-soft: #D9198C;
+  --c-accent-pink-200: #AD0B50;
+  --c-accent-blue: #1A54D6;
+  --c-accent-cyan: #0077A3;
+  --c-text: #141020;
+  --c-text-muted: #57536E;
+  --c-hairline: rgba(20, 16, 32, 0.12);
+  --c-wash: rgba(20, 16, 32, 0.035);
+}
+
+/* Dark is the default, so this selector only has to re-assert `color-scheme`
+   for form controls, scrollbars and the like. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* -------------------------------------------------------------------------
+ *  SUBTREE ESCAPE HATCH
+ *
+ *  `data-theme-scope="dark"` pins a subtree to the dark tokens regardless of
+ *  the active theme. It exists for content laid over a photograph or a dark
+ *  still, where light-mode ink would disappear into the image.
+ * ------------------------------------------------------------------------- */
+:root[data-theme="light"] [data-theme-scope="dark"] {
+  --color-white: #FFFFFF;
+  /* The one that matters most: .text-white reads --color-text-main, not
+     --color-white. Without this line a dark-scoped section got ink headings. */
+  --color-text-main: #FFFFFF;
+  --color-accent-text: var(--color-brand-pink);
+  /* And the grounds, or the scope produces white text on a white panel - which
+     is exactly what the hero did on the first pass. */
+  --color-zinc-950: #05030a;
+  --color-zinc-900: #0a0614;
+  --color-surface-1: #0A0514;
+  --color-surface-1-rgb: 10 5 20;
+  --color-surface-2: #0C0618;
+  --color-surface-4: #050505;
+  --c-bg-0: #08091A;
+  --c-bg-1: #0B0C20;
+  --c-bg-2: #10112A;
+  --c-surf-1: #14152F;
+  --c-surf-2: #191A38;
+  --c-surf-3: #202044;
+  --color-zinc-850: rgba(255, 255, 255, 0.04);
+  --color-zinc-800: rgba(255, 255, 255, 0.07);
+  --color-zinc-700: rgba(255, 255, 255, 0.12);
+  --color-zinc-600: rgba(255, 255, 255, 0.36);
+  --color-zinc-500: rgba(255, 255, 255, 0.46);
+  --color-zinc-400: rgba(255, 255, 255, 0.7);
+  --color-zinc-300: rgba(255, 255, 255, 0.88);
+  --color-zinc-200: #f4f4f5;
+  --color-zinc-100: #fafafa;
+  --c-text: #EDEDF8;
+  --c-text-muted: #A5A6C5;
+  --c-hairline: rgba(255, 255, 255, 0.09);
+  --c-wash: rgba(255, 255, 255, 0.04);
+}
+
+/* -------------------------------------------------------------------------
+ *  RESCUES
+ *
+ *  The minority of call sites where `white` means literal white rather than
+ *  "the primary foreground". These live in @layer utilities so they compete
+ *  with Tailwind's own utilities on specificity inside the same layer, rather
+ *  than sitting outside every layer and beating all of them unconditionally.
+ * ------------------------------------------------------------------------- */
+@layer utilities {
+  /* White plates. Exhibitor, sponsor and charity logos are supplied as
+     flattened artwork with a baked-in white background, so these have to stay
+     white in both themes or the artwork grows a grey box around it. */
+  :root[data-theme="light"] .bg-white,
+  :root[data-theme="light"] .bg-zinc-100,
+  :root[data-theme="light"] .bg-zinc-200 {
+    background-color: #FFFFFF;
+  }
+
+  /* Label text on a brand-coloured fill.
+     NOT scoped to light mode. A themed site sets --color-text-main to its body
+     copy colour - this one uses #e4e4e7 - and on the pink announcement bar that
+     measured 2.8:1 in DARK mode too. A label on a brand fill wants pure white in
+     both themes, which is what the markup already asks for by writing
+     `text-white`.
+     BOTH variables, not just --color-white: `.text-white` resolves
+     --color-text-main (see the unlayered per-site theme rules above), while
+     `border-white/20`, `bg-white/10` and icon strokes in the same subtree
+     resolve --color-white. Resetting only one leaves a button with white
+     hairlines and ink text, or the reverse. */
+  .btn-brand-gradient,
+  .btn-sophisticated,
+  .bg-brand-pink,
+  .bg-brand-purple,
+  .bg-brand-violet,
+  [class*="bg-gradient-to"][class*="brand-"],
+  .on-brand {
+    --color-white: #FFFFFF;
+    --color-text-main: #FFFFFF;
+  }
+
+  /* Scrims sit over photographs and stay dark in both themes - that is what a
+     scrim is for. `--color-scrim` and the bg-black/* utilities are therefore
+     deliberately NOT inverted. */
+}
+
+/* -------------------------------------------------------------------------
+ *  THE SWITCH ITSELF
+ *
+ *  The transition is applied by a class that the provider adds for the length
+ *  of the change and then removes, rather than living permanently on `*`. A
+ *  standing `transition: background-color` on every element in the document
+ *  fights every hover state in the app and makes the whole UI feel laggy; a
+ *  temporary one costs nothing the rest of the time.
+ *
+ *  `!important` is warranted here precisely because it is temporary: for these
+ *  ~280ms the theme cross-fade should win over per-component transitions.
+ * ------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  :root.theme-switching,
+  :root.theme-switching *,
+  :root.theme-switching *::before,
+  :root.theme-switching *::after {
+    transition:
+      background-color 0.28s ease,
+      border-color 0.28s ease,
+      color 0.28s ease,
+      fill 0.28s ease,
+      stroke 0.28s ease,
+      box-shadow 0.28s ease !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* -------------------------------------------------------------------------
+ *  LIGHT-MODE CHROME CORRECTIONS
+ *
+ *  A handful of effects are defined in this file in terms of "glow on black".
+ *  They are re-stated for light rather than inverted, because a glow is
+ *  additive light: the light-mode equivalent of a glow is a shadow.
+ * ------------------------------------------------------------------------- */
+:root[data-theme="light"] .main-glow-bg {
+  background:
+    radial-gradient(circle at 15% 15%, rgb(var(--color-brand-pink-rgb) / 0.07) 0%, transparent 45%),
+    radial-gradient(circle at 85% 85%, rgb(var(--color-brand-purple-rgb) / 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgb(var(--color-brand-pink-rgb) / 0.03) 0%, transparent 60%),
+    #F6F5FA;
+  background-attachment: fixed;
+}
+
+:root[data-theme="light"] .glass-panel {
+  background-color: #FFFFFF !important;
+  border-color: rgba(20, 16, 32, 0.10) !important;
+  box-shadow: 0 1px 2px rgba(20, 16, 32, 0.04), 0 8px 24px -12px rgba(20, 16, 32, 0.14) !important;
+}
+
+:root[data-theme="light"] .glass-panel:hover {
+  border-color: rgb(var(--color-brand-pink-rgb) / 0.28) !important;
+  box-shadow: 0 2px 4px rgba(20, 16, 32, 0.05), 0 16px 40px -14px rgba(20, 16, 32, 0.2) !important;
+}
+
+/* Form controls: the browser's own autofill and placeholder colours assume the
+   page is light, so in dark mode they were being fought by component CSS. With
+   color-scheme set on :root both themes get the right native defaults; this
+   just keeps typed text legible on the light ground. */
+:root[data-theme="light"] input,
+:root[data-theme="light"] textarea,
+:root[data-theme="light"] select {
+  color: #141020;
+}
+
+:root[data-theme="light"] input::placeholder,
+:root[data-theme="light"] textarea::placeholder {
+  color: rgba(20, 16, 32, 0.45);
+}
+
+/* -------------------------------------------------------------------------
+ *  THEME TOGGLE ICONS
+ *
+ *  Both the sun and the moon are always in the DOM; the active theme decides
+ *  which is visible. Doing this in CSS rather than with a React ternary means
+ *  the right icon is painted in the first frame, before hydration — see the
+ *  note in ThemeToggle.tsx.
+ *
+ *  The icon shown is the one you are switching TO.
+ * ------------------------------------------------------------------------- */
+.theme-toggle-icon {
+  transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+:root[data-theme="dark"] .theme-toggle-moon,
+:root[data-theme="light"] .theme-toggle-sun {
+  opacity: 0;
+  transform: rotate(-70deg) scale(0.4);
+}
+
+:root[data-theme="dark"] .theme-toggle-sun,
+:root[data-theme="light"] .theme-toggle-moon {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle-icon {
+    transition: none;
+  }
+}
+
+/* -------------------------------------------------------------------------
+ *  bg-black/* IN LIGHT MODE
+ *
+ *  `bg-black/N` is doing two unrelated jobs in this codebase, and they want
+ *  opposite treatment:
+ *
+ *    - a SCRIM over a photograph, a modal backdrop, a gradient fade. These
+ *      must stay dark in both themes. That is what a scrim is.
+ *    - a PANEL that is simply deeper than the page it sits on. On a light
+ *      page that has to become a light grey, or the panel stays a black box.
+ *
+ *  A scrim has to be positioned to cover anything, so `.fixed` / `.absolute`
+ *  separates the two reliably without touching 70 files. Anything positioned
+ *  keeps its dark wash; anything in normal flow inverts to an ink wash of the
+ *  same weight.
+ *
+ *  If a panel ever needs the dark treatment in light mode, put
+ *  `data-theme-scope="dark"` on it rather than adding an exception here.
+ * ------------------------------------------------------------------------- */
+@layer utilities {
+  :root[data-theme="light"] .bg-black\/10:not(.fixed):not(.absolute) { background-color: rgba(20, 16, 32, 0.025); }
+  :root[data-theme="light"] .bg-black\/20:not(.fixed):not(.absolute) { background-color: rgba(20, 16, 32, 0.04); }
+  :root[data-theme="light"] .bg-black\/25:not(.fixed):not(.absolute) { background-color: rgba(20, 16, 32, 0.05); }
+  :root[data-theme="light"] .bg-black\/30:not(.fixed):not(.absolute) { background-color: rgba(20, 16, 32, 0.055); }
+  :root[data-theme="light"] .bg-black\/40:not(.fixed):not(.absolute) { background-color: rgba(20, 16, 32, 0.07); }
+  :root[data-theme="light"] .bg-black\/50:not(.fixed):not(.absolute) { background-color: rgba(20, 16, 32, 0.085); }
+  :root[data-theme="light"] .bg-black\/55:not(.fixed):not(.absolute) { background-color: rgba(20, 16, 32, 0.09); }
+  :root[data-theme="light"] .bg-black\/60:not(.fixed):not(.absolute) { background-color: rgba(20, 16, 32, 0.095); }
+  :root[data-theme="light"] .bg-black\/70:not(.fixed):not(.absolute) { background-color: rgba(20, 16, 32, 0.10); }
+  :root[data-theme="light"] .bg-black\/80:not(.fixed):not(.absolute) { background-color: rgba(20, 16, 32, 0.11); }
+  :root[data-theme="light"] .bg-black:not(.fixed):not(.absolute)     { background-color: #F1EFF8; }
+}
+
+/* -------------------------------------------------------------------------
+ *  THE SLATE FAMILY
+ *
+ *  Slate is used for two opposite jobs in this codebase, which is why it
+ *  cannot be inverted the way the zinc scale is.
+ *
+ *    dark surfaces / light text   bg-slate-950 (84x), bg-slate-900 (88x),
+ *                                 text-slate-300 (123x), text-slate-400 (60x)
+ *    light panels / dark text     bg-slate-50 (17x), border-slate-100 (22x),
+ *                                 text-slate-700 (15x), text-slate-900 (9x)
+ *
+ *  The second group is the booth chat sheet, the email-template previews and
+ *  the printable documents - surfaces that are white in BOTH themes and must
+ *  stay that way. Redefining --color-slate-700 would hit `bg-slate-700` and
+ *  `text-slate-700` alike, and those two want opposite treatment.
+ *
+ *  So these rules target the UTILITIES rather than the variables: only the
+ *  background utilities at the dark end move, and only the text utilities at
+ *  the light end. `border-slate-300` and `bg-slate-50` are left untouched.
+ *
+ *  The text rules reuse --color-text-main so a themed site's chosen text
+ *  colour still drives them, matching what the per-site theme block does for
+ *  text-white / text-zinc-300 / text-zinc-400 further up.
+ * ------------------------------------------------------------------------- */
+@layer utilities {
+  :root[data-theme="light"] .bg-slate-950 { background-color: #FFFFFF; }
+  :root[data-theme="light"] .bg-slate-900 { background-color: #F6F5FA; }
+  :root[data-theme="light"] .bg-slate-800 { background-color: #F1EFF8; }
+  :root[data-theme="light"] .bg-slate-700 { background-color: #E9E6F4; }
+
+  /* ...except inside a dark-scoped subtree, which keeps the original ramp. */
+  :root[data-theme="light"] [data-theme-scope="dark"] .bg-slate-950,
+  :root[data-theme="light"] [data-theme-scope="dark"].bg-slate-950 { background-color: #020617; }
+  :root[data-theme="light"] [data-theme-scope="dark"] .bg-slate-900,
+  :root[data-theme="light"] [data-theme-scope="dark"].bg-slate-900 { background-color: #0f172a; }
+  :root[data-theme="light"] [data-theme-scope="dark"] .bg-slate-800,
+  :root[data-theme="light"] [data-theme-scope="dark"].bg-slate-800 { background-color: #1e293b; }
+  :root[data-theme="light"] [data-theme-scope="dark"] .bg-slate-700,
+  :root[data-theme="light"] [data-theme-scope="dark"].bg-slate-700 { background-color: #334155; }
+}
+
+/* Unlayered, to match - and beat - the per-site theme rules above, which set
+   .text-white and the zinc text tones the same way. */
+:root[data-theme="light"] .text-slate-200 {
+  color: var(--color-text-main);
+}
+
+:root[data-theme="light"] .text-slate-300 {
+  color: color-mix(in srgb, var(--color-text-main) 88%, transparent);
+}
+
+:root[data-theme="light"] .text-slate-400 {
+  color: color-mix(in srgb, var(--color-text-main) 70%, transparent);
+}
+
+/* A dark-scoped subtree keeps the original slate values in light mode.
+   Each rule is written twice - `[scope] .x` and `[scope].x` - because a descendant
+   combinator does not match the element CARRYING the attribute, and the scope is
+   usually put on the very <section> that also holds the background utility. */
+:root[data-theme="light"] [data-theme-scope="dark"] .text-slate-200,
+:root[data-theme="light"] [data-theme-scope="dark"].text-slate-200 { color: #e2e8f0; }
+:root[data-theme="light"] [data-theme-scope="dark"] .text-slate-300,
+:root[data-theme="light"] [data-theme-scope="dark"].text-slate-300 { color: #cbd5e1; }
+:root[data-theme="light"] [data-theme-scope="dark"] .text-slate-400,
+:root[data-theme="light"] [data-theme-scope="dark"].text-slate-400 { color: #94a3b8; }
+
+/* -------------------------------------------------------------------------
+ *  THE LOGO, PER THEME
+ *
+ *  There are two wordmark files: the primary is white-on-transparent, and
+ *  digitalageexpo_logo_light.png is the same wordmark in the brand purple.
+ *  ThemedBrandLogo renders both and this decides which one is displayed.
+ *
+ *  It is done in CSS rather than by a hook for the same reason as the theme
+ *  toggle's icons: the server cannot know which theme this visitor chose, so
+ *  picking in React would render the wrong logo until hydration and report a
+ *  mismatch when it corrected itself. Keyed on the attribute the blocking init
+ *  script has already set, the right one is painted in the first frame.
+ *
+ *  This replaces the dark plate that stood behind the white logo before the
+ *  purple variant existed. A real second asset beats a box around the wrong
+ *  one.
+ * ------------------------------------------------------------------------- */
+.brand-logo-light {
+  display: none;
+}
+
+:root[data-theme="light"] .brand-logo-dark {
+  display: none;
+}
+
+:root[data-theme="light"] .brand-logo-light {
+  display: block;
+}
+
+/* A dark-scoped subtree keeps the white wordmark even while the page is light —
+   a logo over a photographic hero, for instance. */
+:root[data-theme="light"] [data-theme-scope="dark"] .brand-logo-dark {
+  display: block;
+}
+
+:root[data-theme="light"] [data-theme-scope="dark"] .brand-logo-light {
+  display: none;
+}
+
+/* -------------------------------------------------------------------------
+ *  THE OTHER DARK GROUNDS: indigo-950 / purple-950 / -900
+ *
+ *  Same problem the slate block above solves, on a different scale. About a
+ *  dozen public pages - about, articles, keynote, membership_packages,
+ *  sponsor_*, view_gallery, event_experience - use `bg-indigo-950` (38x) or
+ *  `bg-purple-950` / `-900` (16x) as the page ground instead of zinc or slate.
+ *  Left alone they stay near-black in light mode while the copy on them turns
+ *  to ink: invisible text on a dark page.
+ *
+ *  Targeted at the background utilities only, so `text-indigo-400` and the
+ *  various indigo/purple accents, borders and tints are untouched - they read
+ *  on both grounds, and several of them ARE the accent on these pages.
+ * ------------------------------------------------------------------------- */
+@layer utilities {
+  :root[data-theme="light"] .bg-indigo-950 { background-color: #FFFFFF; }
+  :root[data-theme="light"] .bg-purple-950 { background-color: #FFFFFF; }
+  :root[data-theme="light"] .bg-indigo-900 { background-color: #F4F2FB; }
+  :root[data-theme="light"] .bg-purple-900 { background-color: #F4F2FB; }
+
+  :root[data-theme="light"] [data-theme-scope="dark"] .bg-indigo-950,
+  :root[data-theme="light"] [data-theme-scope="dark"].bg-indigo-950 { background-color: #1e1b4b; }
+  :root[data-theme="light"] [data-theme-scope="dark"] .bg-purple-950,
+  :root[data-theme="light"] [data-theme-scope="dark"].bg-purple-950 { background-color: #3b0764; }
+  :root[data-theme="light"] [data-theme-scope="dark"] .bg-indigo-900,
+  :root[data-theme="light"] [data-theme-scope="dark"].bg-indigo-900 { background-color: #312e81; }
+  :root[data-theme="light"] [data-theme-scope="dark"] .bg-purple-900,
+  :root[data-theme="light"] [data-theme-scope="dark"].bg-purple-900 { background-color: #581c87; }
+}
+
+/* -------------------------------------------------------------------------
+ *  LIGHT ARTWORK ON A LIGHT PAGE
+ *
+ *  `data-logo="light"` is set by LogoPlate after it has measured the image:
+ *  the artwork is mostly light, i.e. drawn for a dark background. In dark mode
+ *  that is already correct and nothing happens here. In light mode the logo
+ *  would disappear into the card, so it gets a ground of its own.
+ *
+ *  The chip uses the marketing palette's deepest ground rather than black, so
+ *  it reads as part of the design rather than as a hole punched in the card.
+ * ------------------------------------------------------------------------- */
+:root[data-theme="light"] [data-logo="light"] {
+  background-color: #0B0C20;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }

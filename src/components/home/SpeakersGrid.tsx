@@ -63,7 +63,7 @@ function SpeakerPortrait({
 
   return (
     <motion.div
-      className="relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-[#14152F]"
+      className="relative aspect-[4/5] w-full overflow-hidden rounded-xl bg-[var(--c-surf-1)]"
       whileHover={{
         scale: 1.02,
       }}
@@ -106,7 +106,7 @@ function SpeakerPortrait({
               repeat: Infinity,
               ease: "easeInOut",
             }}
-            className="text-4xl font-black tracking-wide text-[#EDEDF8] sm:text-5xl"
+            className="text-4xl font-black tracking-wide text-[var(--c-text)] sm:text-5xl"
           >
             {getInitials(speaker.name)}
           </motion.span>
@@ -114,7 +114,7 @@ function SpeakerPortrait({
       )}
 
       {/* Image bottom gradient */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#08091A]/70 via-transparent to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[var(--c-bg-0)]/70 via-transparent to-transparent" />
 
       {/* Hover shine */}
       <motion.div
@@ -258,7 +258,7 @@ export function SpeakersGrid({
 
   return (
     <motion.section
-      className="relative overflow-hidden bg-[#0B0C20] px-5 py-16 text-white sm:px-6 sm:py-20"
+      className="relative overflow-hidden bg-[var(--c-bg-1)] px-5 py-16 text-white sm:px-6 sm:py-20"
       style={{
         y: useTransform(
           scrollYProgress,
@@ -272,7 +272,7 @@ export function SpeakersGrid({
       {/* ================================================================== */}
 
       <motion.div
-        className="pointer-events-none absolute -left-40 top-1/4 h-[30rem] w-[30rem] rounded-full bg-[#6C2BFF]/20 blur-[130px]"
+        className="pointer-events-none absolute -left-40 top-1/4 h-[30rem] w-[30rem] rounded-full bg-[var(--c-accent-violet)]/20 blur-[130px]"
         style={{
           x: glowX,
           y: glowY,
@@ -289,7 +289,7 @@ export function SpeakersGrid({
       />
 
       <motion.div
-        className="pointer-events-none absolute -right-40 bottom-[-10rem] h-[30rem] w-[30rem] rounded-full bg-[#F020A8]/10 blur-[130px]"
+        className="pointer-events-none absolute -right-40 bottom-[-10rem] h-[30rem] w-[30rem] rounded-full bg-[var(--c-accent-pink)]/10 blur-[130px]"
         animate={{
           x: [0, -50, 0],
           y: [0, -40, 0],
@@ -312,7 +312,7 @@ export function SpeakersGrid({
 
       {/* Top glowing line */}
       <motion.div
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#8B3DFF]/60 to-transparent"
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--c-accent-violet-soft)]/60 to-transparent"
         animate={{
           opacity: [0.25, 0.9, 0.25],
         }}
@@ -367,7 +367,7 @@ export function SpeakersGrid({
             transition={{
               duration: 0.6,
             }}
-            className="mx-auto mb-4 h-px bg-gradient-to-r from-[#F020A8] to-[#8B3DFF]"
+            className="mx-auto mb-4 h-px bg-gradient-to-r from-[var(--c-accent-pink)] to-[var(--c-accent-violet-soft)]"
           />
 
           <motion.h2
@@ -407,7 +407,7 @@ export function SpeakersGrid({
               duration: 0.6,
               delay: 0.25,
             }}
-            className="mx-auto mt-3 max-w-2xl text-sm text-[#A5A6C5] sm:text-base"
+            className="mx-auto mt-3 max-w-2xl text-sm text-[var(--c-text-muted)] sm:text-base"
           >
             {displayEyebrow}
           </motion.p>
@@ -451,7 +451,7 @@ export function SpeakersGrid({
               transition={{
                 duration: 0.4,
               }}
-              className="absolute -left-2 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[#00C8FF]/40 bg-[#10112A]/90 text-white backdrop-blur sm:flex lg:-left-5"
+              className="absolute -left-2 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[var(--c-accent-cyan)]/40 bg-[var(--c-bg-2)]/90 text-white backdrop-blur sm:flex lg:-left-5"
             >
               <ChevronLeft
                 className="h-5 w-5"
@@ -490,7 +490,7 @@ export function SpeakersGrid({
               transition={{
                 duration: 0.4,
               }}
-              className="absolute -right-2 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[#F020A8]/40 bg-[#10112A]/90 text-white backdrop-blur sm:flex lg:-right-5"
+              className="absolute -right-2 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-[var(--c-accent-pink)]/40 bg-[var(--c-bg-2)]/90 text-white backdrop-blur sm:flex lg:-right-5"
             >
               <ChevronRight
                 className="h-5 w-5"
@@ -543,7 +543,7 @@ export function SpeakersGrid({
                         speaker.id
                       )}`}
                       id={`featured-speaker-${speaker.id}`}
-                      className="group relative block overflow-hidden rounded-2xl border border-white/[0.09] bg-[#10112A]/80 p-3 text-center backdrop-blur-sm transition-colors duration-500 hover:border-[#8B3DFF]/60"
+                      className="group relative block overflow-hidden rounded-2xl border border-white/[0.09] bg-[var(--c-bg-2)]/80 p-3 text-center backdrop-blur-sm transition-colors duration-500 hover:border-[var(--c-accent-violet-soft)]/60"
                     >
                       {/* Card glow */}
                       <motion.div
@@ -561,7 +561,7 @@ export function SpeakersGrid({
 
                       {/* Card top line */}
                       <motion.div
-                        className="absolute left-1/2 top-0 h-px -translate-x-1/2 bg-gradient-to-r from-transparent via-[#F020A8] to-transparent"
+                        className="absolute left-1/2 top-0 h-px -translate-x-1/2 bg-gradient-to-r from-transparent via-[var(--c-accent-pink)] to-transparent"
                         initial={{
                           width: 0,
                         }}
@@ -590,7 +590,7 @@ export function SpeakersGrid({
                           {speaker.name}
                         </motion.h4>
 
-                        <p className="mt-1 line-clamp-2 text-xs leading-snug text-[#A5A6C5]">
+                        <p className="mt-1 line-clamp-2 text-xs leading-snug text-[var(--c-text-muted)]">
                           {speaker.position}
                           {speaker.position &&
                           speaker.business
@@ -602,7 +602,7 @@ export function SpeakersGrid({
 
                       {/* Bottom gradient accent */}
                       <motion.div
-                        className="absolute bottom-0 left-1/2 h-[2px] -translate-x-1/2 bg-gradient-to-r from-[#6C2BFF] via-[#F020A8] to-[#00C8FF]"
+                        className="absolute bottom-0 left-1/2 h-[2px] -translate-x-1/2 bg-gradient-to-r from-[var(--c-accent-violet)] via-[var(--c-accent-pink)] to-[var(--c-accent-cyan)]"
                         initial={{
                           width: 0,
                           opacity: 0,
@@ -664,7 +664,7 @@ export function SpeakersGrid({
                     }}
                     className={`h-2 rounded-full ${
                       i === page
-                        ? "bg-gradient-to-r from-[#F020A8] to-[#8B3DFF]"
+                        ? "bg-gradient-to-r from-[var(--c-accent-pink)] to-[var(--c-accent-violet-soft)]"
                         : "bg-white/20"
                     }`}
                   />
@@ -692,9 +692,9 @@ export function SpeakersGrid({
             transition={{
               duration: 0.7,
             }}
-            className="mt-10 rounded-2xl border border-dashed border-white/10 bg-[#10112A]/50 p-12 text-center"
+            className="mt-10 rounded-2xl border border-dashed border-white/10 bg-[var(--c-bg-2)]/50 p-12 text-center"
           >
-            <p className="font-medium text-[#A5A6C5]">
+            <p className="font-medium text-[var(--c-text-muted)]">
               Be the first one to register
               for {speakerTypeTitle} Speaker
             </p>
@@ -765,7 +765,7 @@ export function SpeakersGrid({
                 stiffness: 400,
                 damping: 18,
               }}
-              className="btn-outline-animated rounded-full border border-white/20 bg-white/[0.04] px-8 py-3.5 text-sm font-bold text-white backdrop-blur-md transition-colors duration-300 hover:border-[#8B3DFF] hover:bg-white/[0.1]"
+              className="btn-outline-animated rounded-full border border-white/20 bg-white/[0.04] px-8 py-3.5 text-sm font-bold text-white backdrop-blur-md transition-colors duration-300 hover:border-[var(--c-accent-violet-soft)] hover:bg-white/[0.1]"
             >
               Enroll as{" "}
               {speakerTypeTitle} Speaker
@@ -779,7 +779,7 @@ export function SpeakersGrid({
       {/* ================================================================== */}
 
       <motion.div
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#F020A8]/60 to-transparent"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[var(--c-accent-pink)]/60 to-transparent"
         animate={{
           opacity: [0.25, 0.9, 0.25],
         }}

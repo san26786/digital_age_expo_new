@@ -45,7 +45,7 @@ export function FaqPageContent({
     allQuestions.length - INITIAL_COUNT;
 
   return (
-    <main className="min-h-screen overflow-hidden bg-[#050509] text-white">
+    <main className="min-h-screen overflow-hidden bg-[var(--c-bg-0)] text-white">
 
       {/* =========================================================
           HERO SECTION
@@ -63,7 +63,7 @@ export function FaqPageContent({
         />
 
         {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-[#050509]/80" />
+        <div className="absolute inset-0 bg-[var(--c-bg-0)]/80" />
 
         {/* Purple Glow */}
         <div className="absolute -left-40 top-10 h-80 w-80 rounded-full bg-purple-600/20 blur-3xl" />

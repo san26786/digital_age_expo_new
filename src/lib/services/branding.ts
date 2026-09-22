@@ -90,12 +90,36 @@ export const getBrandAssets = cache(async function getBrandAssets(
 
   const pick = (varname: string, fallback: string) => (settings[varname] ?? "").trim() || fallback;
 
+  const primaryLogo = pick("cp_branding_primary_logo", DEFAULT_BRAND_ASSETS.primaryLogo);
+
   return {
     favicon: pick("fav", DEFAULT_BRAND_ASSETS.favicon),
-    primaryLogo: pick("cp_branding_primary_logo", DEFAULT_BRAND_ASSETS.primaryLogo),
+    primaryLogo,
     secondaryLogo: pick("cp_branding_secondary_logo", DEFAULT_BRAND_ASSETS.secondaryLogo),
     mobileLogo: pick("cp_branding_mobile_logo", DEFAULT_BRAND_ASSETS.mobileLogo),
     footerLogo: pick("cp_branding_footer_logo", DEFAULT_BRAND_ASSETS.footerLogo),
     loginLogo: pick("cp_branding_login_logo", DEFAULT_BRAND_ASSETS.loginLogo),
+
+    /*
+     * The light-theme wordmark.
+     *
+     * The fallback is NOT simply the bundled light logo. A site that uploaded
+     * its own primary logo and has not supplied a light variant would then get
+     * Digital Age Expo's wordmark on every light page - someone else's brand on
+     * their site, which is worse than a logo that reads poorly. So the bundled
+     * light logo is only used while the primary is still the bundled one; any
+     * other site falls back to its own primary in both themes, exactly as
+     * before this existed.
+     *
+     * `cp_branding_light_logo` has no field in the Branding tab yet. It reads
+     * from find_settings like its five siblings, so adding the input there is
+     * all that is needed - no schema change.
+     */
+    lightLogo: pick(
+      "cp_branding_light_logo",
+      primaryLogo === DEFAULT_BRAND_ASSETS.primaryLogo
+        ? DEFAULT_BRAND_ASSETS.lightLogo
+        : primaryLogo
+    ),
   };
 });

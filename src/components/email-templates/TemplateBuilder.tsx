@@ -536,7 +536,7 @@ export function TemplateBuilder({
                   name="disable"
                   checked={disabled}
                   onChange={(e) => setDisabled(e.target.checked)}
-                  className="h-4 w-4 accent-[#C71585]"
+                  className="h-4 w-4 accent-[var(--color-brand-pink)]"
                 />
                 Disabled — this template never sends
               </label>
@@ -546,7 +546,7 @@ export function TemplateBuilder({
                   name="moderate"
                   checked={moderate}
                   onChange={(e) => setModerate(e.target.checked)}
-                  className="h-4 w-4 accent-[#C71585]"
+                  className="h-4 w-4 accent-[var(--color-brand-pink)]"
                 />
                 Requires moderation before sending
               </label>

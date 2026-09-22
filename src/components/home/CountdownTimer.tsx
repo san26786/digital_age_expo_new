@@ -55,16 +55,16 @@ export function CountdownTimer({ targetDate, className }: Props) {
       {units.map((unit) => (
         <div
           key={unit.label}
-          className="group relative min-w-[4.25rem] flex-1 basis-[4.25rem] overflow-hidden rounded-2xl border border-white/12 bg-[#14152F]/70 px-3 py-3.5 text-center backdrop-blur-md transition-all duration-300 hover:border-[#8B3DFF]/50 sm:min-w-[5.25rem] sm:basis-[5.25rem] sm:px-5 sm:py-4"
+          className="group relative min-w-[4.25rem] flex-1 basis-[4.25rem] overflow-hidden rounded-2xl border border-white/12 bg-[var(--c-surf-1)]/70 px-3 py-3.5 text-center backdrop-blur-md transition-all duration-300 hover:border-[var(--c-accent-violet-soft)]/50 sm:min-w-[5.25rem] sm:basis-[5.25rem] sm:px-5 sm:py-4"
         >
           {/* Inner glow, brightening on hover. Decorative only. */}
-          <div className="pointer-events-none absolute inset-x-0 -top-10 h-16 bg-[#6C2BFF]/30 blur-2xl transition-opacity duration-300 group-hover:bg-[#F020A8]/30" />
-          <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-[#8B3DFF]/70 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 -top-10 h-16 bg-[var(--c-accent-violet)]/30 blur-2xl transition-opacity duration-300 group-hover:bg-[var(--c-accent-pink)]/30" />
+          <div className="pointer-events-none absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-[var(--c-accent-violet-soft)]/70 to-transparent" />
 
-          <div className="relative text-2xl font-black tabular-nums tracking-tight text-white sm:text-4xl">
+          <div className="stat-number relative text-2xl font-black tabular-nums tracking-tight text-white sm:text-4xl">
             {String(unit.value).padStart(2, "0")}
           </div>
-          <div className="relative mt-1 text-[9px] font-bold uppercase tracking-[0.18em] text-[#A5A6C5] sm:text-[10px]">
+          <div className="relative mt-1 text-[9px] font-bold uppercase tracking-[0.18em] text-[var(--c-text-muted)] sm:text-[10px]">
             {unit.label}
           </div>
         </div>

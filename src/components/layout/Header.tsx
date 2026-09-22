@@ -58,6 +58,7 @@ export async function Header() {
       eventBar={eventBar}
       primaryLogo={brand.primaryLogo}
       mobileLogo={brand.mobileLogo}
+      lightLogo={brand.lightLogo}
     />
   );
 }

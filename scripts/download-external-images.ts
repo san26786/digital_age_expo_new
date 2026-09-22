@@ -663,6 +663,37 @@ function groupByLocalPath(refs: Reference[]) {
   return groups;
 }
 
+/**
+ * Which legacy upload folder a bare filename belongs to, per source column.
+ *
+ * On the legacy host, uploads are filed by WHAT they are, not in one flat root:
+ * `files/speaker/153.jpg`, `files/exhibitor_profile_images/…`, `files/listing_pages/…`.
+ * The database stores only the bare filename (`153.jpg`), so the filename alone is
+ * ambiguous - the same `153.jpg` could be a speaker portrait or an exhibitor logo.
+ * The column it came from is what disambiguates it.
+ *
+ * This is why every speaker portrait failed before: the only paths tried were the
+ * site root and `files/`, and neither exists, so Cloudflare answered 525 rather
+ * than 404 and it read like an origin outage. `files/speaker/153.jpg` returns a
+ * perfectly good 9KB JPEG.
+ *
+ * Verified against the live site: view_speaker requests
+ * `https://digitalageexpo.com/files/speaker/<file>` for every portrait it renders.
+ */
+const LEGACY_UPLOAD_DIRS: Record<string, string> = {
+  // Both verified against the live host with real filenames:
+  //   /files/speaker/211.jpg        -> 200 image/jpeg
+  //   /files/speaker_social/498.png -> 200 image/png
+  // The two columns do NOT share a folder - a social avatar asked for under
+  // `speaker/` returns 404, which is how the second batch was missed first time.
+  "find_speakers.profile_pic": "speaker",
+  "find_speakers.social_media_pic": "speaker_social",
+
+  // Unverified - no filename from this table has been tested. Harmless if wrong:
+  // it is one extra candidate and the generic paths are still tried afterwards.
+  "find_speakers_questions.profile_pic": "speaker",
+};
+
 /** Candidate remote URLs for a group, most-likely first, deduplicated. */
 function candidateUrls(localPath: string, refs: Reference[]): string[] {
   const urls: string[] = [];
@@ -670,6 +701,22 @@ function candidateUrls(localPath: string, refs: Reference[]): string[] {
 
   for (const r of refs) if (r.isAbsolute) push(r.sourceUrl);
   for (const r of refs) if (!r.isAbsolute) push(r.sourceUrl);
+
+  /*
+   * Column-specific upload folders FIRST - when we know the folder, that URL is the
+   * one that works, and trying it first means the generic guesses below are never
+   * requested. That is the difference between one fast request per portrait and five
+   * slow ones that all time out.
+   */
+  for (const r of refs) {
+    if (r.isAbsolute || !r.table || !r.column) continue;
+    const dir = LEGACY_UPLOAD_DIRS[`${r.table.toLowerCase()}.${r.column.toLowerCase()}`];
+    if (!dir) continue;
+    const file = r.rawValue.replace(/^\/+/, "").split("/").pop();
+    if (!file) continue;
+    push(`${LEGACY_ORIGIN}/files/${dir}/${file}`);
+    for (const origin of LEGACY_FALLBACK_ORIGINS) push(`${origin}/files/${dir}/${file}`);
+  }
 
   const remotePath = localPathToLegacyRemotePath(localPath);
   if (remotePath) {
@@ -857,7 +904,49 @@ function hostOf(url: string): string {
   return p ? p.hostname : "local";
 }
 
+/**
+ * Read the mappings already committed in the generated file.
+ *
+ * Parsed with a regex rather than imported, deliberately: this script may be running precisely
+ * because that file is stale or malformed, and an `import` of a broken module takes the whole
+ * run down. A line that does not match is skipped rather than fatal.
+ */
+async function readExistingOverrides(): Promise<Record<string, string>> {
+  try {
+    const text = await fs.readFile(OVERRIDES_FILE, "utf8");
+    const out: Record<string, string> = {};
+    for (const m of text.matchAll(/^\s*"((?:[^"\\]|\\.)*)":\s*"((?:[^"\\]|\\.)*)",?\s*$/gm)) {
+      try { out[JSON.parse(`"${m[1]}"`)] = JSON.parse(`"${m[2]}"`); } catch { /* skip */ }
+    }
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * MERGES with what is already on disk. It used to overwrite.
+ *
+ * That was fine while the only documented invocation was a full run, but the moment anyone
+ * narrows the scan — `--tables=find_speakers`, say — the map is rebuilt from that slice alone
+ * and every mapping outside it is silently dropped. A scoped speaker download cut this file from
+ * 27 mappings to 7, which un-resolved the sponsor logos, the charity logo, several event-feature
+ * images and the intro video: assets that are NOT committed under their mirror path and exist
+ * only because an override points them at a file the project already ships.
+ *
+ * Nothing in the output said so, because the run genuinely succeeded at what it was asked to do.
+ * Merging makes a narrow run incapable of destroying work a wider one did.
+ *
+ * A freshly computed mapping still wins over a stored one for the same key, so a real change is
+ * not blocked by history. `--force` drops the stored map entirely, for the rebuild-from-scratch
+ * case.
+ */
 async function writeOverrides(overrides: Record<string, string>) {
+  const stored = OPT.force ? {} : await readExistingOverrides();
+  const merged = { ...stored, ...overrides };
+  const kept = Object.keys(stored).filter((k) => !(k in overrides)).length;
+  if (kept) log(`      (kept ${kept} existing mapping(s) outside this run's scope)`);
+  overrides = merged;
   const keys = Object.keys(overrides).sort();
   const body = keys.length
     ? keys.map((k) => `  ${JSON.stringify(k)}: ${JSON.stringify(overrides[k])},`).join("\n")

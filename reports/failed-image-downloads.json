@@ -1,0 +1,2117 @@
+[
+  {
+    "sourceUrl": "https://digitalageexpo.com/images/get_ticket.mp4",
+    "error": "https://tradeshowslocal.com/images/get_ticket.mp4 -> HTTP 525",
+    "table": null,
+    "recordId": null,
+    "field": null,
+    "file": "src/components/home/GetFreeTicket.tsx",
+    "line": 132,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/images/get_ticket.mp4",
+      "https://apps.digitalageexpo.com/images/get_ticket.mp4",
+      "https://findusonweb.com/images/get_ticket.mp4",
+      "https://tradeshowslocal.com/images/get_ticket.mp4"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/211.jpg",
+    "error": "https://tradeshowslocal.com/files/211.jpg -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "622",
+    "field": "profile_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/211.jpg",
+      "https://digitalageexpo.com/files/speaker/211.jpg",
+      "https://apps.digitalageexpo.com/files/speaker/211.jpg",
+      "https://findusonweb.com/files/speaker/211.jpg",
+      "https://tradeshowslocal.com/files/speaker/211.jpg",
+      "https://digitalageexpo.com/files/211.jpg",
+      "https://apps.digitalageexpo.com/files/211.jpg",
+      "https://findusonweb.com/files/211.jpg",
+      "https://tradeshowslocal.com/files/211.jpg"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/204.jpg",
+    "error": "https://tradeshowslocal.com/files/204.jpg -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "621",
+    "field": "profile_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/204.jpg",
+      "https://digitalageexpo.com/files/speaker/204.jpg",
+      "https://apps.digitalageexpo.com/files/speaker/204.jpg",
+      "https://findusonweb.com/files/speaker/204.jpg",
+      "https://tradeshowslocal.com/files/speaker/204.jpg",
+      "https://digitalageexpo.com/files/204.jpg",
+      "https://apps.digitalageexpo.com/files/204.jpg",
+      "https://findusonweb.com/files/204.jpg",
+      "https://tradeshowslocal.com/files/204.jpg"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/689.JPG",
+    "error": "https://tradeshowslocal.com/files/689.JPG -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "689",
+    "field": "profile_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/689.JPG",
+      "https://digitalageexpo.com/files/speaker/689.JPG",
+      "https://apps.digitalageexpo.com/files/speaker/689.JPG",
+      "https://findusonweb.com/files/speaker/689.JPG",
+      "https://tradeshowslocal.com/files/speaker/689.JPG",
+      "https://digitalageexpo.com/files/689.JPG",
+      "https://apps.digitalageexpo.com/files/689.JPG",
+      "https://findusonweb.com/files/689.JPG",
+      "https://tradeshowslocal.com/files/689.JPG"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/641.jpg",
+    "error": "https://tradeshowslocal.com/files/641.jpg -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "641",
+    "field": "profile_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/641.jpg",
+      "https://digitalageexpo.com/files/speaker/641.jpg",
+      "https://apps.digitalageexpo.com/files/speaker/641.jpg",
+      "https://findusonweb.com/files/speaker/641.jpg",
+      "https://tradeshowslocal.com/files/speaker/641.jpg",
+      "https://digitalageexpo.com/files/641.jpg",
+      "https://apps.digitalageexpo.com/files/641.jpg",
+      "https://findusonweb.com/files/641.jpg",
+      "https://tradeshowslocal.com/files/641.jpg"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/643.jpg",
+    "error": "https://tradeshowslocal.com/files/643.jpg -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "643",
+    "field": "profile_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/643.jpg",
+      "https://digitalageexpo.com/files/speaker/643.jpg",
+      "https://apps.digitalageexpo.com/files/speaker/643.jpg",
+      "https://findusonweb.com/files/speaker/643.jpg",
+      "https://tradeshowslocal.com/files/speaker/643.jpg",
+      "https://digitalageexpo.com/files/643.jpg",
+      "https://apps.digitalageexpo.com/files/643.jpg",
+      "https://findusonweb.com/files/643.jpg",
+      "https://tradeshowslocal.com/files/643.jpg"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/683.jpg",
+    "error": "https://tradeshowslocal.com/files/683.jpg -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "683",
+    "field": "profile_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/683.jpg",
+      "https://digitalageexpo.com/files/speaker/683.jpg",
+      "https://apps.digitalageexpo.com/files/speaker/683.jpg",
+      "https://findusonweb.com/files/speaker/683.jpg",
+      "https://tradeshowslocal.com/files/speaker/683.jpg",
+      "https://digitalageexpo.com/files/683.jpg",
+      "https://apps.digitalageexpo.com/files/683.jpg",
+      "https://findusonweb.com/files/683.jpg",
+      "https://tradeshowslocal.com/files/683.jpg"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/151.png",
+    "error": "https://tradeshowslocal.com/files/151.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "659",
+    "field": "profile_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/151.png",
+      "https://digitalageexpo.com/files/speaker/151.png",
+      "https://apps.digitalageexpo.com/files/speaker/151.png",
+      "https://findusonweb.com/files/speaker/151.png",
+      "https://tradeshowslocal.com/files/speaker/151.png",
+      "https://digitalageexpo.com/files/151.png",
+      "https://apps.digitalageexpo.com/files/151.png",
+      "https://findusonweb.com/files/151.png",
+      "https://tradeshowslocal.com/files/151.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/679.jpg",
+    "error": "https://tradeshowslocal.com/files/679.jpg -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "679",
+    "field": "profile_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/679.jpg",
+      "https://digitalageexpo.com/files/speaker/679.jpg",
+      "https://apps.digitalageexpo.com/files/speaker/679.jpg",
+      "https://findusonweb.com/files/speaker/679.jpg",
+      "https://tradeshowslocal.com/files/speaker/679.jpg",
+      "https://digitalageexpo.com/files/679.jpg",
+      "https://apps.digitalageexpo.com/files/679.jpg",
+      "https://findusonweb.com/files/679.jpg",
+      "https://tradeshowslocal.com/files/679.jpg"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/691.jpg",
+    "error": "https://tradeshowslocal.com/files/691.jpg -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "691",
+    "field": "profile_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/691.jpg",
+      "https://digitalageexpo.com/files/speaker/691.jpg",
+      "https://apps.digitalageexpo.com/files/speaker/691.jpg",
+      "https://findusonweb.com/files/speaker/691.jpg",
+      "https://tradeshowslocal.com/files/speaker/691.jpg",
+      "https://digitalageexpo.com/files/691.jpg",
+      "https://apps.digitalageexpo.com/files/691.jpg",
+      "https://findusonweb.com/files/691.jpg",
+      "https://tradeshowslocal.com/files/691.jpg"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/717.jpg",
+    "error": "https://tradeshowslocal.com/files/717.jpg -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "717",
+    "field": "profile_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/717.jpg",
+      "https://digitalageexpo.com/files/speaker/717.jpg",
+      "https://apps.digitalageexpo.com/files/speaker/717.jpg",
+      "https://findusonweb.com/files/speaker/717.jpg",
+      "https://tradeshowslocal.com/files/speaker/717.jpg",
+      "https://digitalageexpo.com/files/717.jpg",
+      "https://apps.digitalageexpo.com/files/717.jpg",
+      "https://findusonweb.com/files/717.jpg",
+      "https://tradeshowslocal.com/files/717.jpg"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/677.jpg",
+    "error": "https://tradeshowslocal.com/files/677.jpg -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "677",
+    "field": "profile_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/677.jpg",
+      "https://digitalageexpo.com/files/speaker/677.jpg",
+      "https://apps.digitalageexpo.com/files/speaker/677.jpg",
+      "https://findusonweb.com/files/speaker/677.jpg",
+      "https://tradeshowslocal.com/files/speaker/677.jpg",
+      "https://digitalageexpo.com/files/677.jpg",
+      "https://apps.digitalageexpo.com/files/677.jpg",
+      "https://findusonweb.com/files/677.jpg",
+      "https://tradeshowslocal.com/files/677.jpg"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/653.jpg",
+    "error": "https://tradeshowslocal.com/files/653.jpg -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "653",
+    "field": "profile_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/653.jpg",
+      "https://digitalageexpo.com/files/speaker/653.jpg",
+      "https://apps.digitalageexpo.com/files/speaker/653.jpg",
+      "https://findusonweb.com/files/speaker/653.jpg",
+      "https://tradeshowslocal.com/files/speaker/653.jpg",
+      "https://digitalageexpo.com/files/653.jpg",
+      "https://apps.digitalageexpo.com/files/653.jpg",
+      "https://findusonweb.com/files/653.jpg",
+      "https://tradeshowslocal.com/files/653.jpg"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/498.png",
+    "error": "https://tradeshowslocal.com/files/498.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "498",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/498.png",
+      "https://digitalageexpo.com/files/speaker/498.png",
+      "https://apps.digitalageexpo.com/files/speaker/498.png",
+      "https://findusonweb.com/files/speaker/498.png",
+      "https://tradeshowslocal.com/files/speaker/498.png",
+      "https://digitalageexpo.com/files/498.png",
+      "https://apps.digitalageexpo.com/files/498.png",
+      "https://findusonweb.com/files/498.png",
+      "https://tradeshowslocal.com/files/498.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/494.png",
+    "error": "https://tradeshowslocal.com/files/494.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "494",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/494.png",
+      "https://digitalageexpo.com/files/speaker/494.png",
+      "https://apps.digitalageexpo.com/files/speaker/494.png",
+      "https://findusonweb.com/files/speaker/494.png",
+      "https://tradeshowslocal.com/files/speaker/494.png",
+      "https://digitalageexpo.com/files/494.png",
+      "https://apps.digitalageexpo.com/files/494.png",
+      "https://findusonweb.com/files/494.png",
+      "https://tradeshowslocal.com/files/494.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/487.png",
+    "error": "https://tradeshowslocal.com/files/487.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "487",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/487.png",
+      "https://digitalageexpo.com/files/speaker/487.png",
+      "https://apps.digitalageexpo.com/files/speaker/487.png",
+      "https://findusonweb.com/files/speaker/487.png",
+      "https://tradeshowslocal.com/files/speaker/487.png",
+      "https://digitalageexpo.com/files/487.png",
+      "https://apps.digitalageexpo.com/files/487.png",
+      "https://findusonweb.com/files/487.png",
+      "https://tradeshowslocal.com/files/487.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/489.png",
+    "error": "https://tradeshowslocal.com/files/489.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "489",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/489.png",
+      "https://digitalageexpo.com/files/speaker/489.png",
+      "https://apps.digitalageexpo.com/files/speaker/489.png",
+      "https://findusonweb.com/files/speaker/489.png",
+      "https://tradeshowslocal.com/files/speaker/489.png",
+      "https://digitalageexpo.com/files/489.png",
+      "https://apps.digitalageexpo.com/files/489.png",
+      "https://findusonweb.com/files/489.png",
+      "https://tradeshowslocal.com/files/489.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/22317.png",
+    "error": "https://tradeshowslocal.com/files/22317.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "22317",
+    "field": "profile_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/22317.png",
+      "https://digitalageexpo.com/files/speaker/22317.png",
+      "https://apps.digitalageexpo.com/files/speaker/22317.png",
+      "https://findusonweb.com/files/speaker/22317.png",
+      "https://tradeshowslocal.com/files/speaker/22317.png",
+      "https://digitalageexpo.com/files/22317.png",
+      "https://apps.digitalageexpo.com/files/22317.png",
+      "https://findusonweb.com/files/22317.png",
+      "https://tradeshowslocal.com/files/22317.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/488.png",
+    "error": "https://tradeshowslocal.com/files/488.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "488",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/488.png",
+      "https://digitalageexpo.com/files/speaker/488.png",
+      "https://apps.digitalageexpo.com/files/speaker/488.png",
+      "https://findusonweb.com/files/speaker/488.png",
+      "https://tradeshowslocal.com/files/speaker/488.png",
+      "https://digitalageexpo.com/files/488.png",
+      "https://apps.digitalageexpo.com/files/488.png",
+      "https://findusonweb.com/files/488.png",
+      "https://tradeshowslocal.com/files/488.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/503.png",
+    "error": "https://tradeshowslocal.com/files/503.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "503",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/503.png",
+      "https://digitalageexpo.com/files/speaker/503.png",
+      "https://apps.digitalageexpo.com/files/speaker/503.png",
+      "https://findusonweb.com/files/speaker/503.png",
+      "https://tradeshowslocal.com/files/speaker/503.png",
+      "https://digitalageexpo.com/files/503.png",
+      "https://apps.digitalageexpo.com/files/503.png",
+      "https://findusonweb.com/files/503.png",
+      "https://tradeshowslocal.com/files/503.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/486.png",
+    "error": "https://tradeshowslocal.com/files/486.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "486",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/486.png",
+      "https://digitalageexpo.com/files/speaker/486.png",
+      "https://apps.digitalageexpo.com/files/speaker/486.png",
+      "https://findusonweb.com/files/speaker/486.png",
+      "https://tradeshowslocal.com/files/speaker/486.png",
+      "https://digitalageexpo.com/files/486.png",
+      "https://apps.digitalageexpo.com/files/486.png",
+      "https://findusonweb.com/files/486.png",
+      "https://tradeshowslocal.com/files/486.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/491.png",
+    "error": "https://tradeshowslocal.com/files/491.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "491",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/491.png",
+      "https://digitalageexpo.com/files/speaker/491.png",
+      "https://apps.digitalageexpo.com/files/speaker/491.png",
+      "https://findusonweb.com/files/speaker/491.png",
+      "https://tradeshowslocal.com/files/speaker/491.png",
+      "https://digitalageexpo.com/files/491.png",
+      "https://apps.digitalageexpo.com/files/491.png",
+      "https://findusonweb.com/files/491.png",
+      "https://tradeshowslocal.com/files/491.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/500.png",
+    "error": "https://tradeshowslocal.com/files/500.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "500",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/500.png",
+      "https://digitalageexpo.com/files/speaker/500.png",
+      "https://apps.digitalageexpo.com/files/speaker/500.png",
+      "https://findusonweb.com/files/speaker/500.png",
+      "https://tradeshowslocal.com/files/speaker/500.png",
+      "https://digitalageexpo.com/files/500.png",
+      "https://apps.digitalageexpo.com/files/500.png",
+      "https://findusonweb.com/files/500.png",
+      "https://tradeshowslocal.com/files/500.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/504.png",
+    "error": "https://tradeshowslocal.com/files/504.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "504",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/504.png",
+      "https://digitalageexpo.com/files/speaker/504.png",
+      "https://apps.digitalageexpo.com/files/speaker/504.png",
+      "https://findusonweb.com/files/speaker/504.png",
+      "https://tradeshowslocal.com/files/speaker/504.png",
+      "https://digitalageexpo.com/files/504.png",
+      "https://apps.digitalageexpo.com/files/504.png",
+      "https://findusonweb.com/files/504.png",
+      "https://tradeshowslocal.com/files/504.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/485.png",
+    "error": "https://tradeshowslocal.com/files/485.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "485",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/485.png",
+      "https://digitalageexpo.com/files/speaker/485.png",
+      "https://apps.digitalageexpo.com/files/speaker/485.png",
+      "https://findusonweb.com/files/speaker/485.png",
+      "https://tradeshowslocal.com/files/speaker/485.png",
+      "https://digitalageexpo.com/files/485.png",
+      "https://apps.digitalageexpo.com/files/485.png",
+      "https://findusonweb.com/files/485.png",
+      "https://tradeshowslocal.com/files/485.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/510.png",
+    "error": "https://tradeshowslocal.com/files/510.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "510",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/510.png",
+      "https://digitalageexpo.com/files/speaker/510.png",
+      "https://apps.digitalageexpo.com/files/speaker/510.png",
+      "https://findusonweb.com/files/speaker/510.png",
+      "https://tradeshowslocal.com/files/speaker/510.png",
+      "https://digitalageexpo.com/files/510.png",
+      "https://apps.digitalageexpo.com/files/510.png",
+      "https://findusonweb.com/files/510.png",
+      "https://tradeshowslocal.com/files/510.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/511.png",
+    "error": "https://tradeshowslocal.com/files/511.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "511",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/511.png",
+      "https://digitalageexpo.com/files/speaker/511.png",
+      "https://apps.digitalageexpo.com/files/speaker/511.png",
+      "https://findusonweb.com/files/speaker/511.png",
+      "https://tradeshowslocal.com/files/speaker/511.png",
+      "https://digitalageexpo.com/files/511.png",
+      "https://apps.digitalageexpo.com/files/511.png",
+      "https://findusonweb.com/files/511.png",
+      "https://tradeshowslocal.com/files/511.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/508.png",
+    "error": "https://tradeshowslocal.com/files/508.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "508",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/508.png",
+      "https://digitalageexpo.com/files/speaker/508.png",
+      "https://apps.digitalageexpo.com/files/speaker/508.png",
+      "https://findusonweb.com/files/speaker/508.png",
+      "https://tradeshowslocal.com/files/speaker/508.png",
+      "https://digitalageexpo.com/files/508.png",
+      "https://apps.digitalageexpo.com/files/508.png",
+      "https://findusonweb.com/files/508.png",
+      "https://tradeshowslocal.com/files/508.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/512.png",
+    "error": "https://tradeshowslocal.com/files/512.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "512",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/512.png",
+      "https://digitalageexpo.com/files/speaker/512.png",
+      "https://apps.digitalageexpo.com/files/speaker/512.png",
+      "https://findusonweb.com/files/speaker/512.png",
+      "https://tradeshowslocal.com/files/speaker/512.png",
+      "https://digitalageexpo.com/files/512.png",
+      "https://apps.digitalageexpo.com/files/512.png",
+      "https://findusonweb.com/files/512.png",
+      "https://tradeshowslocal.com/files/512.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/517.png",
+    "error": "https://tradeshowslocal.com/files/517.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "517",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/517.png",
+      "https://digitalageexpo.com/files/speaker/517.png",
+      "https://apps.digitalageexpo.com/files/speaker/517.png",
+      "https://findusonweb.com/files/speaker/517.png",
+      "https://tradeshowslocal.com/files/speaker/517.png",
+      "https://digitalageexpo.com/files/517.png",
+      "https://apps.digitalageexpo.com/files/517.png",
+      "https://findusonweb.com/files/517.png",
+      "https://tradeshowslocal.com/files/517.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/513.png",
+    "error": "https://tradeshowslocal.com/files/513.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "513",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/513.png",
+      "https://digitalageexpo.com/files/speaker/513.png",
+      "https://apps.digitalageexpo.com/files/speaker/513.png",
+      "https://findusonweb.com/files/speaker/513.png",
+      "https://tradeshowslocal.com/files/speaker/513.png",
+      "https://digitalageexpo.com/files/513.png",
+      "https://apps.digitalageexpo.com/files/513.png",
+      "https://findusonweb.com/files/513.png",
+      "https://tradeshowslocal.com/files/513.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/514.png",
+    "error": "https://tradeshowslocal.com/files/514.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "514",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/514.png",
+      "https://digitalageexpo.com/files/speaker/514.png",
+      "https://apps.digitalageexpo.com/files/speaker/514.png",
+      "https://findusonweb.com/files/speaker/514.png",
+      "https://tradeshowslocal.com/files/speaker/514.png",
+      "https://digitalageexpo.com/files/514.png",
+      "https://apps.digitalageexpo.com/files/514.png",
+      "https://findusonweb.com/files/514.png",
+      "https://tradeshowslocal.com/files/514.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/518.png",
+    "error": "https://tradeshowslocal.com/files/518.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "518",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/518.png",
+      "https://digitalageexpo.com/files/speaker/518.png",
+      "https://apps.digitalageexpo.com/files/speaker/518.png",
+      "https://findusonweb.com/files/speaker/518.png",
+      "https://tradeshowslocal.com/files/speaker/518.png",
+      "https://digitalageexpo.com/files/518.png",
+      "https://apps.digitalageexpo.com/files/518.png",
+      "https://findusonweb.com/files/518.png",
+      "https://tradeshowslocal.com/files/518.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/516.png",
+    "error": "https://tradeshowslocal.com/files/516.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "516",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/516.png",
+      "https://digitalageexpo.com/files/speaker/516.png",
+      "https://apps.digitalageexpo.com/files/speaker/516.png",
+      "https://findusonweb.com/files/speaker/516.png",
+      "https://tradeshowslocal.com/files/speaker/516.png",
+      "https://digitalageexpo.com/files/516.png",
+      "https://apps.digitalageexpo.com/files/516.png",
+      "https://findusonweb.com/files/516.png",
+      "https://tradeshowslocal.com/files/516.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/519.png",
+    "error": "https://tradeshowslocal.com/files/519.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "519",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/519.png",
+      "https://digitalageexpo.com/files/speaker/519.png",
+      "https://apps.digitalageexpo.com/files/speaker/519.png",
+      "https://findusonweb.com/files/speaker/519.png",
+      "https://tradeshowslocal.com/files/speaker/519.png",
+      "https://digitalageexpo.com/files/519.png",
+      "https://apps.digitalageexpo.com/files/519.png",
+      "https://findusonweb.com/files/519.png",
+      "https://tradeshowslocal.com/files/519.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/522.png",
+    "error": "https://tradeshowslocal.com/files/522.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "522",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/522.png",
+      "https://digitalageexpo.com/files/speaker/522.png",
+      "https://apps.digitalageexpo.com/files/speaker/522.png",
+      "https://findusonweb.com/files/speaker/522.png",
+      "https://tradeshowslocal.com/files/speaker/522.png",
+      "https://digitalageexpo.com/files/522.png",
+      "https://apps.digitalageexpo.com/files/522.png",
+      "https://findusonweb.com/files/522.png",
+      "https://tradeshowslocal.com/files/522.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/520.png",
+    "error": "https://tradeshowslocal.com/files/520.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "520",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/520.png",
+      "https://digitalageexpo.com/files/speaker/520.png",
+      "https://apps.digitalageexpo.com/files/speaker/520.png",
+      "https://findusonweb.com/files/speaker/520.png",
+      "https://tradeshowslocal.com/files/speaker/520.png",
+      "https://digitalageexpo.com/files/520.png",
+      "https://apps.digitalageexpo.com/files/520.png",
+      "https://findusonweb.com/files/520.png",
+      "https://tradeshowslocal.com/files/520.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/523.png",
+    "error": "https://tradeshowslocal.com/files/523.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "523",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/523.png",
+      "https://digitalageexpo.com/files/speaker/523.png",
+      "https://apps.digitalageexpo.com/files/speaker/523.png",
+      "https://findusonweb.com/files/speaker/523.png",
+      "https://tradeshowslocal.com/files/speaker/523.png",
+      "https://digitalageexpo.com/files/523.png",
+      "https://apps.digitalageexpo.com/files/523.png",
+      "https://findusonweb.com/files/523.png",
+      "https://tradeshowslocal.com/files/523.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/524.png",
+    "error": "https://tradeshowslocal.com/files/524.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "524",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/524.png",
+      "https://digitalageexpo.com/files/speaker/524.png",
+      "https://apps.digitalageexpo.com/files/speaker/524.png",
+      "https://findusonweb.com/files/speaker/524.png",
+      "https://tradeshowslocal.com/files/speaker/524.png",
+      "https://digitalageexpo.com/files/524.png",
+      "https://apps.digitalageexpo.com/files/524.png",
+      "https://findusonweb.com/files/524.png",
+      "https://tradeshowslocal.com/files/524.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/527.png",
+    "error": "https://tradeshowslocal.com/files/527.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "527",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/527.png",
+      "https://digitalageexpo.com/files/speaker/527.png",
+      "https://apps.digitalageexpo.com/files/speaker/527.png",
+      "https://findusonweb.com/files/speaker/527.png",
+      "https://tradeshowslocal.com/files/speaker/527.png",
+      "https://digitalageexpo.com/files/527.png",
+      "https://apps.digitalageexpo.com/files/527.png",
+      "https://findusonweb.com/files/527.png",
+      "https://tradeshowslocal.com/files/527.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/525.png",
+    "error": "https://tradeshowslocal.com/files/525.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "525",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/525.png",
+      "https://digitalageexpo.com/files/speaker/525.png",
+      "https://apps.digitalageexpo.com/files/speaker/525.png",
+      "https://findusonweb.com/files/speaker/525.png",
+      "https://tradeshowslocal.com/files/speaker/525.png",
+      "https://digitalageexpo.com/files/525.png",
+      "https://apps.digitalageexpo.com/files/525.png",
+      "https://findusonweb.com/files/525.png",
+      "https://tradeshowslocal.com/files/525.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/530.png",
+    "error": "https://tradeshowslocal.com/files/530.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "530",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/530.png",
+      "https://digitalageexpo.com/files/speaker/530.png",
+      "https://apps.digitalageexpo.com/files/speaker/530.png",
+      "https://findusonweb.com/files/speaker/530.png",
+      "https://tradeshowslocal.com/files/speaker/530.png",
+      "https://digitalageexpo.com/files/530.png",
+      "https://apps.digitalageexpo.com/files/530.png",
+      "https://findusonweb.com/files/530.png",
+      "https://tradeshowslocal.com/files/530.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/615.png",
+    "error": "https://tradeshowslocal.com/files/615.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "615",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/615.png",
+      "https://digitalageexpo.com/files/speaker/615.png",
+      "https://apps.digitalageexpo.com/files/speaker/615.png",
+      "https://findusonweb.com/files/speaker/615.png",
+      "https://tradeshowslocal.com/files/speaker/615.png",
+      "https://digitalageexpo.com/files/615.png",
+      "https://apps.digitalageexpo.com/files/615.png",
+      "https://findusonweb.com/files/615.png",
+      "https://tradeshowslocal.com/files/615.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/565.png",
+    "error": "https://tradeshowslocal.com/files/565.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "565",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/565.png",
+      "https://digitalageexpo.com/files/speaker/565.png",
+      "https://apps.digitalageexpo.com/files/speaker/565.png",
+      "https://findusonweb.com/files/speaker/565.png",
+      "https://tradeshowslocal.com/files/speaker/565.png",
+      "https://digitalageexpo.com/files/565.png",
+      "https://apps.digitalageexpo.com/files/565.png",
+      "https://findusonweb.com/files/565.png",
+      "https://tradeshowslocal.com/files/565.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/532.png",
+    "error": "https://tradeshowslocal.com/files/532.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "532",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/532.png",
+      "https://digitalageexpo.com/files/speaker/532.png",
+      "https://apps.digitalageexpo.com/files/speaker/532.png",
+      "https://findusonweb.com/files/speaker/532.png",
+      "https://tradeshowslocal.com/files/speaker/532.png",
+      "https://digitalageexpo.com/files/532.png",
+      "https://apps.digitalageexpo.com/files/532.png",
+      "https://findusonweb.com/files/532.png",
+      "https://tradeshowslocal.com/files/532.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/533.png",
+    "error": "https://tradeshowslocal.com/files/533.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "533",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/533.png",
+      "https://digitalageexpo.com/files/speaker/533.png",
+      "https://apps.digitalageexpo.com/files/speaker/533.png",
+      "https://findusonweb.com/files/speaker/533.png",
+      "https://tradeshowslocal.com/files/speaker/533.png",
+      "https://digitalageexpo.com/files/533.png",
+      "https://apps.digitalageexpo.com/files/533.png",
+      "https://findusonweb.com/files/533.png",
+      "https://tradeshowslocal.com/files/533.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/570.png",
+    "error": "https://tradeshowslocal.com/files/570.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "570",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/570.png",
+      "https://digitalageexpo.com/files/speaker/570.png",
+      "https://apps.digitalageexpo.com/files/speaker/570.png",
+      "https://findusonweb.com/files/speaker/570.png",
+      "https://tradeshowslocal.com/files/speaker/570.png",
+      "https://digitalageexpo.com/files/570.png",
+      "https://apps.digitalageexpo.com/files/570.png",
+      "https://findusonweb.com/files/570.png",
+      "https://tradeshowslocal.com/files/570.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/552.png",
+    "error": "https://tradeshowslocal.com/files/552.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "552",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/552.png",
+      "https://digitalageexpo.com/files/speaker/552.png",
+      "https://apps.digitalageexpo.com/files/speaker/552.png",
+      "https://findusonweb.com/files/speaker/552.png",
+      "https://tradeshowslocal.com/files/speaker/552.png",
+      "https://digitalageexpo.com/files/552.png",
+      "https://apps.digitalageexpo.com/files/552.png",
+      "https://findusonweb.com/files/552.png",
+      "https://tradeshowslocal.com/files/552.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/616.png",
+    "error": "https://tradeshowslocal.com/files/616.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "616",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/616.png",
+      "https://digitalageexpo.com/files/speaker/616.png",
+      "https://apps.digitalageexpo.com/files/speaker/616.png",
+      "https://findusonweb.com/files/speaker/616.png",
+      "https://tradeshowslocal.com/files/speaker/616.png",
+      "https://digitalageexpo.com/files/616.png",
+      "https://apps.digitalageexpo.com/files/616.png",
+      "https://findusonweb.com/files/616.png",
+      "https://tradeshowslocal.com/files/616.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/618.png",
+    "error": "https://tradeshowslocal.com/files/618.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "618",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/618.png",
+      "https://digitalageexpo.com/files/speaker/618.png",
+      "https://apps.digitalageexpo.com/files/speaker/618.png",
+      "https://findusonweb.com/files/speaker/618.png",
+      "https://tradeshowslocal.com/files/speaker/618.png",
+      "https://digitalageexpo.com/files/618.png",
+      "https://apps.digitalageexpo.com/files/618.png",
+      "https://findusonweb.com/files/618.png",
+      "https://tradeshowslocal.com/files/618.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/621.png",
+    "error": "https://tradeshowslocal.com/files/621.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "621",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/621.png",
+      "https://digitalageexpo.com/files/speaker/621.png",
+      "https://apps.digitalageexpo.com/files/speaker/621.png",
+      "https://findusonweb.com/files/speaker/621.png",
+      "https://tradeshowslocal.com/files/speaker/621.png",
+      "https://digitalageexpo.com/files/621.png",
+      "https://apps.digitalageexpo.com/files/621.png",
+      "https://findusonweb.com/files/621.png",
+      "https://tradeshowslocal.com/files/621.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/622.png",
+    "error": "https://tradeshowslocal.com/files/622.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "622",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/622.png",
+      "https://digitalageexpo.com/files/speaker/622.png",
+      "https://apps.digitalageexpo.com/files/speaker/622.png",
+      "https://findusonweb.com/files/speaker/622.png",
+      "https://tradeshowslocal.com/files/speaker/622.png",
+      "https://digitalageexpo.com/files/622.png",
+      "https://apps.digitalageexpo.com/files/622.png",
+      "https://findusonweb.com/files/622.png",
+      "https://tradeshowslocal.com/files/622.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/641.png",
+    "error": "https://tradeshowslocal.com/files/641.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "641",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/641.png",
+      "https://digitalageexpo.com/files/speaker/641.png",
+      "https://apps.digitalageexpo.com/files/speaker/641.png",
+      "https://findusonweb.com/files/speaker/641.png",
+      "https://tradeshowslocal.com/files/speaker/641.png",
+      "https://digitalageexpo.com/files/641.png",
+      "https://apps.digitalageexpo.com/files/641.png",
+      "https://findusonweb.com/files/641.png",
+      "https://tradeshowslocal.com/files/641.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/653.png",
+    "error": "https://tradeshowslocal.com/files/653.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "653",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/653.png",
+      "https://digitalageexpo.com/files/speaker/653.png",
+      "https://apps.digitalageexpo.com/files/speaker/653.png",
+      "https://findusonweb.com/files/speaker/653.png",
+      "https://tradeshowslocal.com/files/speaker/653.png",
+      "https://digitalageexpo.com/files/653.png",
+      "https://apps.digitalageexpo.com/files/653.png",
+      "https://findusonweb.com/files/653.png",
+      "https://tradeshowslocal.com/files/653.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/625.png",
+    "error": "https://tradeshowslocal.com/files/625.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "625",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/625.png",
+      "https://digitalageexpo.com/files/speaker/625.png",
+      "https://apps.digitalageexpo.com/files/speaker/625.png",
+      "https://findusonweb.com/files/speaker/625.png",
+      "https://tradeshowslocal.com/files/speaker/625.png",
+      "https://digitalageexpo.com/files/625.png",
+      "https://apps.digitalageexpo.com/files/625.png",
+      "https://findusonweb.com/files/625.png",
+      "https://tradeshowslocal.com/files/625.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/643.png",
+    "error": "https://tradeshowslocal.com/files/643.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "643",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/643.png",
+      "https://digitalageexpo.com/files/speaker/643.png",
+      "https://apps.digitalageexpo.com/files/speaker/643.png",
+      "https://findusonweb.com/files/speaker/643.png",
+      "https://tradeshowslocal.com/files/speaker/643.png",
+      "https://digitalageexpo.com/files/643.png",
+      "https://apps.digitalageexpo.com/files/643.png",
+      "https://findusonweb.com/files/643.png",
+      "https://tradeshowslocal.com/files/643.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/628.png",
+    "error": "https://tradeshowslocal.com/files/628.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "628",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/628.png",
+      "https://digitalageexpo.com/files/speaker/628.png",
+      "https://apps.digitalageexpo.com/files/speaker/628.png",
+      "https://findusonweb.com/files/speaker/628.png",
+      "https://tradeshowslocal.com/files/speaker/628.png",
+      "https://digitalageexpo.com/files/628.png",
+      "https://apps.digitalageexpo.com/files/628.png",
+      "https://findusonweb.com/files/628.png",
+      "https://tradeshowslocal.com/files/628.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/626.png",
+    "error": "https://tradeshowslocal.com/files/626.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "626",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/626.png",
+      "https://digitalageexpo.com/files/speaker/626.png",
+      "https://apps.digitalageexpo.com/files/speaker/626.png",
+      "https://findusonweb.com/files/speaker/626.png",
+      "https://tradeshowslocal.com/files/speaker/626.png",
+      "https://digitalageexpo.com/files/626.png",
+      "https://apps.digitalageexpo.com/files/626.png",
+      "https://findusonweb.com/files/626.png",
+      "https://tradeshowslocal.com/files/626.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/654.png",
+    "error": "https://tradeshowslocal.com/files/654.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "654",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/654.png",
+      "https://digitalageexpo.com/files/speaker/654.png",
+      "https://apps.digitalageexpo.com/files/speaker/654.png",
+      "https://findusonweb.com/files/speaker/654.png",
+      "https://tradeshowslocal.com/files/speaker/654.png",
+      "https://digitalageexpo.com/files/654.png",
+      "https://apps.digitalageexpo.com/files/654.png",
+      "https://findusonweb.com/files/654.png",
+      "https://tradeshowslocal.com/files/654.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/657.png",
+    "error": "https://tradeshowslocal.com/files/657.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "657",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/657.png",
+      "https://digitalageexpo.com/files/speaker/657.png",
+      "https://apps.digitalageexpo.com/files/speaker/657.png",
+      "https://findusonweb.com/files/speaker/657.png",
+      "https://tradeshowslocal.com/files/speaker/657.png",
+      "https://digitalageexpo.com/files/657.png",
+      "https://apps.digitalageexpo.com/files/657.png",
+      "https://findusonweb.com/files/657.png",
+      "https://tradeshowslocal.com/files/657.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/655.png",
+    "error": "https://tradeshowslocal.com/files/655.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "655",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/655.png",
+      "https://digitalageexpo.com/files/speaker/655.png",
+      "https://apps.digitalageexpo.com/files/speaker/655.png",
+      "https://findusonweb.com/files/speaker/655.png",
+      "https://tradeshowslocal.com/files/speaker/655.png",
+      "https://digitalageexpo.com/files/655.png",
+      "https://apps.digitalageexpo.com/files/655.png",
+      "https://findusonweb.com/files/655.png",
+      "https://tradeshowslocal.com/files/655.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/658.png",
+    "error": "https://tradeshowslocal.com/files/658.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "658",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/658.png",
+      "https://digitalageexpo.com/files/speaker/658.png",
+      "https://apps.digitalageexpo.com/files/speaker/658.png",
+      "https://findusonweb.com/files/speaker/658.png",
+      "https://tradeshowslocal.com/files/speaker/658.png",
+      "https://digitalageexpo.com/files/658.png",
+      "https://apps.digitalageexpo.com/files/658.png",
+      "https://findusonweb.com/files/658.png",
+      "https://tradeshowslocal.com/files/658.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/717.png",
+    "error": "https://tradeshowslocal.com/files/717.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "717",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/717.png",
+      "https://digitalageexpo.com/files/speaker/717.png",
+      "https://apps.digitalageexpo.com/files/speaker/717.png",
+      "https://findusonweb.com/files/speaker/717.png",
+      "https://tradeshowslocal.com/files/speaker/717.png",
+      "https://digitalageexpo.com/files/717.png",
+      "https://apps.digitalageexpo.com/files/717.png",
+      "https://findusonweb.com/files/717.png",
+      "https://tradeshowslocal.com/files/717.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/679.png",
+    "error": "https://tradeshowslocal.com/files/679.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "679",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/679.png",
+      "https://digitalageexpo.com/files/speaker/679.png",
+      "https://apps.digitalageexpo.com/files/speaker/679.png",
+      "https://findusonweb.com/files/speaker/679.png",
+      "https://tradeshowslocal.com/files/speaker/679.png",
+      "https://digitalageexpo.com/files/679.png",
+      "https://apps.digitalageexpo.com/files/679.png",
+      "https://findusonweb.com/files/679.png",
+      "https://tradeshowslocal.com/files/679.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/662.png",
+    "error": "https://tradeshowslocal.com/files/662.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "662",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/662.png",
+      "https://digitalageexpo.com/files/speaker/662.png",
+      "https://apps.digitalageexpo.com/files/speaker/662.png",
+      "https://findusonweb.com/files/speaker/662.png",
+      "https://tradeshowslocal.com/files/speaker/662.png",
+      "https://digitalageexpo.com/files/662.png",
+      "https://apps.digitalageexpo.com/files/662.png",
+      "https://findusonweb.com/files/662.png",
+      "https://tradeshowslocal.com/files/662.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/677.png",
+    "error": "https://tradeshowslocal.com/files/677.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "677",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/677.png",
+      "https://digitalageexpo.com/files/speaker/677.png",
+      "https://apps.digitalageexpo.com/files/speaker/677.png",
+      "https://findusonweb.com/files/speaker/677.png",
+      "https://tradeshowslocal.com/files/speaker/677.png",
+      "https://digitalageexpo.com/files/677.png",
+      "https://apps.digitalageexpo.com/files/677.png",
+      "https://findusonweb.com/files/677.png",
+      "https://tradeshowslocal.com/files/677.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/688.png",
+    "error": "https://tradeshowslocal.com/files/688.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "688",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/688.png",
+      "https://digitalageexpo.com/files/speaker/688.png",
+      "https://apps.digitalageexpo.com/files/speaker/688.png",
+      "https://findusonweb.com/files/speaker/688.png",
+      "https://tradeshowslocal.com/files/speaker/688.png",
+      "https://digitalageexpo.com/files/688.png",
+      "https://apps.digitalageexpo.com/files/688.png",
+      "https://findusonweb.com/files/688.png",
+      "https://tradeshowslocal.com/files/688.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/683.png",
+    "error": "https://tradeshowslocal.com/files/683.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "683",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/683.png",
+      "https://digitalageexpo.com/files/speaker/683.png",
+      "https://apps.digitalageexpo.com/files/speaker/683.png",
+      "https://findusonweb.com/files/speaker/683.png",
+      "https://tradeshowslocal.com/files/speaker/683.png",
+      "https://digitalageexpo.com/files/683.png",
+      "https://apps.digitalageexpo.com/files/683.png",
+      "https://findusonweb.com/files/683.png",
+      "https://tradeshowslocal.com/files/683.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/689.png",
+    "error": "https://tradeshowslocal.com/files/689.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "689",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/689.png",
+      "https://digitalageexpo.com/files/speaker/689.png",
+      "https://apps.digitalageexpo.com/files/speaker/689.png",
+      "https://findusonweb.com/files/speaker/689.png",
+      "https://tradeshowslocal.com/files/speaker/689.png",
+      "https://digitalageexpo.com/files/689.png",
+      "https://apps.digitalageexpo.com/files/689.png",
+      "https://findusonweb.com/files/689.png",
+      "https://tradeshowslocal.com/files/689.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/718.png",
+    "error": "https://tradeshowslocal.com/files/718.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "718",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/718.png",
+      "https://digitalageexpo.com/files/speaker/718.png",
+      "https://apps.digitalageexpo.com/files/speaker/718.png",
+      "https://findusonweb.com/files/speaker/718.png",
+      "https://tradeshowslocal.com/files/speaker/718.png",
+      "https://digitalageexpo.com/files/718.png",
+      "https://apps.digitalageexpo.com/files/718.png",
+      "https://findusonweb.com/files/718.png",
+      "https://tradeshowslocal.com/files/718.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/696.png",
+    "error": "https://tradeshowslocal.com/files/696.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "696",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/696.png",
+      "https://digitalageexpo.com/files/speaker/696.png",
+      "https://apps.digitalageexpo.com/files/speaker/696.png",
+      "https://findusonweb.com/files/speaker/696.png",
+      "https://tradeshowslocal.com/files/speaker/696.png",
+      "https://digitalageexpo.com/files/696.png",
+      "https://apps.digitalageexpo.com/files/696.png",
+      "https://findusonweb.com/files/696.png",
+      "https://tradeshowslocal.com/files/696.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/695.png",
+    "error": "https://tradeshowslocal.com/files/695.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "695",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/695.png",
+      "https://digitalageexpo.com/files/speaker/695.png",
+      "https://apps.digitalageexpo.com/files/speaker/695.png",
+      "https://findusonweb.com/files/speaker/695.png",
+      "https://tradeshowslocal.com/files/speaker/695.png",
+      "https://digitalageexpo.com/files/695.png",
+      "https://apps.digitalageexpo.com/files/695.png",
+      "https://findusonweb.com/files/695.png",
+      "https://tradeshowslocal.com/files/695.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/691.png",
+    "error": "https://tradeshowslocal.com/files/691.png -> ECONNRESET Client network socket disconnected before secure TLS connection was established",
+    "table": "find_speakers",
+    "recordId": "691",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/691.png",
+      "https://digitalageexpo.com/files/speaker/691.png",
+      "https://apps.digitalageexpo.com/files/speaker/691.png",
+      "https://findusonweb.com/files/speaker/691.png",
+      "https://tradeshowslocal.com/files/speaker/691.png",
+      "https://digitalageexpo.com/files/691.png",
+      "https://apps.digitalageexpo.com/files/691.png",
+      "https://findusonweb.com/files/691.png",
+      "https://tradeshowslocal.com/files/691.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/706.png",
+    "error": "https://tradeshowslocal.com/files/706.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "706",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/706.png",
+      "https://digitalageexpo.com/files/speaker/706.png",
+      "https://apps.digitalageexpo.com/files/speaker/706.png",
+      "https://findusonweb.com/files/speaker/706.png",
+      "https://tradeshowslocal.com/files/speaker/706.png",
+      "https://digitalageexpo.com/files/706.png",
+      "https://apps.digitalageexpo.com/files/706.png",
+      "https://findusonweb.com/files/706.png",
+      "https://tradeshowslocal.com/files/706.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/721.png",
+    "error": "https://tradeshowslocal.com/files/721.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "721",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/721.png",
+      "https://digitalageexpo.com/files/speaker/721.png",
+      "https://apps.digitalageexpo.com/files/speaker/721.png",
+      "https://findusonweb.com/files/speaker/721.png",
+      "https://tradeshowslocal.com/files/speaker/721.png",
+      "https://digitalageexpo.com/files/721.png",
+      "https://apps.digitalageexpo.com/files/721.png",
+      "https://findusonweb.com/files/721.png",
+      "https://tradeshowslocal.com/files/721.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/702.png",
+    "error": "https://tradeshowslocal.com/files/702.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "702",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/702.png",
+      "https://digitalageexpo.com/files/speaker/702.png",
+      "https://apps.digitalageexpo.com/files/speaker/702.png",
+      "https://findusonweb.com/files/speaker/702.png",
+      "https://tradeshowslocal.com/files/speaker/702.png",
+      "https://digitalageexpo.com/files/702.png",
+      "https://apps.digitalageexpo.com/files/702.png",
+      "https://findusonweb.com/files/702.png",
+      "https://tradeshowslocal.com/files/702.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/719.png",
+    "error": "https://tradeshowslocal.com/files/719.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "719",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/719.png",
+      "https://digitalageexpo.com/files/speaker/719.png",
+      "https://apps.digitalageexpo.com/files/speaker/719.png",
+      "https://findusonweb.com/files/speaker/719.png",
+      "https://tradeshowslocal.com/files/speaker/719.png",
+      "https://digitalageexpo.com/files/719.png",
+      "https://apps.digitalageexpo.com/files/719.png",
+      "https://findusonweb.com/files/719.png",
+      "https://tradeshowslocal.com/files/719.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/716.png",
+    "error": "https://tradeshowslocal.com/files/716.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "716",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/716.png",
+      "https://digitalageexpo.com/files/speaker/716.png",
+      "https://apps.digitalageexpo.com/files/speaker/716.png",
+      "https://findusonweb.com/files/speaker/716.png",
+      "https://tradeshowslocal.com/files/speaker/716.png",
+      "https://digitalageexpo.com/files/716.png",
+      "https://apps.digitalageexpo.com/files/716.png",
+      "https://findusonweb.com/files/716.png",
+      "https://tradeshowslocal.com/files/716.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/725.png",
+    "error": "https://tradeshowslocal.com/files/725.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "725",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/725.png",
+      "https://digitalageexpo.com/files/speaker/725.png",
+      "https://apps.digitalageexpo.com/files/speaker/725.png",
+      "https://findusonweb.com/files/speaker/725.png",
+      "https://tradeshowslocal.com/files/speaker/725.png",
+      "https://digitalageexpo.com/files/725.png",
+      "https://apps.digitalageexpo.com/files/725.png",
+      "https://findusonweb.com/files/725.png",
+      "https://tradeshowslocal.com/files/725.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/699.png",
+    "error": "https://tradeshowslocal.com/files/699.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "699",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/699.png",
+      "https://digitalageexpo.com/files/speaker/699.png",
+      "https://apps.digitalageexpo.com/files/speaker/699.png",
+      "https://findusonweb.com/files/speaker/699.png",
+      "https://tradeshowslocal.com/files/speaker/699.png",
+      "https://digitalageexpo.com/files/699.png",
+      "https://apps.digitalageexpo.com/files/699.png",
+      "https://findusonweb.com/files/699.png",
+      "https://tradeshowslocal.com/files/699.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/703.png",
+    "error": "https://tradeshowslocal.com/files/703.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "703",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/703.png",
+      "https://digitalageexpo.com/files/speaker/703.png",
+      "https://apps.digitalageexpo.com/files/speaker/703.png",
+      "https://findusonweb.com/files/speaker/703.png",
+      "https://tradeshowslocal.com/files/speaker/703.png",
+      "https://digitalageexpo.com/files/703.png",
+      "https://apps.digitalageexpo.com/files/703.png",
+      "https://findusonweb.com/files/703.png",
+      "https://tradeshowslocal.com/files/703.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/731.png",
+    "error": "https://tradeshowslocal.com/files/731.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "731",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/731.png",
+      "https://digitalageexpo.com/files/speaker/731.png",
+      "https://apps.digitalageexpo.com/files/speaker/731.png",
+      "https://findusonweb.com/files/speaker/731.png",
+      "https://tradeshowslocal.com/files/speaker/731.png",
+      "https://digitalageexpo.com/files/731.png",
+      "https://apps.digitalageexpo.com/files/731.png",
+      "https://findusonweb.com/files/731.png",
+      "https://tradeshowslocal.com/files/731.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/701.png",
+    "error": "https://tradeshowslocal.com/files/701.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "701",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/701.png",
+      "https://digitalageexpo.com/files/speaker/701.png",
+      "https://apps.digitalageexpo.com/files/speaker/701.png",
+      "https://findusonweb.com/files/speaker/701.png",
+      "https://tradeshowslocal.com/files/speaker/701.png",
+      "https://digitalageexpo.com/files/701.png",
+      "https://apps.digitalageexpo.com/files/701.png",
+      "https://findusonweb.com/files/701.png",
+      "https://tradeshowslocal.com/files/701.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/2638.png",
+    "error": "https://tradeshowslocal.com/files/2638.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "2638",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/2638.png",
+      "https://digitalageexpo.com/files/speaker/2638.png",
+      "https://apps.digitalageexpo.com/files/speaker/2638.png",
+      "https://findusonweb.com/files/speaker/2638.png",
+      "https://tradeshowslocal.com/files/speaker/2638.png",
+      "https://digitalageexpo.com/files/2638.png",
+      "https://apps.digitalageexpo.com/files/2638.png",
+      "https://findusonweb.com/files/2638.png",
+      "https://tradeshowslocal.com/files/2638.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/722.png",
+    "error": "https://tradeshowslocal.com/files/722.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "722",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/722.png",
+      "https://digitalageexpo.com/files/speaker/722.png",
+      "https://apps.digitalageexpo.com/files/speaker/722.png",
+      "https://findusonweb.com/files/speaker/722.png",
+      "https://tradeshowslocal.com/files/speaker/722.png",
+      "https://digitalageexpo.com/files/722.png",
+      "https://apps.digitalageexpo.com/files/722.png",
+      "https://findusonweb.com/files/722.png",
+      "https://tradeshowslocal.com/files/722.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/730.png",
+    "error": "https://tradeshowslocal.com/files/730.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "730",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/730.png",
+      "https://digitalageexpo.com/files/speaker/730.png",
+      "https://apps.digitalageexpo.com/files/speaker/730.png",
+      "https://findusonweb.com/files/speaker/730.png",
+      "https://tradeshowslocal.com/files/speaker/730.png",
+      "https://digitalageexpo.com/files/730.png",
+      "https://apps.digitalageexpo.com/files/730.png",
+      "https://findusonweb.com/files/730.png",
+      "https://tradeshowslocal.com/files/730.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/2703.png",
+    "error": "https://tradeshowslocal.com/files/2703.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "2703",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/2703.png",
+      "https://digitalageexpo.com/files/speaker/2703.png",
+      "https://apps.digitalageexpo.com/files/speaker/2703.png",
+      "https://findusonweb.com/files/speaker/2703.png",
+      "https://tradeshowslocal.com/files/speaker/2703.png",
+      "https://digitalageexpo.com/files/2703.png",
+      "https://apps.digitalageexpo.com/files/2703.png",
+      "https://findusonweb.com/files/2703.png",
+      "https://tradeshowslocal.com/files/2703.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/1223.png",
+    "error": "https://tradeshowslocal.com/files/1223.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "1223",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/1223.png",
+      "https://digitalageexpo.com/files/speaker/1223.png",
+      "https://apps.digitalageexpo.com/files/speaker/1223.png",
+      "https://findusonweb.com/files/speaker/1223.png",
+      "https://tradeshowslocal.com/files/speaker/1223.png",
+      "https://digitalageexpo.com/files/1223.png",
+      "https://apps.digitalageexpo.com/files/1223.png",
+      "https://findusonweb.com/files/1223.png",
+      "https://tradeshowslocal.com/files/1223.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/3171.png",
+    "error": "https://tradeshowslocal.com/files/3171.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "3171",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/3171.png",
+      "https://digitalageexpo.com/files/speaker/3171.png",
+      "https://apps.digitalageexpo.com/files/speaker/3171.png",
+      "https://findusonweb.com/files/speaker/3171.png",
+      "https://tradeshowslocal.com/files/speaker/3171.png",
+      "https://digitalageexpo.com/files/3171.png",
+      "https://apps.digitalageexpo.com/files/3171.png",
+      "https://findusonweb.com/files/3171.png",
+      "https://tradeshowslocal.com/files/3171.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/2785.png",
+    "error": "https://tradeshowslocal.com/files/2785.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "2785",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/2785.png",
+      "https://digitalageexpo.com/files/speaker/2785.png",
+      "https://apps.digitalageexpo.com/files/speaker/2785.png",
+      "https://findusonweb.com/files/speaker/2785.png",
+      "https://tradeshowslocal.com/files/speaker/2785.png",
+      "https://digitalageexpo.com/files/2785.png",
+      "https://apps.digitalageexpo.com/files/2785.png",
+      "https://findusonweb.com/files/2785.png",
+      "https://tradeshowslocal.com/files/2785.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/727.png",
+    "error": "https://tradeshowslocal.com/files/727.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "727",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/727.png",
+      "https://digitalageexpo.com/files/speaker/727.png",
+      "https://apps.digitalageexpo.com/files/speaker/727.png",
+      "https://findusonweb.com/files/speaker/727.png",
+      "https://tradeshowslocal.com/files/speaker/727.png",
+      "https://digitalageexpo.com/files/727.png",
+      "https://apps.digitalageexpo.com/files/727.png",
+      "https://findusonweb.com/files/727.png",
+      "https://tradeshowslocal.com/files/727.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/2726.png",
+    "error": "https://tradeshowslocal.com/files/2726.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "2726",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/2726.png",
+      "https://digitalageexpo.com/files/speaker/2726.png",
+      "https://apps.digitalageexpo.com/files/speaker/2726.png",
+      "https://findusonweb.com/files/speaker/2726.png",
+      "https://tradeshowslocal.com/files/speaker/2726.png",
+      "https://digitalageexpo.com/files/2726.png",
+      "https://apps.digitalageexpo.com/files/2726.png",
+      "https://findusonweb.com/files/2726.png",
+      "https://tradeshowslocal.com/files/2726.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/728.png",
+    "error": "https://tradeshowslocal.com/files/728.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "728",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/728.png",
+      "https://digitalageexpo.com/files/speaker/728.png",
+      "https://apps.digitalageexpo.com/files/speaker/728.png",
+      "https://findusonweb.com/files/speaker/728.png",
+      "https://tradeshowslocal.com/files/speaker/728.png",
+      "https://digitalageexpo.com/files/728.png",
+      "https://apps.digitalageexpo.com/files/728.png",
+      "https://findusonweb.com/files/728.png",
+      "https://tradeshowslocal.com/files/728.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/2731.png",
+    "error": "https://tradeshowslocal.com/files/2731.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "2731",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/2731.png",
+      "https://digitalageexpo.com/files/speaker/2731.png",
+      "https://apps.digitalageexpo.com/files/speaker/2731.png",
+      "https://findusonweb.com/files/speaker/2731.png",
+      "https://tradeshowslocal.com/files/speaker/2731.png",
+      "https://digitalageexpo.com/files/2731.png",
+      "https://apps.digitalageexpo.com/files/2731.png",
+      "https://findusonweb.com/files/2731.png",
+      "https://tradeshowslocal.com/files/2731.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/3196.png",
+    "error": "https://tradeshowslocal.com/files/3196.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "3196",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/3196.png",
+      "https://digitalageexpo.com/files/speaker/3196.png",
+      "https://apps.digitalageexpo.com/files/speaker/3196.png",
+      "https://findusonweb.com/files/speaker/3196.png",
+      "https://tradeshowslocal.com/files/speaker/3196.png",
+      "https://digitalageexpo.com/files/3196.png",
+      "https://apps.digitalageexpo.com/files/3196.png",
+      "https://findusonweb.com/files/3196.png",
+      "https://tradeshowslocal.com/files/3196.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/7880.png",
+    "error": "https://tradeshowslocal.com/files/7880.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "7880",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/7880.png",
+      "https://digitalageexpo.com/files/speaker/7880.png",
+      "https://apps.digitalageexpo.com/files/speaker/7880.png",
+      "https://findusonweb.com/files/speaker/7880.png",
+      "https://tradeshowslocal.com/files/speaker/7880.png",
+      "https://digitalageexpo.com/files/7880.png",
+      "https://apps.digitalageexpo.com/files/7880.png",
+      "https://findusonweb.com/files/7880.png",
+      "https://tradeshowslocal.com/files/7880.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/3300.png",
+    "error": "https://tradeshowslocal.com/files/3300.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "3300",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/3300.png",
+      "https://digitalageexpo.com/files/speaker/3300.png",
+      "https://apps.digitalageexpo.com/files/speaker/3300.png",
+      "https://findusonweb.com/files/speaker/3300.png",
+      "https://tradeshowslocal.com/files/speaker/3300.png",
+      "https://digitalageexpo.com/files/3300.png",
+      "https://apps.digitalageexpo.com/files/3300.png",
+      "https://findusonweb.com/files/3300.png",
+      "https://tradeshowslocal.com/files/3300.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/4116.png",
+    "error": "https://tradeshowslocal.com/files/4116.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "4116",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/4116.png",
+      "https://digitalageexpo.com/files/speaker/4116.png",
+      "https://apps.digitalageexpo.com/files/speaker/4116.png",
+      "https://findusonweb.com/files/speaker/4116.png",
+      "https://tradeshowslocal.com/files/speaker/4116.png",
+      "https://digitalageexpo.com/files/4116.png",
+      "https://apps.digitalageexpo.com/files/4116.png",
+      "https://findusonweb.com/files/4116.png",
+      "https://tradeshowslocal.com/files/4116.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/3354.png",
+    "error": "https://tradeshowslocal.com/files/3354.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "3354",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/3354.png",
+      "https://digitalageexpo.com/files/speaker/3354.png",
+      "https://apps.digitalageexpo.com/files/speaker/3354.png",
+      "https://findusonweb.com/files/speaker/3354.png",
+      "https://tradeshowslocal.com/files/speaker/3354.png",
+      "https://digitalageexpo.com/files/3354.png",
+      "https://apps.digitalageexpo.com/files/3354.png",
+      "https://findusonweb.com/files/3354.png",
+      "https://tradeshowslocal.com/files/3354.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/3444.png",
+    "error": "https://tradeshowslocal.com/files/3444.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "3444",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/3444.png",
+      "https://digitalageexpo.com/files/speaker/3444.png",
+      "https://apps.digitalageexpo.com/files/speaker/3444.png",
+      "https://findusonweb.com/files/speaker/3444.png",
+      "https://tradeshowslocal.com/files/speaker/3444.png",
+      "https://digitalageexpo.com/files/3444.png",
+      "https://apps.digitalageexpo.com/files/3444.png",
+      "https://findusonweb.com/files/3444.png",
+      "https://tradeshowslocal.com/files/3444.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/3416.png",
+    "error": "https://tradeshowslocal.com/files/3416.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "3416",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/3416.png",
+      "https://digitalageexpo.com/files/speaker/3416.png",
+      "https://apps.digitalageexpo.com/files/speaker/3416.png",
+      "https://findusonweb.com/files/speaker/3416.png",
+      "https://tradeshowslocal.com/files/speaker/3416.png",
+      "https://digitalageexpo.com/files/3416.png",
+      "https://apps.digitalageexpo.com/files/3416.png",
+      "https://findusonweb.com/files/3416.png",
+      "https://tradeshowslocal.com/files/3416.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/3399.png",
+    "error": "https://tradeshowslocal.com/files/3399.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "3399",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/3399.png",
+      "https://digitalageexpo.com/files/speaker/3399.png",
+      "https://apps.digitalageexpo.com/files/speaker/3399.png",
+      "https://findusonweb.com/files/speaker/3399.png",
+      "https://tradeshowslocal.com/files/speaker/3399.png",
+      "https://digitalageexpo.com/files/3399.png",
+      "https://apps.digitalageexpo.com/files/3399.png",
+      "https://findusonweb.com/files/3399.png",
+      "https://tradeshowslocal.com/files/3399.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/5851.png",
+    "error": "https://tradeshowslocal.com/files/5851.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "5851",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/5851.png",
+      "https://digitalageexpo.com/files/speaker/5851.png",
+      "https://apps.digitalageexpo.com/files/speaker/5851.png",
+      "https://findusonweb.com/files/speaker/5851.png",
+      "https://tradeshowslocal.com/files/speaker/5851.png",
+      "https://digitalageexpo.com/files/5851.png",
+      "https://apps.digitalageexpo.com/files/5851.png",
+      "https://findusonweb.com/files/5851.png",
+      "https://tradeshowslocal.com/files/5851.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/3497.png",
+    "error": "https://tradeshowslocal.com/files/3497.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "3497",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/3497.png",
+      "https://digitalageexpo.com/files/speaker/3497.png",
+      "https://apps.digitalageexpo.com/files/speaker/3497.png",
+      "https://findusonweb.com/files/speaker/3497.png",
+      "https://tradeshowslocal.com/files/speaker/3497.png",
+      "https://digitalageexpo.com/files/3497.png",
+      "https://apps.digitalageexpo.com/files/3497.png",
+      "https://findusonweb.com/files/3497.png",
+      "https://tradeshowslocal.com/files/3497.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/8315.png",
+    "error": "https://tradeshowslocal.com/files/8315.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "8315",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/8315.png",
+      "https://digitalageexpo.com/files/speaker/8315.png",
+      "https://apps.digitalageexpo.com/files/speaker/8315.png",
+      "https://findusonweb.com/files/speaker/8315.png",
+      "https://tradeshowslocal.com/files/speaker/8315.png",
+      "https://digitalageexpo.com/files/8315.png",
+      "https://apps.digitalageexpo.com/files/8315.png",
+      "https://findusonweb.com/files/8315.png",
+      "https://tradeshowslocal.com/files/8315.png"
+    ]
+  },
+  {
+    "sourceUrl": "https://digitalageexpo.com/6100.png",
+    "error": "https://tradeshowslocal.com/files/6100.png -> HTTP 525",
+    "table": "find_speakers",
+    "recordId": "6100",
+    "field": "social_media_pic",
+    "file": null,
+    "line": null,
+    "attemptedUrls": [
+      "https://digitalageexpo.com/6100.png",
+      "https://digitalageexpo.com/files/speaker/6100.png",
+      "https://apps.digitalageexpo.com/files/speaker/6100.png",
+      "https://findusonweb.com/files/speaker/6100.png",
+      "https://tradeshowslocal.com/files/speaker/6100.png",
+      "https://digitalageexpo.com/files/6100.png",
+      "https://apps.digitalageexpo.com/files/6100.png",
+      "https://findusonweb.com/files/6100.png",
+      "https://tradeshowslocal.com/files/6100.png"
+    ]
+  }
+]
