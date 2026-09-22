@@ -7,6 +7,28 @@ import { AboutEventDescription } from "@/components/home/AboutEventDescription";
 /** Local stage photograph used when the event has configured no image of its own. */
 const ABOUT_FALLBACK_IMAGE = "/images/about_event.jpg";
 
+/*
+ * The hero's banner, which is NOT an About image.
+ *
+ * `opportunity_images` for this listing stores the legacy path
+ * `.../810210-tradeshow_banner_bg.jpg`, and the dedupe map in
+ * asset-overrides.generated.ts resolves that onto `817601-banner1.jpg` because the two files are
+ * byte-identical. That is the same file the hero renders, so About and the hero showed the
+ * identical washed-out crowd shot one after the other down the page.
+ *
+ * A previous pass tried to fix this by pointing the FALLBACK at a local photograph, on the
+ * understanding that `opportunity_images` was CP-controlled and would be corrected there. It
+ * isn't: nothing in src/app/cp or src/app/api writes that column — it is frozen legacy seed
+ * data — so the dynamic value always won and the fallback never ran.
+ *
+ * Hence matching on the resolved path here. It is deliberately narrow: one known-duplicate
+ * banner is excluded, and any other configured image still wins, so a deployment that sets a
+ * real About picture is unaffected. If the dedupe map ever resolves that legacy path somewhere
+ * new this string needs to follow it — a regenerated map is the thing to check if About starts
+ * showing the crowd shot again.
+ */
+const HERO_BANNER_DUPLICATE = "/images/external/listing_pages/817601-banner1.jpg";
+
 interface Props {
   sectionTitle?: string | null;
   sectionDescription?: string | null;
@@ -61,7 +83,11 @@ export async function AboutEvent({
    * one after the other. A local stage photograph gives the section its own picture without
    * touching `opportunity_images`, which the CP still controls.
    */
-  const bgImage = assetUrl(backgroundImage) || ABOUT_FALLBACK_IMAGE;
+  const configuredImage = assetUrl(backgroundImage);
+  const bgImage =
+    !configuredImage || configuredImage === HERO_BANNER_DUPLICATE
+      ? ABOUT_FALLBACK_IMAGE
+      : configuredImage;
 
   const title = sectionTitle || "About The Event";
   const defaultDesc =
