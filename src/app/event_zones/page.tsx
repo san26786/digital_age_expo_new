@@ -18,31 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /** Shown only if this event has no find_event_lobby_child_layout_manager rows configured yet. */
 const FALLBACK_ZONES: EventZoneItem[] = [
-  {
-    id: -1,
-    title: "AI & Innovation Zone",
-    description: "Artificial intelligence, machine learning, robotics, and automation solutions driving the next tech frontier.",
-  },
-  {
-    id: -2,
-    title: "Digital Marketing & Sales Zone",
-    description: "SEO, PPC, social media automation, content strategies, and CRM technologies for rapid growth.",
-  },
-  {
-    id: -3,
-    title: "Fintech & Finance Zone",
-    description: "Payment processing, digital banking, accounting software, venture capital, and financial tech tools.",
-  },
-  {
-    id: -4,
-    title: "E-Commerce & Retail Zone",
-    description: "Online store platforms, logistics, omnichannel marketing, and conversion optimization software.",
-  },
-  {
-    id: -5,
-    title: "Cloud & Cybersecurity Zone",
-    description: "Data protection, cloud architecture, zero-trust security, and risk compliance tools for enterprise.",
-  },
+  
 ];
 
 const DEFAULT_ACCENT = "linear-gradient(135deg, var(--color-brand-purple), var(--color-brand-pink))";

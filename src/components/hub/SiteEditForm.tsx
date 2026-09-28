@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, ArrowLeft, Check, Loader2, Upload } from "lucide-react";
+import { AutoGenerateSeoButton } from "@/components/common/AutoGenerateSeoButton";
+import type { SeoFields } from "@/lib/seo/generate";
+import { AlertTriangle, ArrowLeft, Check, ImageIcon, Loader2, Upload } from "lucide-react";
 import type { SiteSettings } from "@/lib/services/hubSiteSettings";
 import { paletteFromPixels, type LogoPalette } from "@/lib/hub/logoPalette";
 
@@ -186,6 +188,25 @@ const TABS = [
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
+
+/**
+ * The eight SEO fields as they stand, for the generator's undo.
+ *
+ * `SeoFields` and `SiteSettings` share these key names exactly, which is what lets a generated
+ * set be spread straight onto form state — so this is a narrowing, not a translation.
+ */
+function seoSnapshot(form: SiteSettings): SeoFields {
+  return {
+    metaTitle: form.metaTitle,
+    metaDescription: form.metaDescription,
+    metaKeywords: form.metaKeywords,
+    canonicalUrl: form.canonicalUrl,
+    ogTitle: form.ogTitle,
+    ogDescription: form.ogDescription,
+    twitterTitle: form.twitterTitle,
+    twitterDescription: form.twitterDescription,
+  };
+}
 
 export function SiteEditForm({
   site,
@@ -462,6 +483,23 @@ export function SiteEditForm({
       <p className="mt-1 text-sm text-white/60">
         {site.link || "no host set"} · site #{site.id}
       </p>
+
+      {/*
+        * ADDED, not rearranged: a link out to the image manager.
+        *
+        * Above the tabs rather than inside one, because it covers images on every page of the site
+        * and is not a property of Identity, Logos or any other single tab. It is a Link, so it
+        * carries none of this form's state and cannot submit it — clicking it while there are
+        * unsaved edits triggers the existing beforeunload guard exactly as any other navigation
+        * would, which is the behaviour that was already there.
+        */}
+      <Link
+        href={`/hub/sites/${site.id}/images`}
+        className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-2.5 text-[11px] font-black uppercase tracking-widest text-white/80 transition hover:border-brand-pink/40 hover:bg-white/10 hover:text-white"
+      >
+        <ImageIcon className="h-3.5 w-3.5" />
+        Manage Images &amp; Banners
+      </Link>
 
       {isCurrent && (
         <div className="mt-5 flex items-start gap-3 rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4">
@@ -763,6 +801,27 @@ export function SiteEditForm({
       {/* ------------------------------------------------------------------ META / SEO */}
       <section className={section} hidden={tab !== "meta"}>
         <h3 className={heading}>Meta / SEO</h3>
+
+        {/*
+          * Sits above the fields rather than beside Save, because it acts on THIS tab only and a
+          * control that rewrites eight boxes belongs where those boxes are. It writes into form
+          * state like any other edit, so Save still covers every tab at once.
+          */}
+        <AutoGenerateSeoButton
+          className="mb-6"
+          collect={() => ({
+            siteId: site.id,
+            siteName: form.name,
+            brand: form.brand,
+            link: form.link,
+            // The Hub form has no event attached; the site's own name and whatever is already in
+            // the meta boxes are what there is to go on.
+            currentTitle: form.metaTitle,
+            currentDescription: form.metaDescription,
+          })}
+          snapshot={() => seoSnapshot(form)}
+          apply={(fields) => setForm((current) => ({ ...current, ...fields }))}
+        />
 
         <div className="grid gap-5 sm:grid-cols-2">
           {text("metaTitle", "Meta title", site.name)}

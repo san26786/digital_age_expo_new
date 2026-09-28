@@ -3,6 +3,7 @@ import { getDomainSettings } from "@/lib/cp/settings/domainRepository";
 import { getActiveEventId, getEventForEdit } from "@/lib/cp/events/eventsRepository";
 import { SEO_TEXT_FIELDS, SEO_ROBOTS_OPTIONS, SEO_IMAGE_FIELDS, buildSeoDefaults } from "./fields";
 import { saveSeoSettingsAction } from "./actions";
+import { AutoGenerateSeo } from "./AutoGenerateSeo";
 import { SettingsForm } from "../_components/SettingsForm";
 import { ImageUploadField } from "../_components/ImageUploadField";
 import { FIELD_CLASS, LABEL_CLASS, HINT_CLASS, SECTION_TITLE_CLASS } from "../_components/styles";
@@ -66,6 +67,23 @@ export default async function SeoSettingsPage() {
         /* "Restore Defaults" puts the suggested set back, not blanks — see buildSeoDefaults(). */
         defaults={suggested}
       >
+        {/*
+          * Above the fields, not beside Save: it rewrites these eight boxes and belongs where
+          * they are. Like Restore Defaults it only repopulates the form — nothing reaches
+          * find_settings until Save Changes is pressed, so the values can be read and edited
+          * first, and Undo Changes still goes back to what is stored.
+          */}
+        <AutoGenerateSeo
+          siteName={domain.name}
+          brand={domain.brand ?? ""}
+          link={domain.link ?? ""}
+          eventTitle={activeEvent?.title ?? ""}
+          eventDescription={activeEvent?.description_short ?? ""}
+          location={activeEvent?.location ?? ""}
+          dateStart={activeEvent?.date_start ? activeEvent.date_start.toISOString() : ""}
+          dateEnd={activeEvent?.date_end ? activeEvent.date_end.toISOString() : ""}
+        />
+
         <div className="space-y-5">
           {SEO_TEXT_FIELDS.map((field) => {
             const value = displayValue(field.varname);

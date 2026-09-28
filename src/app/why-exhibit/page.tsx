@@ -78,7 +78,7 @@ export default async function WhyExhibitPage() {
       <section
         className="relative overflow-hidden bg-cover bg-center bg-no-repeat px-6 py-20 sm:py-28 text-center"
         style={{
-          backgroundImage: `linear-gradient(to bottom, rgb(var(--color-slate-900-rgb) / 0.9), rgb(var(--color-violet-900-rgb) / 0.85)), url('${staticAssetUrl("https://digitalageexpo.com/files/listing_pages/818073-dae_index_top_banner.jpg")}')`,
+          backgroundImage: ` url('${staticAssetUrl("https://digitalageexpo.com/files/listing_pages/818073-dae_index_top_banner.jpg")}')`,
         }}
       >
         <div data-reveal className="relative z-10 max-w-4xl mx-auto">

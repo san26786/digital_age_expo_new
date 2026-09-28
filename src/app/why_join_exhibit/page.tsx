@@ -165,50 +165,60 @@ export default async function WhyJoinExhibitPage() {
         </div>
       </section>
 
-      {/* Feature Cards Showcase */}
-      <section className="py-20 px-6 max-w-7xl mx-auto">
-        <div data-reveal className="text-center max-w-3xl mx-auto mb-16">
-          <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-white">
-            Event Highlights & Experiences
-          </h2>
-          <p className="mt-3 text-slate-300 text-sm sm:text-base font-medium">
-            Discover how <Brand /> empowers entrepreneurs and companies worldwide
-          </p>
-        </div>
+      {/*
+        Feature Cards Showcase ("Event Highlights & Experiences").
+        This section now carries its own explicit, solid bg-slate-950 on the full-width
+        <section> — the same flat color as the page's root wrapper — instead of just relying on
+        that wrapper to show through. It's edge-to-edge (no gradient, no opacity, no decorative
+        blur here), with the actual content kept inside a separate max-w-7xl inner div so the
+        layout is unchanged. That makes the section's background explicit and consistent on its
+        own, rather than implicitly inherited.
+      */}
+      <section className="relative bg-slate-950 py-20 px-6">
+        <div className="mx-auto max-w-7xl">
+          <div data-reveal className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-white">
+              Event Highlights & Experiences
+            </h2>
+            <p className="mt-3 text-slate-300 text-sm sm:text-base font-medium">
+              Discover how <Brand /> empowers entrepreneurs and companies worldwide
+            </p>
+          </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((feat, index) => (
-            <div
-              key={index}
-              data-reveal
-              style={{ transitionDelay: `${index * 90}ms` }}
-              className="group relative flex flex-col overflow-hidden rounded-2xl bg-slate-900/80 border border-slate-800 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:border-fuchsia-500/50 hover:shadow-2xl hover:shadow-fuchsia-950/50"
-            >
-              <div className="aspect-[4/3] w-full overflow-hidden bg-slate-950 relative">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={feat.image}
-                  alt={feat.title}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
-              </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feat, index) => (
+              <div
+                key={index}
+                data-reveal
+                style={{ transitionDelay: `${index * 90}ms` }}
+                className="group relative flex flex-col overflow-hidden rounded-2xl bg-slate-900/80 border border-slate-800 shadow-xl transition-all duration-300 hover:-translate-y-2 hover:border-fuchsia-500/50 hover:shadow-2xl hover:shadow-fuchsia-950/50"
+              >
+                <div className="aspect-[4/3] w-full overflow-hidden bg-slate-950 relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={feat.image}
+                    alt={feat.title}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
+                </div>
 
-              <div className="flex flex-col flex-1 p-6">
-                <h3 className="text-lg font-bold text-white group-hover:text-fuchsia-300 transition-colors">
-                  {feat.title}
-                </h3>
-                <p className="mt-3 text-xs text-slate-300 leading-relaxed font-medium flex-1">
-                  {feat.description}
-                </p>
+                <div className="flex flex-col flex-1 p-6">
+                  <h3 className="text-lg font-bold text-white group-hover:text-fuchsia-300 transition-colors">
+                    {feat.title}
+                  </h3>
+                  <p className="mt-3 text-xs text-slate-300 leading-relaxed font-medium flex-1">
+                    {feat.description}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
       {/* 6 Key Reasons Panel */}
-      <section className="py-20 px-6 bg-slate-900/60 border-y border-white/10 relative overflow-hidden">
+      <section className="py-20 px-6 bg-slate-950   relative overflow-hidden">
         <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-96 max-w-5xl bg-purple-600/10 blur-3xl rounded-full" />
 
         <div className="max-w-6xl mx-auto relative z-10">

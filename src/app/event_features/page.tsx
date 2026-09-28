@@ -196,7 +196,7 @@ export default function EventFeaturesPage() {
       </section>
 
       {/* Virtual World Zones Detailed Section */}
-      <section className="py-20 px-6 bg-slate-900/40 border-y border-white/10">
+      <section className="py-20 px-6 ">
         <div className="max-w-6xl mx-auto space-y-20">
           <div data-reveal className="text-center max-w-3xl mx-auto">
             <h2 className="text-3xl sm:text-5xl font-black uppercase tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-fuchsia-100 to-pink-200">

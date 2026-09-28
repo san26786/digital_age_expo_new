@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
+import { setNamedFieldValue } from "./setFieldValue";
 
 /**
  * Every Settings sub-page's Server Action returns this shape instead of `void`/`{ok:true}` —
@@ -12,41 +13,6 @@ import { useActionState, useEffect, useRef, useState } from "react";
 export type SettingsActionState = { success: boolean; message: string };
 
 export const INITIAL_SETTINGS_ACTION_STATE: SettingsActionState = { success: false, message: "" };
-
-/**
- * Writes a value into an uncontrolled OR React-controlled field.
- *
- * Assigning `el.value = x` directly is not enough for anything React controls: React caches
- * the last value it wrote on the node and would treat the assignment as a no-op change, so
- * onChange never fires and the component's state (and anything rendered from it, like the hex
- * readout next to a colour swatch) would drift out of sync with what the input now shows.
- * Going through the prototype's own setter updates React's tracker too, so the dispatched
- * input/change events are seen as a genuine edit by both React and plain DOM listeners.
- */
-function setFieldValue(element: Element, value: string) {
-  if (element instanceof HTMLInputElement && (element.type === "checkbox" || element.type === "radio")) {
-    const shouldCheck =
-      element.type === "checkbox" ? value === "on" || value === "true" : element.value === value;
-    const checkedSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "checked")?.set;
-    if (checkedSetter) checkedSetter.call(element, shouldCheck);
-    else element.checked = shouldCheck;
-    element.dispatchEvent(new Event("click", { bubbles: true }));
-    element.dispatchEvent(new Event("change", { bubbles: true }));
-    return;
-  }
-
-  if (
-    element instanceof HTMLInputElement ||
-    element instanceof HTMLTextAreaElement ||
-    element instanceof HTMLSelectElement
-  ) {
-    const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(element), "value")?.set;
-    if (setter) setter.call(element, value);
-    else element.value = value;
-    element.dispatchEvent(new Event("input", { bubbles: true }));
-    element.dispatchEvent(new Event("change", { bubbles: true }));
-  }
-}
 
 export function SettingsForm({
   action,
@@ -99,11 +65,7 @@ export function SettingsForm({
     if (!form || !defaults) return;
 
     for (const [name, value] of Object.entries(defaults)) {
-      const found = form.elements.namedItem(name);
-      if (!found) continue;
-      // namedItem returns a RadioNodeList when several controls share the name.
-      const targets = found instanceof RadioNodeList ? Array.from(found) : [found];
-      for (const target of targets) setFieldValue(target, value);
+      setNamedFieldValue(form, name, value);
     }
 
     setDirty(true);

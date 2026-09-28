@@ -41,6 +41,14 @@ function ZoneCard({ zone, accent, index = 0 }: { zone: EventZoneItem; accent: st
   const Icon = pickIcon(zone.title);
   const description = zone.description?.trim() || "Details for this zone are coming soon.";
 
+  /*
+   * Same single `accent` the page hands down (event.color, or the brand default) — that contract
+   * is untouched. Earlier this filled the WHOLE card front (plus a sheen and a vignette layered
+   * on top of it), which read as too much gradient. Now the card itself is a solid dark tile,
+   * same family as the back face, and `accent` only shows up in two small, deliberate spots: the
+   * top strip and the icon plate. Still colorful, just not wall-to-wall.
+   */
+
   return (
     /*
      * The reveal lives on a WRAPPER, not on `.perspective-1000`. That element establishes the
@@ -55,10 +63,10 @@ function ZoneCard({ zone, accent, index = 0 }: { zone: EventZoneItem; accent: st
           style={{ transform: flipped ? "rotateY(180deg)" : "rotateY(0deg)" }}
         >
           {/* Front */}
-          <div
-            className="backface-hidden absolute inset-0 flex flex-col items-center justify-center rounded-3xl p-6 text-center shadow-2xl border border-white/10"
-            style={{ backgroundImage: accent }}
-          >
+          <div className="backface-hidden absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-3xl border border-white/10 bg-zinc-900 p-6 text-center shadow-xl transition-colors duration-300 hover:border-white/25">
+            {/* Top accent strip — the one gradient touch on this face besides the icon plate. */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-1.5" style={{ backgroundImage: accent }} />
+
             <button
               type="button"
               onClick={() => setFlipped(true)}
@@ -66,7 +74,10 @@ function ZoneCard({ zone, accent, index = 0 }: { zone: EventZoneItem; accent: st
             >
               <RefreshCw className="h-3 w-3" /> Flip
             </button>
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-white/15 border border-white/20">
+            <div
+              className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl shadow-md transition-transform duration-300 hover:scale-105"
+              style={{ backgroundImage: accent }}
+            >
               <Icon className="h-6 w-6 text-white" />
             </div>
             <h3 className="text-lg font-black uppercase tracking-tight text-white leading-snug">{zone.title}</h3>
@@ -74,9 +85,12 @@ function ZoneCard({ zone, accent, index = 0 }: { zone: EventZoneItem; accent: st
 
           {/* Back */}
           <div
-            className="backface-hidden absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-3xl border border-white/10 bg-zinc-900 p-6 text-center shadow-2xl"
+            className="backface-hidden absolute inset-0 flex flex-col items-center justify-center gap-3 overflow-hidden rounded-3xl border border-white/10 bg-zinc-900 p-6 text-center shadow-xl transition-colors duration-300 hover:border-white/20"
             style={{ transform: "rotateY(180deg)" }}
           >
+            {/* Same top strip on the back, so the two faces still read as one card. */}
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-1.5" style={{ backgroundImage: accent }} />
+
             <button
               type="button"
               onClick={() => setFlipped(false)}
