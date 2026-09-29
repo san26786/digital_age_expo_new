@@ -382,6 +382,35 @@ export function themeCss(theme: SiteTheme): string {
   set("--color-text-main", theme.text);
 
   /*
+   * ---------------------------------------------------------------------------
+   *  THE MARKETING PALETTE, WHICH WAS NOT FOLLOWING THE THEME
+   * ---------------------------------------------------------------------------
+   *
+   *  globals.css carries a second set of tokens — the `--c-*` palette — that the home page's
+   *  decorative layer is built from: the hero's eyebrow line and glow, the countdown tiles, the
+   *  section rules, the card hairlines. They are NOT the `--color-brand-*` pair set above, and
+   *  nothing here used to touch them.
+   *
+   *  So a site could set its brand to navy and red, watch every button and heading follow, and
+   *  still have a violet-and-magenta hero — the two palettes disagreeing on the same screen. That
+   *  is what this block fixes.
+   *
+   *  The soft variants are LIFTED from the chosen colours rather than asked for. They exist to be
+   *  the brighter end of a gradient, and deriving them keeps that relationship intact whatever
+   *  the site picks, instead of adding two more fields nobody would fill in.
+   */
+  if (theme.primary && isHexColour(theme.primary)) {
+    set("--c-accent-pink", theme.primary);
+    set("--c-accent-pink-soft", lift(theme.primary, 6));
+    set("--c-accent-pink-200", lift(theme.primary, 18));
+  }
+  if (theme.secondary && isHexColour(theme.secondary)) {
+    set("--c-accent-violet", theme.secondary);
+    set("--c-accent-violet-soft", lift(theme.secondary, 8));
+    set("--c-accent-blue", lift(theme.secondary, 12));
+  }
+
+  /*
    * THE RAMP, AND WHAT OVERRIDES WHICH RUNG OF IT.
    *
    * `background` is the one colour that must be set for any of this to happen; the rest of the
@@ -435,6 +464,17 @@ export function themeCss(theme: SiteTheme): string {
           ? liftForReadability(theme.primary, base)
           : null;
     set("--color-accent-text", accent, "--color-accent-text-rgb");
+
+    /*
+     * The same ramp into the `--c-*` grounds, so the decorative layer sits on the themed page
+     * rather than on the stock near-black it was authored against.
+     */
+    set("--c-bg-0", base);
+    set("--c-bg-1", lift(base, 1.5));
+    set("--c-bg-2", lift(base, 2));
+    set("--c-surf-1", card);
+    set("--c-surf-2", alt);
+    set("--c-surf-3", lift(alt, 3));
 
     set("--color-nav-bg", theme.navbar && isHexColour(theme.navbar) ? theme.navbar : card);
     // The footer sits a shade BELOW the page in the shipped palette (#03010a against #05030A),

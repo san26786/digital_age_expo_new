@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { forkSiteContent } from "@/lib/services/hubSiteContent";
+import { generateSiteCopy } from "@/lib/services/hubSiteCopy";
 import { COPY_TOGGLES, withDependencies, type CopyToggleKey } from "@/lib/hub/copyOptions";
 import { DOMAIN_ID, ACTIVE_EVENT_SETTING_VARNAME } from "@/lib/site-config";
 
@@ -327,6 +329,60 @@ export async function createSite(input: CreateSiteInput, actor: string | null): 
       }
 
       copied.push({ key: toggle.key, label: toggle.label, rows, skipped });
+    }
+
+    /*
+     * ---- 6. The site's OWN content -----------------------------------------------------
+     *
+     * Everything above copies EVENT-scoped rows. The pages a visitor actually lands on — About,
+     * Book Your Stand, Why Exhibit, Why Join, the exhibitor packages, the FAQs — are LISTING-
+     * scoped, and `linked_profile_listing_id` came across in `...domainRest` above, verbatim.
+     *
+     * So until this step the new site did not have a copy of that content: it pointed at the
+     * source site's actual rows. The new site opened reading the source's words, and — much
+     * worse — editing them on the new site rewrote the source site's live pages. Nothing said so,
+     * because every screen believed it was editing the content of the site being edited.
+     *
+     * forkSiteContent copies those rows onto a listing of the new site's own and renames the copy
+     * to the new site's brand. It also renames the event's own description and meta fields, which
+     * were being copied untouched while only `title` was set — which is why a new site's About
+     * paragraph still opened with the source's name.
+     *
+     * DELIBERATELY NOT FATAL. A site with source-branded copy is a site an admin can fix in the
+     * editor; a site creation that rolls back at the last step leaves them with nothing. The
+     * failure is logged and the site is returned.
+     */
+    try {
+      await forkSiteContent(newDomainId, sourceDomain.name as string | undefined);
+    } catch (error) {
+      console.error("[hub] forkSiteContent failed for site", newDomainId, error);
+    }
+
+    /*
+     * ---- 7. The new event's own description and metadata --------------------------------
+     *
+     * Forking stops the new site claiming to be the source site. It does not make the copy about
+     * THIS show: Members -> Event Details still holds the source event's description with a name
+     * swapped in, and its meta title and keywords are still tuned for the show it was cloned
+     * from.
+     *
+     * generateSiteCopy writes the event its own description and short description from its title
+     * and dates, and its own meta fields, and mirrors those into the site's cp_seo_* settings so
+     * the rendered <head> and the CP's SEO tab agree from the first page view.
+     *
+     * DELIBERATELY NOT FATAL, and for the same reason as the fork above: a site with inherited
+     * copy is something an admin can rewrite in the editor, but a creation that rolls back at the
+     * last step leaves them with nothing. It is also the slowest step here — it can call a model
+     * — so a failure being terminal would make site creation as unreliable as the network.
+     *
+     * With no ANTHROPIC_API_KEY set this still runs: the metadata is written from the site's own
+     * details by the deterministic generator, and the description is left exactly as the fork
+     * renamed it rather than being replaced with a template.
+     */
+    try {
+      await generateSiteCopy(newDomainId);
+    } catch (error) {
+      console.error("[hub] generateSiteCopy failed for site", newDomainId, error);
     }
 
     return { domainId: newDomainId, eventId: newEventId, copied };
