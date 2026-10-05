@@ -43,6 +43,27 @@ import { usePathname } from 'next/navigation';
  *  Every failure path here therefore ends in "reveal everything": reduced motion, a browser with
  *  no IntersectionObserver, or any thrown error. A decorative effect must never be the reason a
  *  page renders blank.
+ *
+ *  ---------------------------------------------------------------------------
+ *  OPTING OUT: data-no-reveal
+ *  ---------------------------------------------------------------------------
+ *
+ *  A page can put `data-no-reveal` on any wrapper and nothing inside it will be auto-tagged.
+ *
+ *  This exists because auto-tagging MUTATES DOM THAT REACT OWNS — it adds `data-reveal` and
+ *  `is-revealed` to server-rendered elements. This component is mounted in the root layout, so
+ *  its effect can run before a page whose content sits inside its own <Suspense> boundary has
+ *  hydrated. React then hydrates that subtree, finds attributes in the DOM that it never
+ *  rendered, and logs a hydration mismatch. The member sign-in page hit exactly this: it wraps
+ *  its content in <Suspense> because it reads useSearchParams, so it hydrates after the layout.
+ *
+ *  The opt-out is an attribute in the page's own JSX rather than a route list here, so it is
+ *  server-rendered on both sides of hydration and cannot itself cause a mismatch — and a page
+ *  declares its own behaviour instead of this file having to know every route.
+ *
+ *  It is also the right call on its own terms for a page like sign-in: a single-viewport form has
+ *  nothing to reveal on scroll, and fading the nav, the form and the footer in is an effect with
+ *  no purpose that briefly hides the one control the visitor came for.
  */
 export function ScrollReveal() {
   const pathname = usePathname();
@@ -85,6 +106,10 @@ export function ScrollReveal() {
           scope = scope.children[0];
         }
 
+        // The page asked not to be touched. Checked after the descent so the attribute can sit on
+        // the page's own root wrapper rather than having to be hoisted into the layout.
+        if (scope.closest('[data-no-reveal]')) return;
+
         const sections = Array.from(scope.querySelectorAll('section'));
         const outermost = sections.filter(
           (el) => !sections.some((other) => other !== el && other.contains(el))
@@ -96,6 +121,8 @@ export function ScrollReveal() {
         targets.forEach((el) => {
           if (!(el instanceof HTMLElement)) return;
           if (el.hasAttribute('data-reveal')) return;
+          // A single opted-out branch inside a page that is otherwise animated.
+          if (el.closest('[data-no-reveal]')) return;
 
           /*
            * A section that already contains hand-placed `data-reveal` elements is left alone.
