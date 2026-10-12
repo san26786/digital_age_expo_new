@@ -68,8 +68,15 @@ export default async function MagazinePage({ searchParams }: Props) {
           HERO
       ========================================================= */}
       <section className="relative overflow-hidden border-b border-white/10">
-        {/* Background effects */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.22),transparent_35%),radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.16),transparent_35%),linear-gradient(to_bottom,#09091a,var(--c-bg-0))]" />
+        {/*
+          Both stops are tokens now. The top one used to be a literal #09091a, which meant
+          it stayed near-black while var(--c-bg-0) beneath it inverted - the hero came out
+          half dark, half white, with ink copy sitting on the dark half. --c-bg-1 is within
+          a shade of that hex in dark mode, so this band looks the same there and follows
+          the page in light mode. The two radial washes are brand tints at low alpha and
+          read on either ground, so they are left alone.
+        */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(124,58,237,0.22),transparent_35%),radial-gradient(circle_at_80%_20%,rgba(236,72,153,0.16),transparent_35%),linear-gradient(to_bottom,var(--c-bg-1),var(--c-bg-0))]" />
 
         <div className="absolute -left-32 top-10 h-72 w-72 rounded-full bg-purple-600/10 blur-3xl" />
         <div className="absolute -right-32 bottom-0 h-72 w-72 rounded-full bg-pink-600/10 blur-3xl" />
@@ -130,7 +137,16 @@ export default async function MagazinePage({ searchParams }: Props) {
                   {/* Glow */}
                   <div className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-purple-600/20 via-fuchsia-500/10 to-pink-600/20 opacity-60 blur-2xl transition duration-500 group-hover:opacity-100" />
 
-                  <div className="relative aspect-[3/4] overflow-hidden rounded-2xl border border-white/15 bg-gradient-to-br from-[#15152c] via-[#11111d] to-[#08080d] shadow-2xl">
+                  {/*
+                    The cover is artwork rather than page chrome - a magazine cover is dark
+                    by design and carries its own white copy - so it is scoped dark instead
+                    of inverted. Without the scope its ground stayed dark (the stops are
+                    literals) while the edition chip and the icon on it turned to ink.
+                  */}
+                  <div
+                    data-theme-scope="dark"
+                    className="relative aspect-[3/4] overflow-hidden rounded-2xl border border-white/15 bg-gradient-to-br from-[#15152c] via-[#11111d] to-[#08080d] shadow-2xl"
+                  >
                     {publication?.thumbnailUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -313,7 +329,7 @@ export default async function MagazinePage({ searchParams }: Props) {
       ========================================================= */}
       <section className="px-6 pb-20 sm:px-8 lg:px-12">
         <div className="mx-auto max-w-6xl">
-          <div className="relative overflow-hidden rounded-2xl border border-purple-500/20 bg-gradient-to-r from-purple-950/40 via-[#11111e] to-pink-950/30 px-6 py-8 sm:px-10">
+          <div className="relative overflow-hidden rounded-2xl border border-purple-500/20 bg-gradient-to-r from-purple-950/40 via-[var(--c-surf-1)] to-pink-950/30 px-6 py-8 sm:px-10">
             <div className="absolute right-0 top-0 h-40 w-40 rounded-full bg-purple-500/10 blur-3xl" />
 
             <div className="relative flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-center">

@@ -854,6 +854,29 @@ textarea:focus {
   --color-zinc-100: #141020;
   --color-zinc-950-rgb: 255 255 255;
 
+  /*
+   * THE PHOTO-CARD OVERLAYS.
+   *
+   * Four pages - event_features, exhibitor-registration (twice) and
+   * why_join_exhibit - build their cards as an INLINE backgroundImage:
+   *
+   *   linear-gradient(rgb(var(--color-slate-900-rgb) / 0.9),
+   *                   rgb(var(--color-violet-900-rgb) / 0.85), ...), url(photo)
+   *
+   * An inline style outranks any rule a stylesheet can write short of
+   * !important, so the only way in is the variable itself. Left at the dark
+   * triple these cards stayed near-black in light mode while their headings
+   * and copy turned to ink - unreadable, which is exactly what they looked
+   * like.
+   *
+   * The overlay therefore becomes the light surface tone at the same alpha:
+   * still a wash that lets the photograph through, still the same two-stop
+   * shape, just on the right side of the page now. Nothing else reads these
+   * two variables, so this reaches the four cards and nothing more.
+   */
+  --color-slate-900-rgb: 246 245 250;
+  --color-violet-900-rgb: 239 233 251;
+
   /* Chrome and card surfaces. */
   --color-nav-bg: #FFFFFF;
   --color-footer-bg: #F1EFF8;
@@ -941,6 +964,23 @@ textarea:focus {
   /* The one that matters most: .text-white reads --color-text-main, not
      --color-white. Without this line a dark-scoped section got ink headings. */
   --color-text-main: #FFFFFF;
+
+  /*
+   * And the subtree's own inherited colour, not just the variables.
+   *
+   * Everything above re-points the tokens, which rescues any element that
+   * RESOLVES one - anything carrying `text-white`, `text-zinc-400` and so on.
+   * An element with no colour class at all resolves nothing: it inherits a
+   * concrete value, and that value was computed further up the tree, outside
+   * this scope, where "white" had already become ink. The magazine cover is
+   * the case that found it - `<h2 class="mt-3 text-3xl font-black">` with no
+   * tone of its own, sitting on dark artwork, rendering in ink.
+   *
+   * Setting `color` on the scope element itself gives those inheritors
+   * something light to inherit. Anything with a text utility still wins on
+   * specificity, so this only reaches the elements that had nothing.
+   */
+  color: var(--color-text-main);
   --color-accent-text: var(--color-brand-pink);
   /* And the grounds, or the scope produces white text on a white panel - which
      is exactly what the hero did on the first pass. */
@@ -948,6 +988,8 @@ textarea:focus {
   --color-zinc-900: #0a0614;
   --color-surface-1: #0A0514;
   --color-surface-1-rgb: 10 5 20;
+  --color-slate-900-rgb: 15 23 42;
+  --color-violet-900-rgb: 76 29 149;
   --color-surface-2: #0C0618;
   --color-surface-4: #050505;
   --c-bg-0: #08091A;
@@ -1007,6 +1049,52 @@ textarea:focus {
   .bg-brand-violet,
   [class*="bg-gradient-to"][class*="brand-"],
   .on-brand {
+    --color-white: #FFFFFF;
+    --color-text-main: #FFFFFF;
+  }
+
+  /* The same rescue, for the saturated Tailwind fills.
+   *
+   * `bg-fuchsia-700 text-white`, `bg-indigo-600 text-white` and the
+   * `bg-gradient-to-br from-fuchsia-600 to-purple-600` icon chips are solid
+   * brand-weight colour: they do not invert with the page, and they should
+   * not - a primary button is meant to stay loud. But `.text-white` resolves
+   * --color-text-main, which IS inverted, so in light mode their labels and
+   * icons turned to ink on a near-saturated ground. Measured on
+   * /event_experience: 2.98:1 for a fuchsia-700 button, 2.89:1 for an
+   * indigo chip.
+   *
+   * Only 600 and darker, and only the hues that are genuinely dark at that
+   * weight. The 500s and the warm ramps (amber, yellow, lime, orange) are
+   * light enough that ink is the BETTER reading on them, so they keep it.
+   * 900 and 950 are absent too - the accent block above has already turned
+   * those into pale tints, where ink is again correct.
+   *
+   * Scoped to light mode, unlike the brand-fill rescue above, so dark mode is
+   * left byte-identical.
+   *
+   * Whole-token match, so `hover:bg-fuchsia-600` on an otherwise ghost button
+   * does not get white text while it is sitting there unhovered. */
+  :root[data-theme="light"] [class~="bg-emerald-600"],
+  :root[data-theme="light"] [class~="bg-fuchsia-600"],
+  :root[data-theme="light"] [class~="bg-fuchsia-700"],
+  :root[data-theme="light"] [class~="bg-green-600"],
+  :root[data-theme="light"] [class~="bg-indigo-600"],
+  :root[data-theme="light"] [class~="bg-pink-600"],
+  :root[data-theme="light"] [class~="bg-purple-800"],
+  :root[data-theme="light"] [class~="bg-red-600"],
+  :root[data-theme="light"] [class~="bg-rose-600"],
+  :root[data-theme="light"] [class*="bg-gradient-to"][class~="from-emerald-500"],
+  :root[data-theme="light"] [class*="bg-gradient-to"][class~="from-fuchsia-500"],
+  :root[data-theme="light"] [class*="bg-gradient-to"][class~="from-fuchsia-600"],
+  :root[data-theme="light"] [class*="bg-gradient-to"][class~="from-indigo-500"],
+  :root[data-theme="light"] [class*="bg-gradient-to"][class~="from-indigo-600"],
+  :root[data-theme="light"] [class*="bg-gradient-to"][class~="from-pink-500"],
+  :root[data-theme="light"] [class*="bg-gradient-to"][class~="from-pink-600"],
+  :root[data-theme="light"] [class*="bg-gradient-to"][class~="from-purple-500"],
+  :root[data-theme="light"] [class*="bg-gradient-to"][class~="from-purple-600"],
+  :root[data-theme="light"] [class*="bg-gradient-to"][class~="from-purple-700"],
+  :root[data-theme="light"] [class*="bg-gradient-to"][class~="from-rose-500"] {
     --color-white: #FFFFFF;
     --color-text-main: #FFFFFF;
   }
@@ -1081,9 +1169,38 @@ textarea:focus {
   color: #141020;
 }
 
-:root[data-theme="light"] input::placeholder,
-:root[data-theme="light"] textarea::placeholder {
+/*
+ * ...everywhere except inside a dark-scoped subtree.
+ *
+ * This rule is unlayered and scores (0,3,1), so it beat the `placeholder-*`
+ * utilities the markup actually asks for - which are in @layer utilities and
+ * score (0,1,0). That is the right outcome on a light page and exactly the
+ * wrong one inside a dark scope: the visitor-registration card on
+ * glimpse-of-the-show sits on a photographic hero, keeps its near-black
+ * fields, and its placeholders were being painted ink-on-black.
+ *
+ * Excluding the scope rather than overriding it inside the scope is what lets
+ * the component's own `placeholder-slate-400` take effect again, instead of
+ * swapping one hardcoded tone for another.
+ */
+:root[data-theme="light"] input:not([data-theme-scope="dark"] *)::placeholder,
+:root[data-theme="light"] textarea:not([data-theme-scope="dark"] *)::placeholder {
   color: rgba(20, 16, 32, 0.45);
+}
+
+/*
+ * And a floor for the dark-scoped fields that name no placeholder tone of
+ * their own, which would otherwise fall through to the UA default - dark,
+ * because :root carries color-scheme: light. In @layer base on purpose: any
+ * `placeholder-*` or `placeholder:text-*` utility lives in @layer utilities
+ * and wins over this whatever the specificity, so this only catches the ones
+ * that asked for nothing.
+ */
+@layer base {
+  :root[data-theme="light"] [data-theme-scope="dark"] input::placeholder,
+  :root[data-theme="light"] [data-theme-scope="dark"] textarea::placeholder {
+    color: rgba(255, 255, 255, 0.45);
+  }
 }
 
 /* -------------------------------------------------------------------------
@@ -1192,6 +1309,89 @@ textarea:focus {
   :root[data-theme="light"] [data-theme-scope="dark"].bg-slate-700 { background-color: #334155; }
 }
 
+/* -------------------------------------------------------------------------
+ *  THE SAME SCALE, WITH AN ALPHA SUFFIX
+ *
+ *  The rules above match `.bg-slate-900` and nothing else. Tailwind v4 emits
+ *  `bg-slate-900/90` as a SEPARATE selector carrying a color-mix() value, so
+ *  none of the ~70 translucent call sites were covered: every public form -
+ *  free-ticket, buy_tickets, the exhibitor / speaker / sponsor registrations,
+ *  glimpse-of-the-show - is a `bg-slate-900/95` card holding `bg-slate-900/90`
+ *  inputs, and all of them stayed near-black in light mode while their labels
+ *  turned to ink.
+ *
+ *  The zinc scale never had this problem because it is inverted at the
+ *  VARIABLE level, which catches every alpha variant for free. Slate cannot be
+ *  done that way, for the reason set out above, so the suffixed utilities are
+ *  matched by substring instead.
+ *
+ *  Three things about the selector:
+ *
+ *    - `:not(.fixed):not(.absolute)` keeps scrims and modal backdrops dark,
+ *      exactly as the bg-black block does. `bg-slate-950/50` over a hero and
+ *      `bg-slate-900/60` behind a dialog are scrims, not panels.
+ *    - `:not([data-theme-scope="dark"] *)` opts a dark-scoped subtree out
+ *      rather than restoring it to a solid colour, which would throw away the
+ *      alpha the utility exists for.
+ *    - matching by substring also catches a variant-prefixed class such as
+ *      `hover:bg-slate-900/60` and would apply it at rest. No slate call site
+ *      does that today; if one is added, give it a plain class instead.
+ *
+ *  Indigo and purple are deliberately NOT included. Their alpha variants are
+ *  mixed in purpose - `bg-indigo-950/10` with `text-indigo-950` is a light
+ *  tint on a light button, while `bg-purple-950/40` with `text-purple-300` is
+ *  a dark chip - so there is no single correct inversion for them, and neither
+ *  is currently unreadable.
+ * ------------------------------------------------------------------------- */
+@layer utilities {
+  :root[data-theme="light"] [class*="bg-slate-950/"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: #FFFFFF; }
+  :root[data-theme="light"] [class*="bg-slate-900/"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: #F6F5FA; }
+  :root[data-theme="light"] [class*="bg-slate-800/"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: #F1EFF8; }
+  :root[data-theme="light"] [class*="bg-slate-700/"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: #E9E6F4; }
+
+  /* A field on one of those cards gets a white well. Without this the input
+     and the panel it sits in resolve to the same grey and the form reads as
+     one flat block - the control has to look like somewhere you can type.
+
+     The :not() chain is repeated rather than dropped: four :not()s are worth
+     four classes of specificity, so without them this rule scores below the
+     blanket one above and the field stays grey. */
+  :root[data-theme="light"] input[class*="bg-slate-9"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *),
+  :root[data-theme="light"] input[class*="bg-slate-8"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *),
+  :root[data-theme="light"] input[class*="bg-slate-7"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *),
+  :root[data-theme="light"] textarea[class*="bg-slate-9"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *),
+  :root[data-theme="light"] textarea[class*="bg-slate-8"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *),
+  :root[data-theme="light"] textarea[class*="bg-slate-7"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *),
+  :root[data-theme="light"] select[class*="bg-slate-9"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *),
+  :root[data-theme="light"] select[class*="bg-slate-8"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *),
+  :root[data-theme="light"] select[class*="bg-slate-7"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) {
+    background-color: #FFFFFF;
+    border-color: rgba(20, 16, 32, 0.14);
+  }
+}
+
+/* -------------------------------------------------------------------------
+ *  AND THE SAME GAP, FOR INDIGO AND PURPLE
+ *
+ *  The exact-class block further up maps `bg-indigo-950` and friends; like the
+ *  slate rules it never saw the alpha variants. `bg-indigo-900/80 text-white`
+ *  on /event_experience is the one that shows it - a solid-looking button that
+ *  stayed dark indigo while its label went to ink, 2.9:1.
+ *
+ *  These were held back on the first pass because the ramp is used two ways:
+ *  `bg-indigo-950/10` with `text-indigo-950` is a pale tint on a pale button,
+ *  not a dark ground. Mapping it to the same near-white costs that button its
+ *  faint wash, but the text on it is dark either way, so it still reads - and
+ *  the alternative was leaving the genuinely dark ones unreadable. The tint
+ *  goes, the contrast stays.
+ * ------------------------------------------------------------------------- */
+@layer utilities {
+  :root[data-theme="light"] [class*="bg-indigo-950/"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: #FFFFFF; }
+  :root[data-theme="light"] [class*="bg-purple-950/"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: #FFFFFF; }
+  :root[data-theme="light"] [class*="bg-indigo-900/"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: #F4F2FB; }
+  :root[data-theme="light"] [class*="bg-purple-900/"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: #F4F2FB; }
+}
+
 /* Unlayered, to match - and beat - the per-site theme rules above, which set
    .text-white and the zinc text tones the same way. */
 :root[data-theme="light"] .text-slate-200 {
@@ -1284,6 +1484,269 @@ textarea:focus {
   :root[data-theme="light"] [data-theme-scope="dark"].bg-indigo-900 { background-color: #312e81; }
   :root[data-theme="light"] [data-theme-scope="dark"] .bg-purple-900,
   :root[data-theme="light"] [data-theme-scope="dark"].bg-purple-900 { background-color: #581c87; }
+}
+
+/* -------------------------------------------------------------------------
+ *  THE PAGE HEROES, WHICH ARE GRADIENTS RATHER THAN BACKGROUNDS
+ *
+ *  Every public form page opens with the same banner:
+ *
+ *      bg-gradient-to-b from-purple-950 via-slate-950 to-slate-950
+ *
+ *  and the headline on it is `text-white`. None of the rules above touch it,
+ *  because a gradient stop is not a background utility: `from-purple-950`
+ *  compiles to `--tw-gradient-from: var(--color-purple-950)`, and that
+ *  variable is only redefined for the zinc scale. So in light mode the banner
+ *  stayed near-black while `text-white` turned to ink - the headline, the
+ *  event line and the intro paragraph all disappeared into it. The same thing
+ *  happened to the `from-purple-950/80 via-slate-900/90 to-indigo-950/80` CTA
+ *  panels further down those pages.
+ *
+ *  The stops are therefore remapped to the light surface ramp, keyed on the
+ *  class rather than the variable for the reason given in the slate note. The
+ *  950 end becomes near-white and the 900 end one step deeper, each keeping a
+ *  trace of its own hue so the banner still reads as a designed wash and not
+ *  as a blank strip. The alpha variants are caught by the same substring
+ *  match: those compile to a literal color-mix() rather than a variable, so
+ *  overriding the property outright is the only thing that reaches them.
+ *
+ *  Scrims are excluded exactly as before - a positioned
+ *  `from-slate-950/80 via-transparent to-transparent` fade over a photograph
+ *  is doing its job in both themes.
+ *
+ *  Zinc is deliberately absent: its stops already follow --color-zinc-* and
+ *  invert on their own. Adding rules here would fight the variable block.
+ * ------------------------------------------------------------------------- */
+@layer utilities {
+  :root[data-theme="light"] [class*="from-slate-950"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-from: #FFFFFF; }
+  :root[data-theme="light"] [class*="via-slate-950"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-via: #FFFFFF; }
+  :root[data-theme="light"] [class*="to-slate-950"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-to: #FFFFFF; }
+
+  :root[data-theme="light"] [class*="from-slate-900"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-from: #F6F5FA; }
+  :root[data-theme="light"] [class*="via-slate-900"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-via: #F6F5FA; }
+  :root[data-theme="light"] [class*="to-slate-900"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-to: #F6F5FA; }
+
+  :root[data-theme="light"] [class*="from-purple-950"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-from: #F7F2FC; }
+  :root[data-theme="light"] [class*="via-purple-950"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-via: #F7F2FC; }
+  :root[data-theme="light"] [class*="to-purple-950"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-to: #F7F2FC; }
+
+  :root[data-theme="light"] [class*="from-purple-900"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-from: #F1E9FA; }
+  :root[data-theme="light"] [class*="via-purple-900"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-via: #F1E9FA; }
+  :root[data-theme="light"] [class*="to-purple-900"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-to: #F1E9FA; }
+
+  :root[data-theme="light"] [class*="from-indigo-950"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-from: #F2F3FC; }
+  :root[data-theme="light"] [class*="via-indigo-950"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-via: #F2F3FC; }
+  :root[data-theme="light"] [class*="to-indigo-950"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-to: #F2F3FC; }
+
+  :root[data-theme="light"] [class*="from-indigo-900"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-from: #EBEDFA; }
+  :root[data-theme="light"] [class*="via-indigo-900"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-via: #EBEDFA; }
+  :root[data-theme="light"] [class*="to-indigo-900"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-to: #EBEDFA; }
+
+  :root[data-theme="light"] [class*="from-violet-950"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-from: #F5F2FC; }
+  :root[data-theme="light"] [class*="via-violet-950"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-via: #F5F2FC; }
+  :root[data-theme="light"] [class*="to-violet-950"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-to: #F5F2FC; }
+
+  :root[data-theme="light"] [class*="from-fuchsia-950"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-from: #FDF2FA; }
+  :root[data-theme="light"] [class*="via-fuchsia-950"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-via: #FDF2FA; }
+  :root[data-theme="light"] [class*="to-fuchsia-950"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { --tw-gradient-to: #FDF2FA; }
+}
+
+
+/* -------------------------------------------------------------------------
+ *  THE ACCENT TONES
+ *
+ *  Everything above fixes the GROUND. This fixes what is written on it.
+ *
+ *  The accents in this codebase are drawn for a near-black page: a chip is
+ *  `bg-fuchsia-500/20 text-fuchsia-300`, a success panel is `bg-emerald-950/40
+ *  text-emerald-200`, a validation message is `text-rose-400`. Once the page
+ *  inverts, the light end of those ramps is pale ink on a pale ground -
+ *  `text-rose-400` on the form card measured 2.6:1, well under the 4.5:1 that
+ *  body text needs - while the 950/900 status panels stayed near-black with
+ *  their own light text now turned dark on them.
+ *
+ *  Both halves move together, so a panel and the text in it stay a pair:
+ *
+ *    text 200 / 300 / 400   darkened toward black, keeping the hue
+ *    text 500               darkened less - it starts closer already, and
+ *                           `text-red-500` is the standard error colour, so
+ *                           it has to stay recognisably red at 4.5:1
+ *    bg   950 / 900         a few per cent of the hue over white
+ *
+ *  color-mix() against the utility's OWN variable rather than a hand-picked
+ *  hex, so a themed site that redefines a ramp is followed rather than
+ *  overridden, and so the value can never reference a variable Tailwind did
+ *  not emit.
+ *
+ *  Selected with [class~=] - a whole-token match - rather than the substring
+ *  match used for the grounds above, because the accents DO appear behind
+ *  variants (`hover:text-red-400`, `group-hover:text-fuchsia-300`,
+ *  `file:text-fuchsia-200`). A substring match would paint those at rest.
+ *  The tokens are therefore enumerated from the ones actually in the source;
+ *  a new one needs a line here.
+ *
+ *  indigo and purple backgrounds are absent on purpose: the block above
+ *  already maps them, and two rules for one utility is how a ground ends up
+ *  depending on source order.
+ * ------------------------------------------------------------------------- */
+@layer utilities {
+  :root[data-theme="light"] [class~="text-amber-500"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-amber-500), black 30%); }
+  :root[data-theme="light"] [class~="text-emerald-500"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-emerald-500), black 30%); }
+  :root[data-theme="light"] [class~="text-emerald-500/60"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-emerald-500), black 30%); }
+  :root[data-theme="light"] [class~="text-emerald-500/80"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-emerald-500), black 30%); }
+  :root[data-theme="light"] [class~="text-fuchsia-500"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-fuchsia-500), black 30%); }
+  :root[data-theme="light"] [class~="text-pink-500"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-pink-500), black 30%); }
+  :root[data-theme="light"] [class~="text-red-500"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-red-500), black 30%); }
+  :root[data-theme="light"] [class~="text-rose-500"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-rose-500), black 30%); }
+  :root[data-theme="light"] [class~="text-sky-500"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-sky-500), black 30%); }
+  :root[data-theme="light"] [class~="text-yellow-500/80"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-yellow-500), black 30%); }
+
+  :root[data-theme="light"] [class~="text-amber-200"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-amber-200), black 55%); }
+  :root[data-theme="light"] [class~="text-amber-200/70"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-amber-200), black 55%); }
+  :root[data-theme="light"] [class~="text-amber-200/80"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-amber-200), black 55%); }
+  :root[data-theme="light"] [class~="text-amber-200/90"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-amber-200), black 55%); }
+  :root[data-theme="light"] [class~="text-amber-300"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-amber-300), black 48%); }
+  :root[data-theme="light"] [class~="text-amber-300/70"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-amber-300), black 48%); }
+  :root[data-theme="light"] [class~="text-amber-300/90"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-amber-300), black 48%); }
+  :root[data-theme="light"] [class~="text-amber-400"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-amber-400), black 38%); }
+  :root[data-theme="light"] [class~="text-amber-400/80"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-amber-400), black 38%); }
+  :root[data-theme="light"] [class~="text-blue-200"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-blue-200), black 55%); }
+  :root[data-theme="light"] [class~="text-blue-300"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-blue-300), black 48%); }
+  :root[data-theme="light"] [class~="text-blue-300/70"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-blue-300), black 48%); }
+  :root[data-theme="light"] [class~="text-blue-400"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-blue-400), black 38%); }
+  :root[data-theme="light"] [class~="text-cyan-400"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-cyan-400), black 38%); }
+  :root[data-theme="light"] [class~="text-emerald-200"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-emerald-200), black 55%); }
+  :root[data-theme="light"] [class~="text-emerald-300"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-emerald-300), black 48%); }
+  :root[data-theme="light"] [class~="text-emerald-300/70"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-emerald-300), black 48%); }
+  :root[data-theme="light"] [class~="text-emerald-300/90"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-emerald-300), black 48%); }
+  :root[data-theme="light"] [class~="text-emerald-400"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-emerald-400), black 38%); }
+  :root[data-theme="light"] [class~="text-fuchsia-200"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-fuchsia-200), black 55%); }
+  :root[data-theme="light"] [class~="text-fuchsia-300"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-fuchsia-300), black 48%); }
+  :root[data-theme="light"] [class~="text-fuchsia-400"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-fuchsia-400), black 38%); }
+  :root[data-theme="light"] [class~="text-green-400"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-green-400), black 38%); }
+  :root[data-theme="light"] [class~="text-indigo-300"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-indigo-300), black 48%); }
+  :root[data-theme="light"] [class~="text-indigo-400"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-indigo-400), black 38%); }
+  :root[data-theme="light"] [class~="text-orange-200"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-orange-200), black 55%); }
+  :root[data-theme="light"] [class~="text-orange-300"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-orange-300), black 48%); }
+  :root[data-theme="light"] [class~="text-orange-300/90"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-orange-300), black 48%); }
+  :root[data-theme="light"] [class~="text-orange-400"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-orange-400), black 38%); }
+  :root[data-theme="light"] [class~="text-pink-200"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-pink-200), black 55%); }
+  :root[data-theme="light"] [class~="text-pink-300"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-pink-300), black 48%); }
+  :root[data-theme="light"] [class~="text-pink-400"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-pink-400), black 38%); }
+  :root[data-theme="light"] [class~="text-purple-200"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-purple-200), black 55%); }
+  :root[data-theme="light"] [class~="text-purple-300"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-purple-300), black 48%); }
+  :root[data-theme="light"] [class~="text-purple-300/70"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-purple-300), black 48%); }
+  :root[data-theme="light"] [class~="text-purple-400"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-purple-400), black 38%); }
+  :root[data-theme="light"] [class~="text-purple-400/70"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-purple-400), black 38%); }
+  :root[data-theme="light"] [class~="text-purple-400/80"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-purple-400), black 38%); }
+  :root[data-theme="light"] [class~="text-red-200"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-red-200), black 55%); }
+  :root[data-theme="light"] [class~="text-red-200/90"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-red-200), black 55%); }
+  :root[data-theme="light"] [class~="text-red-300"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-red-300), black 48%); }
+  :root[data-theme="light"] [class~="text-red-400"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-red-400), black 38%); }
+  :root[data-theme="light"] [class~="text-rose-200"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-rose-200), black 55%); }
+  :root[data-theme="light"] [class~="text-rose-300"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-rose-300), black 48%); }
+  :root[data-theme="light"] [class~="text-rose-400"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-rose-400), black 38%); }
+  :root[data-theme="light"] [class~="text-sky-300"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-sky-300), black 48%); }
+  :root[data-theme="light"] [class~="text-sky-300/80"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-sky-300), black 48%); }
+  :root[data-theme="light"] [class~="text-sky-400"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-sky-400), black 38%); }
+  :root[data-theme="light"] [class~="text-teal-400"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-teal-400), black 38%); }
+  :root[data-theme="light"] [class~="text-violet-200"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-violet-200), black 55%); }
+  :root[data-theme="light"] [class~="text-violet-300"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-violet-300), black 48%); }
+  :root[data-theme="light"] [class~="text-yellow-300"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-yellow-300), black 48%); }
+  :root[data-theme="light"] [class~="text-yellow-400"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-yellow-400), black 38%); }
+
+  :root[data-theme="light"] [class~="bg-amber-900/20"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-amber-900) 12%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-amber-950/20"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-amber-950) 7%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-amber-950/25"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-amber-950) 7%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-amber-950/50"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-amber-950) 7%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-blue-900/20"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-blue-900) 12%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-cyan-950/25"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-cyan-950) 7%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-emerald-900/20"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-emerald-900) 12%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-emerald-950/20"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-emerald-950) 7%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-emerald-950/25"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-emerald-950) 7%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-emerald-950/40"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-emerald-950) 7%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-emerald-950/80"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-emerald-950) 7%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-fuchsia-950"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-fuchsia-950) 7%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-fuchsia-950/30"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-fuchsia-950) 7%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-fuchsia-950/40"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-fuchsia-950) 7%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-pink-950/25"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-pink-950) 7%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-red-950/20"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-red-950) 7%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-red-950/25"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-red-950) 7%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-rose-900/20"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-rose-900) 12%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-rose-950/20"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-rose-950) 7%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-rose-950/40"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-rose-950) 7%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-rose-950/80"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-rose-950) 7%, #FFFFFF); }
+  :root[data-theme="light"] [class~="bg-sky-950/25"]:not(.fixed):not(.absolute):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { background-color: color-mix(in oklab, var(--color-sky-950) 7%, #FFFFFF); }
+}
+
+
+/* -------------------------------------------------------------------------
+ *  THE SAME TONES, ON HOVER
+ *
+ *  The block above matches whole tokens on purpose, so `hover:text-red-400`
+ *  and `group-hover:text-fuchsia-300` are left out of it - otherwise they
+ *  would paint at rest. They still need the same treatment for the moment
+ *  they DO fire: a card heading that turns `fuchsia-300` on hover goes pale
+ *  pink on a pale card, so the label vanishes under the cursor.
+ *
+ *  Same darkening, applied in the state the variant describes.
+ * ------------------------------------------------------------------------- */
+@layer utilities {
+  :root[data-theme="light"] .group:hover [class~="group-hover:text-fuchsia-200"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-fuchsia-200), black 55%); }
+  :root[data-theme="light"] .group:hover [class~="group-hover:text-fuchsia-300"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-fuchsia-300), black 48%); }
+  :root[data-theme="light"] .group:hover [class~="group-hover:text-indigo-400"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-indigo-400), black 38%); }
+  :root[data-theme="light"] .group:hover [class~="group-hover:text-pink-300"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-pink-300), black 48%); }
+  :root[data-theme="light"] .group:hover [class~="group-hover:text-violet-300"]:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-violet-300), black 48%); }
+  :root[data-theme="light"] [class~="hover:text-amber-200"]:hover:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-amber-200), black 55%); }
+  :root[data-theme="light"] [class~="hover:text-amber-300"]:hover:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-amber-300), black 48%); }
+  :root[data-theme="light"] [class~="hover:text-emerald-300"]:hover:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-emerald-300), black 48%); }
+  :root[data-theme="light"] [class~="hover:text-indigo-400"]:hover:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-indigo-400), black 38%); }
+  :root[data-theme="light"] [class~="hover:text-pink-200"]:hover:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-pink-200), black 55%); }
+  :root[data-theme="light"] [class~="hover:text-pink-300"]:hover:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-pink-300), black 48%); }
+  :root[data-theme="light"] [class~="hover:text-pink-400"]:hover:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-pink-400), black 38%); }
+  :root[data-theme="light"] [class~="hover:text-red-300"]:hover:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-red-300), black 48%); }
+  :root[data-theme="light"] [class~="hover:text-red-400"]:hover:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-red-400), black 38%); }
+  :root[data-theme="light"] [class~="hover:text-rose-300"]:hover:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-rose-300), black 48%); }
+  :root[data-theme="light"] [class~="hover:text-rose-400"]:hover:not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) { color: color-mix(in oklab, var(--color-rose-400), black 38%); }
+}
+
+/* -------------------------------------------------------------------------
+ *  GRADIENT TEXT, WHICH DOES NOT SURVIVE THE FLIP
+ *
+ *  Eleven headings paint a gradient and clip it to the glyphs:
+ *
+ *    text-transparent bg-clip-text bg-gradient-to-r
+ *    from-white via-fuchsia-100 to-pink-200
+ *
+ *  Every one of those stops was chosen against a near-black page. In light
+ *  mode `from-white` resolves to ink (see the note above - "white" means ink
+ *  here), so the heading STARTS dark and then fades into fuchsia-100 and
+ *  pink-200, which are all but white on a white page. "Why You Should Join
+ *  Event" read as two dark words followed by nothing.
+ *
+ *  Darkening the stops individually would only trade one invisible gradient
+ *  for a muddy one, and a gradient is not what these headings are for - the
+ *  colour is the accent, the sweep is decoration that only works over a dark
+ *  ground. So in light mode the fill is dropped and the glyphs take the one
+ *  colour this file already keeps for accent text on a light page,
+ *  --color-accent-text: brand pink deepened 72% toward black, ~7:1 on the
+ *  page. The accent survives, the heading is readable, and it matches every
+ *  other accent on the page instead of inventing a tone of its own.
+ *
+ *  `-webkit-text-fill-color` as well as `color`, because that is the property
+ *  `text-transparent` is actually fighting on a clipped element in WebKit.
+ *
+ *  .brand-gradient-text and .sophisticated-gradient-text are excluded. They
+ *  are the brand wordmark treatment, used 42 times, and both already read on
+ *  a light page - the first runs pink-400 -> brand-pink -> purple-500, the
+ *  second starts at ink and ends in the same place. They also set their
+ *  transparency with !important, so clearing the fill here without clearing
+ *  that would leave transparent glyphs over nothing at all.
+ * ------------------------------------------------------------------------- */
+:root[data-theme="light"] [class*="bg-clip-text"]:not(.brand-gradient-text):not(.sophisticated-gradient-text):not([data-theme-scope="dark"]):not([data-theme-scope="dark"] *) {
+  background-image: none;
+  color: var(--color-accent-text);
+  -webkit-text-fill-color: var(--color-accent-text);
 }
 
 /* -------------------------------------------------------------------------

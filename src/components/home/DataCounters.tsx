@@ -271,13 +271,31 @@ export function DataCounters(props: Props) {
             box-shadow 0.4s ease;
         }
 
+        /*
+         * HOVER, IN BOTH THEMES.
+         *
+         * Every value here used to be a literal taken from the dark palette, which made the hover
+         * state unreadable in light mode: the card turned near-black while the number and the
+         * label stayed ink-coloured, so hovering a tile blanked it.
+         *
+         * rgba(20, 21, 48, 0.95) was the --c-surf-1 dark value spelled out by hand — one surface
+         * step up from the card's resting --c-bg-2. Naming the token keeps that intent and
+         * inverts correctly, because light mode defines --c-surf-1 as #F1EFF8.
+         *
+         * The border was literal white, invisible on a light card, and is now derived from the
+         * text colour so it is a light hairline on dark and a dark one on light.
+         *
+         * The glow was literal violet and magenta, so it stayed Digital Age Expo's colours on
+         * every site. Through the brand tokens it follows whatever a site's theme sets — see
+         * themeCss() in services/siteTheme.ts.
+         */
         .counter-card:hover {
           transform: translateY(-8px);
-          border-color: rgba(255, 255, 255, 0.18);
-          background-color: rgba(20, 21, 48, 0.95);
+          border-color: color-mix(in srgb, var(--c-text) 22%, transparent);
+          background-color: var(--c-surf-1);
           box-shadow:
-            0 20px 50px -20px rgba(108, 43, 255, 0.45),
-            0 0 30px rgba(240, 32, 168, 0.08);
+            0 20px 50px -20px rgb(var(--color-brand-purple-rgb) / 0.45),
+            0 0 30px rgb(var(--color-brand-pink-rgb) / 0.08);
         }
 
         .animate-counter-orb-left {
@@ -290,10 +308,13 @@ export function DataCounters(props: Props) {
 
         .counter-grid {
           background-image:
-            linear-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px),
+            linear-gradient(
+              color-mix(in srgb, var(--c-text) 80%, transparent) 1px,
+              transparent 1px
+            ),
             linear-gradient(
               90deg,
-              rgba(255, 255, 255, 0.8) 1px,
+              color-mix(in srgb, var(--c-text) 80%, transparent) 1px,
               transparent 1px
             );
           background-size: 70px 70px;

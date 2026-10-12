@@ -74,18 +74,33 @@ export default async function WhyExhibitPage() {
 
   return (
     <div className="bg-slate-950 text-white min-h-screen pb-20">
-      {/* Header */}
+      {/*
+        The banner is a bright photograph, and this hero used to sit straight on top of it with
+        nothing in between: no scrim, no ground, just `text-white` over whatever the image
+        happened to be doing underneath. That was already thin in dark mode, and in light mode
+        "white" means ink (see globals.css), so the heading, the eyebrow and the intro all turned
+        dark and vanished into the pink.
+
+        It now gets the same treatment every other hero on the site already had - the scrim
+        gradient over the photo, and `data-theme-scope="dark"` so the subtree keeps the dark
+        palette and its copy stays white in both themes. Same image, same copy; it is only the
+        layer between them that was missing. The drop shadows are the sibling heroes' too, for
+        the parts of the photo the scrim leaves brightest.
+      */}
       <section
-        className="relative overflow-hidden bg-cover bg-center bg-no-repeat px-6 py-20 sm:py-28 text-center"
+        data-theme-scope="dark"
+        className="relative overflow-hidden bg-slate-950 bg-cover bg-center bg-no-repeat px-6 py-20 sm:py-28 text-center"
         style={{
-          backgroundImage: ` url('${staticAssetUrl("https://digitalageexpo.com/files/listing_pages/818073-dae_index_top_banner.jpg")}')`,
+          backgroundImage: `linear-gradient(to bottom, rgb(var(--color-slate-900-rgb) / 0.88), rgb(var(--color-violet-900-rgb) / 0.85), rgb(var(--color-slate-900-rgb) / 0.95)), url('${staticAssetUrl("https://digitalageexpo.com/files/listing_pages/818073-dae_index_top_banner.jpg")}')`,
         }}
       >
+        <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 h-96 w-96 rounded-full bg-fuchsia-600/30 blur-3xl" />
+
         <div data-reveal className="relative z-10 max-w-4xl mx-auto">
           <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-fuchsia-400">
             <Brand />
           </p>
-          <h1 className="mt-2 text-3xl sm:text-6xl font-black uppercase tracking-tight text-white">
+          <h1 className="mt-2 text-3xl sm:text-6xl font-black uppercase tracking-tight text-white drop-shadow-md">
             {hero?.section_title ? (
               heroTitle
             ) : (
@@ -99,7 +114,7 @@ export default async function WhyExhibitPage() {
               {heroSubtitle}
             </p>
           )}
-          <p className="mt-4 text-base sm:text-lg text-slate-200 max-w-2xl mx-auto font-medium leading-relaxed whitespace-pre-line">
+          <p className="mt-4 text-base sm:text-lg text-slate-200 max-w-2xl mx-auto font-medium leading-relaxed whitespace-pre-line drop-shadow-sm">
             {heroBody}
           </p>
         </div>

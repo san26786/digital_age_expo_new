@@ -94,7 +94,23 @@ interface Tab {
   icon: LucideIcon;
   colorClass: string;
   items: SubItem[];
+  /**
+   * Which member roles may SEE this tab. Omitted means everyone signed in.
+   *
+   * Same shape as ACTION_MENUS in user_event_summary/page.tsx, which has always filtered its
+   * lower menu this way — this row of tabs simply never did, so a visitor was shown Setup Event,
+   * Manage Events, Site Settings and the rest. Most of the pages behind them redirect a
+   * non-organiser away, so this is mainly a leak of what EXISTS rather than of data; it still
+   * reads as a broken dashboard, and a few of those pages carry no guard of their own.
+   */
+  roles?: readonly EventMemberRole[];
 }
+
+/** The roles getEventMemberContext can return — see src/lib/services/eventAccess.ts. */
+export type EventMemberRole = "organiser" | "exhibitor" | "speaker" | "sponsor" | "visitor";
+
+/** Tabs that administer the EVENT itself, as opposed to a member's own booth or profile. */
+const ORGANISER_ONLY = ["organiser"] as const;
 
 /** ---------- Constants ---------- */
 
@@ -116,11 +132,17 @@ function buildTabs(
   eventId: number | string,
   eventSlug?: string | null,
   canAccessHub = false,
-  canManageSites = false
+  canManageSites = false,
+  /*
+   * Defaults to the LEAST privileged role, so a caller that forgets to pass it hides the
+   * organiser tabs rather than revealing them — the same safe direction canAccessHub already
+   * takes.
+   */
+  viewerRole: EventMemberRole = "visitor"
 ): Tab[] {
   const q = `event_id=${eventId}`;
 
-  return [
+  const all: Tab[] = [
     // ---------------------------------------------------------
     // ACCOUNT ONBOARDING
     // ---------------------------------------------------------
@@ -170,6 +192,7 @@ function buildTabs(
     {
       code: "LGTMM",
       label: "Setup Event",
+      roles: ORGANISER_ONLY,
       icon: Settings,
       colorClass: "bg-[var(--color-brand-pink)] hover:bg-black",
       items: [
@@ -249,6 +272,7 @@ function buildTabs(
     {
       code: "LGTCL",
       label: "Configure Virtual Event",
+      roles: ORGANISER_ONLY,
       icon: Wrench,
       colorClass: "bg-[var(--color-brand-purple)] hover:bg-black",
       items: [
@@ -331,6 +355,7 @@ function buildTabs(
     {
       code: "LGTME",
       label: "Manage Events",
+      roles: ORGANISER_ONLY,
       icon: ListChecks,
       colorClass: "bg-[var(--color-brand-pink)] hover:bg-black",
       items: [
@@ -545,6 +570,7 @@ function buildTabs(
     {
       code: "LGTBUY",
       label: "Manage Event Orders",
+      roles: ORGANISER_ONLY,
       icon: ShoppingCart,
       colorClass: "bg-[var(--color-brand-purple)] hover:bg-[var(--color-brand-pink)]",
       items: [
@@ -617,6 +643,7 @@ function buildTabs(
     {
       code: "LTGDO",
       label: "Download Orders",
+      roles: ORGANISER_ONLY,
       icon: ArrowDownCircle,
       colorClass: "bg-[var(--color-brand-pink)] hover:bg-black",
       items: [
@@ -672,6 +699,7 @@ function buildTabs(
           {
             code: "LGTSITECFG",
             label: "Site Settings",
+      roles: ORGANISER_ONLY,
             icon: SlidersHorizontal,
             colorClass: "bg-[var(--color-brand-purple)] hover:bg-black",
             items: [
@@ -704,6 +732,7 @@ function buildTabs(
           {
             code: "LGTEMAIL",
             label: "Email Templates",
+      roles: ORGANISER_ONLY,
             icon: Mail,
             colorClass: "bg-[#7C3AED] hover:bg-black",
             items: [
@@ -731,6 +760,7 @@ function buildTabs(
           {
             code: "LGTSENDQ",
             label: "Send Queue",
+      roles: ORGANISER_ONLY,
             icon: Send,
             colorClass: "bg-[#0F766E] hover:bg-black",
             items: [
@@ -749,6 +779,7 @@ function buildTabs(
           {
             code: "LGTHUB",
             label: "Hub Sites",
+      roles: ORGANISER_ONLY,
             icon: Globe2,
             colorClass: "bg-[#0F766E] hover:bg-black",
             items: [
@@ -767,6 +798,13 @@ function buildTabs(
         ]
       : []),
   ];
+
+  /*
+   * One filter at the end rather than a condition on each tab, so a tab added later is visible
+   * to everyone until somebody marks it — the failure mode is a tab that should have been
+   * restricted showing up in review, not a tab silently disappearing for the people who need it.
+   */
+  return all.filter((tab) => !tab.roles || tab.roles.includes(viewerRole));
 }
 
 /** Get pathname without query parameters */
@@ -811,6 +849,15 @@ interface EventAdminNavbarProps {
   canManageSites?: boolean;
 
   /**
+   * The signed-in member's role for THIS event.
+   *
+   * Decided on the server by getEventMemberContext, like canAccessHub above — a client component
+   * could only re-derive it from data already in the browser, which is not a decision worth
+   * taking there. Defaults to "visitor" so a caller that forgets hides the organiser tabs.
+   */
+  viewerRole?: EventMemberRole;
+
+  /**
    * Optional tab to open initially.
    */
   defaultTab?: string;
@@ -828,10 +875,11 @@ export default function EventAdminNavbar({
   eventSlug,
   canAccessHub = false,
   canManageSites = false,
+  viewerRole = "visitor",
   defaultTab,
   onOpenModal,
 }: EventAdminNavbarProps) {
-  const tabs = buildTabs(eventId, eventSlug, canAccessHub, canManageSites);
+  const tabs = buildTabs(eventId, eventSlug, canAccessHub, canManageSites, viewerRole);
   const pathname = usePathname();
 
   /**

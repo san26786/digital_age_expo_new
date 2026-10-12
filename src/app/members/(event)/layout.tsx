@@ -20,8 +20,16 @@ export default async function MembersEventLayout({ children }: { children: React
   const domain = await getDomain();
   const eventId = domain?.event_id ?? DEFAULT_EVENT_ID;
 
+  /*
+   * The fallback is "visitor", not "organiser".
+   *
+   * It used to default to organiser, so anyone this lookup could not place — no membership row
+   * for this event at all — was treated as the person who runs it. That is a fail-OPEN default
+   * on an authorisation decision: the one case where you know least about someone granted them
+   * the most. The least-privileged role is the only safe answer to "I don't know who this is".
+   */
   const context = (await getEventMemberContext(eventId, userId)) ?? {
-    role: "organiser",
+    role: "visitor" as const,
     eventId,
     userId,
   };
@@ -66,6 +74,7 @@ export default async function MembersEventLayout({ children }: { children: React
           eventSlug={event?.friendly_url}
           canAccessHub={hubAccess.ok}
           canManageSites={sitesAccess.ok}
+          viewerRole={context.role}
         />
       </div>
 
