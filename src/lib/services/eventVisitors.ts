@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getRoleEmailTemplates } from "@/lib/email/roleTemplates";
 import type { EventMemberContext } from "@/lib/services/eventAccess";
 import {
   eventVisitorSchema,
@@ -535,24 +536,19 @@ export interface VisitorEmailTemplateOption {
  * matches nothing (which is what happens where process_name was never populated) every enabled
  * template is offered instead, because an empty dropdown reads as broken.
  */
+/**
+ * Feeds the visitor send-mail dropdown.
+ *
+ * The list itself is built in lib/email/roleTemplates.ts, shared by all four roles. It used
+ * to be assembled here, matching process_name only and falling back to EVERY enabled row in
+ * the shared platform table when that match came back empty - see the note in that file for
+ * why both of those were wrong. The exported shape is unchanged.
+ */
 export async function getVisitorEmailTemplates(): Promise<VisitorEmailTemplateOption[]> {
-  const select = { id: true, type: true, action_btn_name: true } as const;
-  const orderBy = [{ priority_order: "asc" as const }, { id: "asc" as const }];
-
-  const scoped = await prisma.find_email_templates.findMany({
-    where: { disable: 0, process_name: { contains: "isitor" } },
-    orderBy,
-    select,
-  });
-
-  const rows = scoped.length > 0
-    ? scoped
-    : await prisma.find_email_templates.findMany({ where: { disable: 0 }, orderBy, select });
-
-  return rows.map((r: any) => ({
-    id: r.id,
-    // action_btn_name is the label the CP sets; `type` is the internal key and always present.
-    label: (r.action_btn_name || r.type || r.id) as string,
+  const options = await getRoleEmailTemplates("visitor");
+  return options.map((option) => ({
+    id: option.id,
+    label: option.label,
   }));
 }
 

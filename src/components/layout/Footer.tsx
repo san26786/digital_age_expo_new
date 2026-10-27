@@ -59,9 +59,7 @@ export async function Footer() {
 
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute -left-40 top-0 h-[420px] w-[420px] rounded-full bg-purple-700/10 blur-[140px]" />
-
         <div className="absolute -right-40 bottom-0 h-[420px] w-[420px] rounded-full bg-fuchsia-600/10 blur-[140px]" />
-
         <div
           className="absolute inset-0 opacity-[0.025]"
           style={{
@@ -74,20 +72,16 @@ export async function Footer() {
 
       {/* TOP GRADIENT */}
       <div className="relative h-[2px] w-full bg-gradient-to-r from-purple-700 via-fuchsia-500 to-pink-600" />
-
       {/* =========================================================
           MAIN FOOTER
       ========================================================== */}
-
       <div className="relative z-10 mx-auto max-w-7xl px-5 py-16 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-[1.25fr_1fr_1fr]">
           {/* =====================================================
               BRAND
           ====================================================== */}
-
           <div>
             {/* LOGO */}
-
             <Link
               href="/"
               className="group inline-flex items-center"
@@ -112,7 +106,6 @@ export async function Footer() {
                 className="h-auto max-h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-[1.03] sm:max-h-20"
               />
             </Link>
-
             {/* DESCRIPTION */}
 
             <p className="mt-6 max-w-md text-sm leading-7 text-zinc-400">
@@ -299,7 +292,7 @@ export async function Footer() {
                 size={16}
                 className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
               />
-            </Link>
+            </Link>                                                
           </div>
         </div>
       </div>
@@ -336,3 +329,4 @@ export async function Footer() {
     </footer>
   );
 }
+

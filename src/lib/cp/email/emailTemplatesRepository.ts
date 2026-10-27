@@ -457,6 +457,113 @@ const DEFAULT_TEMPLATE_CONTENT: Partial<
       "</div>",
   },
 
+  /*
+   * The one notification that goes to the organiser rather than to a member.
+   *
+   * Written out here rather than left blank because /api/contact now sends it: a seeded-but-empty
+   * row would have meant the enquiry notification was a real email with no subject and no body.
+   * The recipient is NOT set here - it comes from the row's own `recipients` column, which is
+   * what that legacy column is for, with the site's configured from-address as the fallback.
+   */
+  contact_request: {
+    subject: "New enquiry from {{name}} - {{site_name}}",
+    body_html:
+      `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: ${EMAIL_INK};">` +
+      `<div style="background: ${EMAIL_ACCENT}; padding: 24px; text-align: center;">` +
+      `<h1 style="color: ${EMAIL_WHITE}; margin: 0; font-size: 22px;">New enquiry</h1>` +
+      "</div>" +
+      `<div style="padding: 24px; background: ${EMAIL_WHITE};">` +
+      "<p>Somebody has sent an enquiry through the {{site_name}} contact form.</p>" +
+      '<table style="width: 100%; border-collapse: collapse; margin: 16px 0;">' +
+      `<tr><td style="padding: 8px 0; color: ${EMAIL_MUTED_TEXT};">Name</td><td style="padding: 8px 0; font-weight: bold;">{{name}}</td></tr>` +
+      `<tr><td style="padding: 8px 0; color: ${EMAIL_MUTED_TEXT};">Email</td><td style="padding: 8px 0; font-weight: bold;">{{email}}</td></tr>` +
+      `<tr><td style="padding: 8px 0; color: ${EMAIL_MUTED_TEXT};">Phone</td><td style="padding: 8px 0; font-weight: bold;">{{contact}}</td></tr>` +
+      `<tr><td style="padding: 8px 0; color: ${EMAIL_MUTED_TEXT};">Reference</td><td style="padding: 8px 0; font-weight: bold;">{{enquiry_id}}</td></tr>` +
+      "</table>" +
+      `<p style="color: ${EMAIL_MUTED_TEXT}; margin-bottom: 4px;">Message</p>` +
+      `<div style="white-space: pre-wrap; border-left: 3px solid ${EMAIL_ACCENT}; padding: 8px 0 8px 12px;">{{message}}</div>` +
+      `<p style="color: ${EMAIL_MUTED_TEXT}; font-size: 12px; margin-top: 24px;">Reply straight to this email to answer {{name}} directly.</p>` +
+      "</div>" +
+      "</div>",
+  },
+
+  /*
+   * ---------------------------------------------------------------------------
+   *  THE THREE THAT WERE SEEDED EMPTY
+   * ---------------------------------------------------------------------------
+   *
+   *  event_invitation, event_reminder and admin_notification were in DEFAULT_TEMPLATE_IDS from
+   *  the start but had no entry here, so ensureDefaultTemplates() created them as rows with an
+   *  empty subject and an empty body. A template in that state is not "unused" in any harmless
+   *  sense: picked from a send-mail dropdown it used to deliver a real email with no subject and
+   *  no content, and report success.
+   *
+   *  Giving them copy is what makes them usable. It also repairs the existing rows without any
+   *  migration: the backfill above fills a row from here whenever its subject AND body are both
+   *  still blank, so the next run of ensureDefaultTemplates() picks these up — and it cannot
+   *  touch a template somebody has since written.
+   *
+   *  The first two are organiser-sent, from the role dropdowns, so they address the recipient by
+   *  name and carry the same variables the send-mail routes already pass. The third is the only
+   *  one that goes to the organiser rather than to a member, so it names no recipient and reads
+   *  as an internal notice.
+   */
+  event_invitation: {
+    subject: "You are invited to {{site_name}}",
+    body_html:
+      `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: ${EMAIL_INK};">` +
+      `<div style="background: ${EMAIL_ACCENT}; padding: 24px; text-align: center;">` +
+      `<h1 style="color: ${EMAIL_WHITE}; margin: 0; font-size: 22px;">You are invited</h1>` +
+      "</div>" +
+      `<div style="padding: 24px; background: ${EMAIL_WHITE};">` +
+      "<p>Hi {{first_name}},</p>" +
+      "<p>We would like to invite you to {{site_name}}. Join exhibitors, speakers and buyers " +
+      "from across the industry for a few days of meetings, sessions and new business.</p>" +
+      '<p style="text-align: center; margin: 32px 0;">' +
+      `<a href="{{site_url}}" style="background: ${EMAIL_ACCENT}; color: ${EMAIL_WHITE}; padding: 12px 28px; border-radius: 999px; text-decoration: none; font-weight: bold;">Reserve your place</a>` +
+      "</p>" +
+      "{{signature}}" +
+      `<p style="color: ${EMAIL_MUTED_TEXT}; font-size: 12px;">If this invitation was not meant for you, you can ignore it.</p>` +
+      "</div>" +
+      "</div>",
+  },
+
+  event_reminder: {
+    subject: "{{site_name}} is coming up",
+    body_html:
+      `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: ${EMAIL_INK};">` +
+      `<div style="background: ${EMAIL_ACCENT}; padding: 24px; text-align: center;">` +
+      `<h1 style="color: ${EMAIL_WHITE}; margin: 0; font-size: 22px;">It starts soon</h1>` +
+      "</div>" +
+      `<div style="padding: 24px; background: ${EMAIL_WHITE};">` +
+      "<p>Hi {{first_name}},</p>" +
+      "<p>A quick reminder that {{site_name}} is almost here. Everything you need — the " +
+      "programme, the exhibitor list and your access details — is on the site.</p>" +
+      '<p style="text-align: center; margin: 32px 0;">' +
+      `<a href="{{site_url}}" style="background: ${EMAIL_ACCENT}; color: ${EMAIL_WHITE}; padding: 12px 28px; border-radius: 999px; text-decoration: none; font-weight: bold;">Open the event</a>` +
+      "</p>" +
+      "{{signature}}" +
+      `<p style="color: ${EMAIL_MUTED_TEXT}; font-size: 12px;">You are receiving this because you registered for {{site_name}}.</p>` +
+      "</div>" +
+      "</div>",
+  },
+
+  admin_notification: {
+    subject: "{{subject}} — {{site_name}}",
+    from_name: "Digital Age Expo",
+    body_html:
+      `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: ${EMAIL_INK};">` +
+      `<div style="background: ${EMAIL_ACCENT}; padding: 24px; text-align: center;">` +
+      `<h1 style="color: ${EMAIL_WHITE}; margin: 0; font-size: 22px;">{{subject}}</h1>` +
+      "</div>" +
+      `<div style="padding: 24px; background: ${EMAIL_WHITE};">` +
+      "<p>This is an automated notice from {{site_name}}.</p>" +
+      `<div style="white-space: pre-wrap; border-left: 3px solid ${EMAIL_ACCENT}; padding: 8px 0 8px 12px; margin: 16px 0;">{{message}}</div>` +
+      `<p style="color: ${EMAIL_MUTED_TEXT}; font-size: 12px;">Sent to the address configured for this site, not to a member.</p>` +
+      "</div>" +
+      "</div>",
+  },
+
   ...APPLICATION_EMAILS,
 };
 
@@ -481,13 +588,32 @@ export async function ensureDefaultTemplates(): Promise<void> {
        * AND no body cannot send anything but an empty email, so filling it is strictly better
        * than leaving it, and nobody loses work they did.
        */
-      const blank = !(existing.subject ?? "").trim() && !(existing.body_html ?? "").trim();
-      if (content && blank) {
+      const needsSubject = !(existing.subject ?? "").trim();
+      const needsBody = !(existing.body_html ?? "").trim();
+
+      /*
+       * PER FIELD, NOT BOTH-OR-NOTHING.
+       *
+       * This used to require subject AND body to be blank before it would write anything. A row
+       * that was half-filled — a body inherited from the legacy platform, no subject ever set —
+       * failed that test forever, so the seeder could never repair it. contact_request is
+       * exactly that row: it carries legacy body text and an empty subject, which is why it
+       * still read "No subject set" after its copy was added here.
+       *
+       * That became a delivery bug the moment sendTemplatedEmail() started refusing templates
+       * with a missing subject or body ("template_empty"). The row could not be filled by the
+       * seeder and could no longer send — permanently stuck, with no screen saying why.
+       *
+       * Filling each empty field on its own repairs those rows and keeps the guarantee that
+       * mattered: a field somebody has written is never overwritten, so nobody loses work. A
+       * row with both fields already written is still skipped entirely.
+       */
+      if (content && (needsSubject || needsBody)) {
         await prisma.find_email_templates.update({
           where: { id },
           data: {
-            subject: content.subject,
-            body_html: content.body_html,
+            ...(needsSubject ? { subject: content.subject } : {}),
+            ...(needsBody ? { body_html: content.body_html } : {}),
             from_name: existing.from_name ?? content.from_name ?? null,
             updated_on: new Date(),
           },

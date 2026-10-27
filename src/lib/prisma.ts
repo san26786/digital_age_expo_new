@@ -270,12 +270,29 @@ function isDeadConnectionError(error: unknown): boolean {
   if (!err) return false;
 
   const code = typeof err.code === "string" ? err.code : "";
-  // P1017 is Prisma's own "server has closed the connection".
-  if (code === "P1017" || code === "ECONNRESET" || code === "EPIPE") return true;
+  /*
+   * P1017 is Prisma's own "server has closed the connection".
+   *
+   * P1001 is "Can't reach database server", and it belongs here for one specific reason: this
+   * deployment is on Prisma Postgres, which PARKS AN IDLE DATABASE. The first query after a
+   * quiet spell does not meet a broken server, it meets one that is still waking up, and it
+   * fails with P1001 before the wake completes. Seconds later the identical query succeeds —
+   * measured at ~3s on this instance, right after a P1001 had surfaced in the root layout.
+   *
+   * db-errors.ts has always classified P1001 as a transient outage (see UNREACHABLE_CODES and
+   * UNREACHABLE_MESSAGE there). This function, which decides what to RETRY, did not — so the
+   * two halves disagreed: the outage layer called it transient while the retry layer threw on
+   * the first attempt and never gave the server the second chance that would have worked.
+   *
+   * Retrying it is safe for the same reason the rest of this is: RETRYABLE_READ_OPERATIONS
+   * admits reads only, so no write is ever attempted twice. When the server really is down the
+   * only cost is that the same error arrives after the backoff ladder instead of immediately.
+   */
+  if (code === "P1017" || code === "P1001" || code === "ECONNRESET" || code === "EPIPE") return true;
 
   const message = typeof err.message === "string" ? err.message : "";
   if (
-    /server has closed the connection|connection terminated|connection reset|socket hang up|ECONNRESET|EPIPE/i.test(
+    /server has closed the connection|connection terminated|connection reset|socket hang up|can'?t reach database server|ECONNRESET|EPIPE/i.test(
       message
     )
   ) {

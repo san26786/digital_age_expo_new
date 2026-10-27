@@ -72,7 +72,14 @@ export function PlatformWideNotice() {
   return (
     <div className="flex items-start gap-3 rounded-2xl border border-amber-400/25 bg-amber-400/10 px-4 py-3">
       <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
-      <p className="text-xs leading-relaxed text-amber-100/90">
+      {/*
+        amber-200 rather than amber-100/90: the ground here is a pale tint in BOTH themes
+        (bg-amber-400/10), so the words have to be the dark end of the ramp on a light page.
+        amber-100 is near-white, which read fine over the dark page and vanished over the
+        light one — the warning icon beside it stayed visible, because globals.css already
+        darkens amber-300 in light mode and 100 was outside that range.
+      */}
+      <p className="text-xs leading-relaxed text-amber-200">
         <span className="font-bold">These templates are shared by every site on this platform.</span>{" "}
         The table they live in has no per-site column, so editing one here changes the mail that
         every site sends, not just this one.

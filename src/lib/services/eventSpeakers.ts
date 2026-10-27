@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import type { EventMemberContext } from "@/lib/services/eventAccess";
 import type { EventSpeakerInput, ChangeAmountInput } from "@/lib/validations/eventSpeaker";
+import { getRoleEmailTemplates } from "@/lib/email/roleTemplates";
 
 export interface SpeakerRow {
   id: number;
@@ -375,3 +376,24 @@ export async function importSpeakersFromCSV(
   return { imported };
 }
 
+export interface SpeakerEmailTemplateOption {
+  id: string;
+  label: string;
+  processName: string | null;
+}
+
+/**
+ * Feeds the speakers send-mail dropdown.
+ *
+ * Added alongside the route it serves: visitors, exhibitors and sponsors each had one of these
+ * and speakers did not, so speakers were the one role an organiser could not mail from the
+ * admin. The list itself comes from lib/email/roleTemplates.ts, shared by all four.
+ */
+export async function getSpeakerEmailTemplates(): Promise<SpeakerEmailTemplateOption[]> {
+  const options = await getRoleEmailTemplates("speaker");
+  return options.map((option) => ({
+    id: option.id,
+    label: option.label,
+    processName: option.processName,
+  }));
+}

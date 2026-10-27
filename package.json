@@ -21,6 +21,7 @@
     "db:lobby-templates": "tsx scripts/seed-lobby-templates.ts",
     "db:industries": "tsx scripts/seed-industries.ts",
     "db:engagement-report": "tsx scripts/create-engagement-report-table.ts",
+    "db:email-bounces": "tsx scripts/create-email-bounces-table.ts",
     "menu:check": "tsx scripts/check-lobby-menu.ts",
     "cp:grant-admin": "tsx scripts/grant-cp-admin.ts",
     "exhibitors:allocate": "tsx scripts/allocate-exhibitor-stands.ts",

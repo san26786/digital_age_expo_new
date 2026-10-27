@@ -23,6 +23,7 @@ export type SendTemplatedEmailResult =
       reason:
         | "template_not_found"
         | "template_disabled"
+        | "template_empty"
         | "smtp_not_configured"
         | "suppressed"
         | "send_failed";
@@ -57,6 +58,28 @@ export async function sendTemplatedEmail(
   const template = await getEmailTemplate(templateId);
   if (!template) return { sent: false, reason: "template_not_found" };
   if (template.disable) return { sent: false, reason: "template_disabled" };
+
+  /*
+   * ---------------------------------------------------------------------------
+   *  A TEMPLATE WITH NOTHING IN IT IS A MISCONFIGURATION, NOT A MESSAGE
+   * ---------------------------------------------------------------------------
+   *
+   *  ensureDefaultTemplates() seeds all ten ids, but DEFAULT_TEMPLATE_CONTENT only has copy for
+   *  five of them - user_registration and the four application confirmations. The other five
+   *  (password_reset, event_invitation, event_reminder, contact_request, admin_notification)
+   *  are created as rows with an empty subject and an empty body, waiting for somebody to write
+   *  them on the templates screen.
+   *
+   *  Until this check, sending one of those produced a real, delivered email with no subject and
+   *  no content. That is worse than not sending: the recipient gets a blank message from a brand
+   *  they trust, the caller is told { sent: true }, and nothing anywhere says the template was
+   *  never filled in. Refusing with a reason of its own means the send-mail screens can report
+   *  "that template has no content yet" instead of claiming success.
+   */
+  const hasSubject = Boolean((template.subject ?? "").trim());
+  const hasBody = Boolean((template.body_html ?? "").trim());
+  if (!hasSubject || !hasBody) return { sent: false, reason: "template_empty" };
+
   if (!(await isMailConfigured())) return { sent: false, reason: "smtp_not_configured" };
 
   /*

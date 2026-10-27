@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getDomain } from "@/lib/services/domain";
 import { contactEnquirySchema } from "@/lib/validations/contactEnquiry";
+import { sendTemplatedEmail } from "@/lib/email/sendTemplatedEmail";
+import { getEmailTemplate, ensureDefaultTemplates } from "@/lib/cp/email/emailTemplatesRepository";
+import { resolveMailTransport } from "@/lib/email/siteMailSettings";
 import fs from "fs";
 import path from "path";
 
@@ -105,7 +108,68 @@ export async function POST(request: Request) {
     backupData.push(newEntry);
     writeBackupContacts(backupData);
 
-    return NextResponse.json({ success: true, id: enquiryId });
+    /*
+     * ---------------------------------------------------------------------------
+     *  TELL SOMEBODY THE ENQUIRY ARRIVED
+     * ---------------------------------------------------------------------------
+     *
+     *  Until now this route stored the enquiry in find_user_enquiry and the JSON backup and
+     *  then stopped. Nothing emailed anyone, so an enquiry was only ever seen if an organiser
+     *  happened to open the enquiries screen - and the contact_request template that exists for
+     *  exactly this was seeded blank and never sent by anything.
+     *
+     *  Recipient order is deliberate. The template's own `recipients` column is the legacy
+     *  form's field for fixed admin-notification addresses, which is precisely this case, so it
+     *  wins; the site's configured from-address is the fallback so a site that never filled that
+     *  column still gets its enquiries. With neither, there is nobody to tell and we skip.
+     *
+     *  Wrapped and awaited but never allowed to throw: the enquiry is already saved by this
+     *  point, and a mail problem must not turn a stored enquiry into a 500 that tells the
+     *  visitor their message failed. The outcome rides along in the response for the logs
+     *  without changing the existing `success` / `id` contract.
+     */
+    let notified: string | null = null;
+    try {
+      /*
+       * Seed only if the row is actually missing, never up front. ensureDefaultTemplates() is
+       * ten findUniques plus up to ten writes, and this is a public endpoint - running it on
+       * every enquiry would put that on the critical path of a form submission for rows that
+       * are almost always already there. Same shape sendRegistrationEmail.ts uses.
+       */
+      let template = await getEmailTemplate("contact_request");
+      if (!template) {
+        await ensureDefaultTemplates();
+        template = await getEmailTemplate("contact_request");
+      }
+      const transport = await resolveMailTransport();
+      const to =
+        (template?.recipients ?? "").trim() || (transport?.fromAddress ?? "").trim();
+
+      if (!to) {
+        notified = "no_recipient_configured";
+      } else {
+        const result = await sendTemplatedEmail(
+          "contact_request",
+          {
+            first_name,
+            last_name: last_name || "",
+            name: [first_name, last_name].filter(Boolean).join(" "),
+            email,
+            contact: contact || "",
+            message,
+            enquiry_id: String(enquiryId),
+            site_name: domain.name ?? "",
+          },
+          { to },
+        );
+        notified = result.sent ? "sent" : result.reason;
+      }
+    } catch (mailError) {
+      console.error("[API Contact] Enquiry saved but notification failed:", mailError);
+      notified = "send_failed";
+    }
+
+    return NextResponse.json({ success: true, id: enquiryId, notified });
   } catch (error: any) {
     console.error("POST Error in contact API:", error);
     return NextResponse.json({ error: "Server error: " + error.message }, { status: 500 });
