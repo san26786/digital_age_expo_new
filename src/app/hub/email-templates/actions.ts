@@ -47,9 +47,9 @@ export async function updateEmailTemplateAction(id: string, formData: FormData):
    * gets read as "my change did not save" and then made twice.
    */
   revalidatePath("/hub/email-templates");
-  revalidatePath(`/hub/email-templates/${id}`);
+  revalidatePath(`/hub/email-templates/${encodeURIComponent(id)}`);
   revalidatePath("/cp/email-templates");
-  revalidatePath(`/cp/email-templates/${id}`);
+  revalidatePath(`/cp/email-templates/${encodeURIComponent(id)}`);
 }
 
 export async function duplicateEmailTemplateAction(sourceId: string, formData: FormData): Promise<void> {
@@ -62,7 +62,7 @@ export async function duplicateEmailTemplateAction(sourceId: string, formData: F
 
   revalidatePath("/hub/email-templates");
   revalidatePath("/cp/email-templates");
-  redirect(`/hub/email-templates/${newId}`);
+  redirect(`/hub/email-templates/${encodeURIComponent(newId)}`);
 }
 
 /**
@@ -101,5 +101,5 @@ export async function createEmailTemplateAction(formData: FormData): Promise<voi
 
   revalidatePath("/hub/email-templates");
   revalidatePath("/cp/email-templates");
-  redirect(`/hub/email-templates/${result.id}`);
+  redirect(`/hub/email-templates/${encodeURIComponent(result.id)}`);
 }

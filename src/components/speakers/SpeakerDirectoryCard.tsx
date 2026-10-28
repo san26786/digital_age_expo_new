@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { MessageCircle, AtSign, Camera, Video, Briefcase, CalendarClock, Link2, type LucideIcon } from "lucide-react";
+import { CalendarClock, Link2, type LucideIcon } from "lucide-react";
 import { assetUrl } from "@/lib/assets";
+import { SocialIcon, hasSocialIcon } from "@/components/common/SocialIcon";
 import { speakerSlug } from "@/lib/slug";
 import { SpeakerAvatar } from "@/components/speakers/SpeakerAvatar";
 
@@ -20,15 +21,20 @@ export interface DirectorySpeaker {
   visitorCount: number;
 }
 
-// lucide-react 1.x dropped every trademarked brand icon (Facebook/Twitter/Instagram/Youtube/
-// Linkedin all no longer exist as exports — see the "Export Facebook doesn't exist" build
-// error) — these are its closest generic stand-ins per platform, not literal brand marks.
-const SOCIAL_ICONS: Record<string, LucideIcon> = {
-  facebook: MessageCircle,
-  twitter: AtSign,
-  instagram: Camera,
-  youtube: Video,
-  linkedin: Briefcase,
+/*
+ * Real brand marks, from @/components/common/SocialIcon.
+ *
+ * lucide-react 1.x dropped every trademarked logo, so this card used to stand them in with the
+ * nearest generic glyph: a speech bubble for Facebook, an at-sign for Twitter, a camera for
+ * Instagram, a briefcase for LinkedIn. They are recognisable as *something*, which is the
+ * problem — a speech bubble beside a speaker reads as "message this person", not "Facebook",
+ * and only the tooltip said otherwise. SocialIcon draws each platform's own published path, so
+ * the icon now means what it looks like.
+ *
+ * Calendly is not in that set and should not be: it is a scheduling link rather than a social
+ * network, and a calendar glyph is the honest picture of it.
+ */
+const NON_BRAND_ICONS: Record<string, LucideIcon> = {
   calendly: CalendarClock,
 };
 const FALLBACK_SOCIAL_ICON: LucideIcon = Link2;
@@ -74,7 +80,7 @@ export function SpeakerDirectoryCard({ speaker }: { speaker: DirectorySpeaker })
       {socials.length > 0 && (
         <div className="flex justify-center gap-2 border-t border-white/5 pb-4 pt-4">
           {socials.map((social) => {
-            const Icon = SOCIAL_ICONS[social.key] ?? FALLBACK_SOCIAL_ICON;
+            const Icon = NON_BRAND_ICONS[social.key] ?? FALLBACK_SOCIAL_ICON;
             return (
               <a
                 key={social.key}
@@ -82,9 +88,18 @@ export function SpeakerDirectoryCard({ speaker }: { speaker: DirectorySpeaker })
                 target="_blank"
                 rel="noreferrer"
                 title={social.label}
+                // The link has no text, so without this a screen reader announces the bare URL.
+                // `title` alone is not reliably read out.
+                aria-label={`${speaker.name} on ${social.label}`}
                 className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-white/5 text-zinc-400 transition hover:border-brand-pink/40 hover:bg-brand-pink/10 hover:text-brand-pink"
               >
-                <Icon className="h-3.5 w-3.5" />
+                {hasSocialIcon(social.key) ? (
+                  // Solid brand marks read smaller than lucide's line icons at the same box, so
+                  // they get the extra pixels rather than sitting lost in a 32px circle.
+                  <SocialIcon platform={social.key} className="h-4 w-4" />
+                ) : (
+                  <Icon className="h-3.5 w-3.5" />
+                )}
               </a>
             );
           })}

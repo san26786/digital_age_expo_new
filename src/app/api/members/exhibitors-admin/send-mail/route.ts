@@ -3,6 +3,7 @@ import { z } from "zod";
 import { requireEventMember } from "@/lib/auth/requireEventMember";
 import { prisma } from "@/lib/prisma";
 import { sendTemplatedEmail } from "@/lib/email/sendTemplatedEmail";
+import { getBrand } from "@/lib/brand";
 
 const schema = z.object({
   ids: z.array(z.number()).min(1, "Select at least one exhibitor"),
@@ -42,6 +43,16 @@ export async function POST(request: Request) {
     select: { id: true, email: true, first_name: true, last_name: true, business: true },
   });
 
+      /*
+       * The site these are being sent from. The builder offers {{site_name}} and {{site_url}}
+       * chips, and find_email_templates is shared by every site on the platform, so a template
+       * naming its show in prose is wrong on every other site that uses it. Supplying them here
+       * is what makes the neutral spelling possible — without them the token is left in the body
+       * as literal text, which is worse than either.
+       */
+
+  const brand = await getBrand();
+
   let sent = 0;
   let failed = 0;
   let firstReason: string | null = null;
@@ -62,6 +73,8 @@ export async function POST(request: Request) {
         name: `${exhibitor.first_name ?? ""} ${exhibitor.last_name ?? ""}`.trim(),
         business: exhibitor.business ?? "",
         email: to,
+        site_name: brand.name,
+        site_url: `https://${brand.host}`,
       },
       { to },
     );

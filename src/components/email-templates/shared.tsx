@@ -312,7 +312,10 @@ function TemplateCard({ template, basePath }: { template: EmailTemplateRow; base
 
   return (
     <Link
-      href={`${basePath}/${template.id}`}
+      // Encoded, because these ids are legacy free text: several carry a typographic apostrophe
+      // and nothing stops one carrying a slash, a question mark or a percent. Interpolated raw,
+      // those either break the path or silently become part of the query string.
+      href={`${basePath}/${encodeURIComponent(template.id)}`}
       className="group flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:-translate-y-0.5 hover:border-brand-pink/40 hover:bg-white/[0.06]"
     >
       <div className="flex items-start justify-between gap-3">

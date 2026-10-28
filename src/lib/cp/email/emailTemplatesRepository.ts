@@ -168,8 +168,42 @@ export async function listTemplateOptions(): Promise<{ id: string; title: string
     .sort((a, b) => a.title.localeCompare(b.title));
 }
 
+/**
+ * The spellings of a template id worth trying, in order.
+ *
+ * Legacy ids are free text, and several carry a typographic apostrophe:
+ * `01_preshow-reach_out_to_contacts_from_last_year\u2019s_show`. That character survives a round
+ * trip through a URL only if it is percent-encoded going out and decoded coming back, and a
+ * dynamic route param does not always arrive decoded. When it does not, an exact `findUnique`
+ * misses a row that plainly exists and the editor answers 404.
+ *
+ * Rather than depend on which side did the decoding, both spellings are tried. `decodeURIComponent`
+ * throws on a lone `%`, which an id is allowed to contain, so the failure is swallowed and the raw
+ * value stands.
+ */
+function templateIdCandidates(id: string): string[] {
+  const out = [id];
+  try {
+    const decoded = decodeURIComponent(id);
+    if (decoded !== id) out.push(decoded);
+  } catch {
+    // Not valid percent-encoding — the raw value is the only candidate.
+  }
+  return out;
+}
+
+/**
+ * One template by id, tolerant of how the id was spelled in the URL.
+ *
+ * Callers should use the RETURNED row's `id` for anything that writes or links; it is the
+ * canonical value, and the one the caller passed in may not be.
+ */
 export async function getEmailTemplate(id: string) {
-  return prisma.find_email_templates.findUnique({ where: { id } });
+  for (const candidate of templateIdCandidates(id)) {
+    const row = await prisma.find_email_templates.findUnique({ where: { id: candidate } });
+    if (row) return row;
+  }
+  return null;
 }
 
 export interface EmailTemplateInput {

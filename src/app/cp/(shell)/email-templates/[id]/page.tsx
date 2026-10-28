@@ -37,8 +37,13 @@ export default async function EditEmailTemplatePage({ params }: { params: Promis
         builderMode="edit"
         basePath="/cp/email-templates"
         apiBase="/api/email-templates"
-        createAction={updateEmailTemplateAction.bind(null, id)}
-        duplicateAction={duplicateEmailTemplateAction.bind(null, id)}
+                /*
+         * Bound to the row's OWN id, not the one from the URL. The param may be a percent-encoded
+         * spelling of it, and a save addressed to that spelling would update nothing while
+         * reporting success.
+         */
+        createAction={updateEmailTemplateAction.bind(null, template.id)}
+        duplicateAction={duplicateEmailTemplateAction.bind(null, template.id)}
         startFrom={startFrom}
         site={{ name: brand.name, url: `https://${brand.host}` }}
         values={{

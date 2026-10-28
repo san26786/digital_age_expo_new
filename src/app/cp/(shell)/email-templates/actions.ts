@@ -27,7 +27,7 @@ export async function updateEmailTemplateAction(id: string, formData: FormData):
   });
 
   revalidatePath("/cp/email-templates");
-  revalidatePath(`/cp/email-templates/${id}`);
+  revalidatePath(`/cp/email-templates/${encodeURIComponent(id)}`);
 }
 
 export async function duplicateEmailTemplateAction(sourceId: string, formData: FormData): Promise<void> {
@@ -37,7 +37,7 @@ export async function duplicateEmailTemplateAction(sourceId: string, formData: F
 
   await duplicateEmailTemplate(sourceId, newId);
   revalidatePath("/cp/email-templates");
-  redirect(`/cp/email-templates/${newId}`);
+  redirect(`/cp/email-templates/${encodeURIComponent(newId)}`);
 }
 
 /**
@@ -76,5 +76,5 @@ export async function createEmailTemplateAction(formData: FormData): Promise<voi
 
   revalidatePath("/hub/email-templates");
   revalidatePath("/cp/email-templates");
-  redirect(`/cp/email-templates/${result.id}`);
+  redirect(`/cp/email-templates/${encodeURIComponent(result.id)}`);
 }
