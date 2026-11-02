@@ -20,7 +20,7 @@ export default async function ExhibitorInformationPage() {
   const domain = await getDomain();
 
   return (
-    <div className="w-full bg-slate-950 text-white min-h-screen pb-24">
+    <div data-theme-scope="dark" className="w-full bg-slate-950 text-white min-h-screen pb-24">
       {/* Hero Header */}
       <div className="relative overflow-hidden bg-gradient-to-b from-purple-950 via-slate-950 to-slate-950 px-6 py-20 text-center border-b border-white/10">
         <div className="max-w-4xl mx-auto space-y-4">

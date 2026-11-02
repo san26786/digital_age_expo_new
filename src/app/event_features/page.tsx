@@ -112,7 +112,7 @@ export default function EventFeaturesPage() {
   ];
 
   return (
-    <div className="bg-slate-950 text-white min-h-screen">
+    <div data-theme-scope="dark" className="bg-slate-950 text-white min-h-screen">
       {/* Hero Banner with Background Image */}
       <section
         className="relative overflow-hidden bg-cover bg-center bg-no-repeat px-6 py-20 sm:py-28 text-center"

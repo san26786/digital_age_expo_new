@@ -94,7 +94,7 @@ export default async function ExhibitorRegistrationPage({ searchParams }: Props)
       {/* Jump straight to the form when arriving with intent to register/book a stand
           (e.g. the "Exhibitor" nav item -> ?action=buy, or the footer -> ?action=register). */}
       <ScrollToSection targetId="exhibitor-form" when={!!action} />
-    <div className="bg-slate-950 text-white min-h-screen pb-20">
+    <div data-theme-scope="dark" className="bg-slate-950 text-white min-h-screen pb-20">
       {/* Top Banner Header */}
       <section
         className="relative overflow-hidden bg-cover bg-center bg-no-repeat px-6 py-20 sm:py-28 text-center"

@@ -96,7 +96,7 @@ export default function EventExperiencePage() {
   const currentHubData = hubMenus.find((h) => h.id === activeHub) || hubMenus[0];
 
   return (
-    <div className="w-full bg-slate-950 text-white min-h-screen">
+    <div data-theme-scope="dark" className="w-full bg-slate-950 text-white min-h-screen">
       {/* Top Hero Banner */}
       <div 
         className="relative w-full bg-cover bg-center py-24 sm:py-36 px-4"

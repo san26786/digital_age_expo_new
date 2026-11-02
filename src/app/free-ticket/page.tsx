@@ -28,7 +28,7 @@ export default async function FreeTicketPage() {
   const event = domain.event_id ? await guard(() => getEventById(domain.event_id), null) : null;
 
   return (
-    <div className="bg-slate-950 text-white min-h-screen pb-20">
+    <div data-theme-scope="dark" className="bg-slate-950 text-white min-h-screen pb-20">
       {/* Hero Header — same dark slate/fuchsia treatment as Exhibitor Registration */}
       <section className="relative overflow-hidden px-6 py-16 sm:py-20 text-center bg-gradient-to-b from-slate-900 via-violet-950/60 to-slate-950">
         <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 h-96 w-96 rounded-full bg-fuchsia-600/30 blur-3xl" />

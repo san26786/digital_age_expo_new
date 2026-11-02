@@ -23,7 +23,7 @@ interface Props {
 
 function InfoScreen({ title, message, showRegisterCta }: { title: string; message: string; showRegisterCta?: boolean }) {
   return (
-    <div className="bg-slate-950 text-white min-h-screen flex items-center justify-center px-6 py-24">
+    <div data-theme-scope="dark" className="bg-slate-950 text-white min-h-screen flex items-center justify-center px-6 py-24">
       <div className="max-w-xl text-center space-y-6">
         <h1 className="text-2xl sm:text-3xl font-black uppercase tracking-tight">{title}</h1>
         <p className="text-slate-300">{message}</p>

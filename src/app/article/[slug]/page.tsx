@@ -33,7 +33,7 @@ export default async function ArticleDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="bg-slate-950 text-white min-h-screen pb-24">
+    <div data-theme-scope="dark" className="bg-slate-950 text-white min-h-screen pb-24">
       <div className="bg-indigo-950 relative overflow-hidden py-16 px-6 border-b border-indigo-900">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgb(var(--color-brand-pink-rgb) / 0.15),transparent)] pointer-events-none" />
         <div className="container mx-auto max-w-4xl relative z-10 space-y-4">

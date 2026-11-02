@@ -37,7 +37,7 @@ export default async function ContactPage() {
   const event = domain.event_id ? await guard(() => getEventById(domain.event_id), null) : null;
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-zinc-950 text-white">
+    <div data-theme-scope="dark" className="relative min-h-screen overflow-hidden bg-zinc-950 text-white">
       {/* Ambient brand glow — same treatment as the footer, so the page reads as one surface */}
       <div className="pointer-events-none absolute inset-0 z-0">
         <div className="absolute -left-40 top-32 h-[420px] w-[420px] rounded-full bg-brand-purple/20 blur-[140px]" />

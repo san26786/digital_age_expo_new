@@ -21,7 +21,7 @@ export default async function EnterTheShowPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-6 text-center text-white">
+    <div data-theme-scope="dark" className="flex min-h-screen items-center justify-center bg-zinc-950 px-6 text-center text-white">
       <div>
         <h1 className="text-2xl font-bold">Show Not Available</h1>
         <p className="mt-3 text-zinc-400">There&apos;s no active event configured for the virtual show right now.</p>

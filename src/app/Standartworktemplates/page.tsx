@@ -47,7 +47,7 @@ export default function StandArtworkTemplatesPage() {
   ];
 
   return (
-    <div className="bg-slate-950 text-white min-h-screen">
+    <div data-theme-scope="dark" className="bg-slate-950 text-white min-h-screen">
     
 
       {/* Main Content & Description */}

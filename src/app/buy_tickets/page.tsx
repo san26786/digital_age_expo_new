@@ -30,7 +30,7 @@ export default async function BuyTicketsPage() {
   const tickets = domain.event_id ? await guard(() => getActiveEventTickets(domain.event_id), []) : [];
 
   return (
-    <div className="w-full bg-slate-950 text-white min-h-screen">
+    <div data-theme-scope="dark" className="w-full bg-slate-950 text-white min-h-screen">
       {/* Hero */}
       <section
         className="relative flex items-end"

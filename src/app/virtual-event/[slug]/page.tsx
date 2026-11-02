@@ -90,7 +90,7 @@ export default async function VirtualEventLobbyPage({
 
   if (!event) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-950 px-6 text-center text-white">
+      <div data-theme-scope="dark" className="flex min-h-screen items-center justify-center bg-zinc-950 px-6 text-center text-white">
         <div>
           <h1 className="text-2xl font-bold">Event Not Found</h1>
           <p className="mt-3 text-zinc-400">This virtual event link is no longer valid.</p>

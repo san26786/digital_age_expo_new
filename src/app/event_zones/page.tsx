@@ -32,7 +32,7 @@ export default async function EventZonesPage() {
   const accent = event?.color ? `linear-gradient(135deg, ${event.color}, var(--color-brand-pink))` : DEFAULT_ACCENT;
 
   return (
-    <div className="bg-zinc-950 min-h-screen pb-24 text-white">
+    <div data-theme-scope="dark" className="bg-zinc-950 min-h-screen pb-24 text-white">
       <div data-reveal className="main-glow-bg px-6 py-20 text-center border-b border-white/5">
         <p className="text-[10px] font-black uppercase tracking-[0.3em] text-brand-pink">Explore The Show Floor</p>
         <h1 className="mt-3 text-3xl sm:text-5xl font-black uppercase tracking-tight">
